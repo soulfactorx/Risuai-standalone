@@ -1,5 +1,4 @@
 import { BaseDirectory, readFile, readDir, writeFile } from "@tauri-apps/plugin-fs";
-import localforage from "localforage";
 import { alertError, alertNormal, alertStore, alertWait, alertMd, alertConfirm } from "../alert";
 import { LocalWriter, forageStorage, requiresFullEncoderReload } from "../globalApi.svelte";
 import { isTauri } from "src/ts/platform"
@@ -7,12 +6,16 @@ import { decodeRisuSave, encodeRisuSave } from "../storage/risuSave";
 import { saveKV } from "../storage/saveKV";
 import { getDatabase, setDatabaseLite } from "../storage/database.svelte";
 import { relaunch } from "@tauri-apps/plugin-process";
-import { decryptBuffer, encryptBuffer, sleep } from "../util";
-import { hubURL } from "../characterCards";
+import { sleep } from "../util";
 import { language } from "src/lang";
 import { collectColdStorageBackupPayloads, confirmIncompleteColdStorageOperation, getColdStorageBackupKey, getColdStorageItem, isColdStorageBackupData, isValidColdStorageItem, listColdDataKeys, listPluginStorageColdKeys, pluginStorage, setColdStorageItem } from "../process/coldstorage.svelte";
 import { getPluginStorageIndexPointer } from "../process/coldstorageData";
-import { DBState } from "../stores.svelte";
+
+/**
+ * 원본 사이트(risuai.xyz)에서 만든 백업은 Risu 서버에서 받은 암호화 키로
+ * 데이터베이스를 암호화한다. 이 버전은 Risu 서버에 접속하지 않으므로 이런 백업은 풀 수 없다.
+ */
+const SERVER_ENCRYPTED_BACKUP_MESSAGE = "원본 사이트(risuai.xyz)에서 만든 암호화된 백업은 Risu 서버 없이 풀 수 없어 불러올 수 없습니다."
 
 function getBasename(data:string){
     const baseNameRegex = /\\/g
@@ -124,31 +127,12 @@ export async function SaveLocalBackup(){
             if(!key || !key.endsWith('.png')){
                 continue
             }
-            let data: Uint8Array | undefined;
-            let isCached = false;
-            if(forageStorage.isAccount && key.startsWith('assets/')){
-                if(DBState.db.skipSavingAssetsOnWebSync){
-                    continue
-                }
-
-                const cached = await localforage.getItem(key) as ArrayBuffer;
-                if(cached) {
-                    isCached = true;
-                    data = new Uint8Array(cached);
-                }
-            }
-            
-            if (!data) {
-                data = await forageStorage.getItem(key) as unknown as Uint8Array
-            }
+            const data = await forageStorage.getItem(key) as unknown as Uint8Array | undefined
 
             if (data) {
                 await writer.writeBackup(key, data)
             } else {
                 missingAssets.push(key)
-            }
-            if(forageStorage.isAccount && !isCached){
-                await sleep(1000)
             }
         }
     }
@@ -161,15 +145,8 @@ export async function SaveLocalBackup(){
     }
 
     const dbWithoutAccount = { ...db, account: undefined }
-    let dbData = await encodeRisuSave(dbWithoutAccount, { compression: true, kv: saveKV })
-
-    if(location.origin.endsWith('risuai.xyz')){
-        const time = Date.now()
-        const key = (await (await fetch(`https://sv.risuai.xyz/cryptokey?key=${time}`)).json()).key
-        const encrypted = await encryptBuffer(dbData, key)
-        await writer.writeBackup('encryption.risudat', new TextEncoder().encode(JSON.stringify({ time, type: 'account' })))
-        dbData = new Uint8Array(encrypted)
-    }
+    // 백업은 Risu 서버의 키로 암호화하지 않고 그대로 저장한다.
+    const dbData = await encodeRisuSave(dbWithoutAccount, { compression: true, kv: saveKV })
 
     alertWait(`로컬 백업 저장 중... (데이터베이스 저장 중)`) 
 
@@ -348,27 +325,12 @@ export async function SavePartialLocalBackup(){
                 continue
             }
             
-            let data: Uint8Array | undefined;
-            let isCached = false;
-            if(forageStorage.isAccount && key.startsWith('assets/')){
-                const cached = await localforage.getItem(key) as ArrayBuffer;
-                if(cached) {
-                    isCached = true;
-                    data = new Uint8Array(cached);
-                }
-            }
-            
-            if (!data) {
-                data = await forageStorage.getItem(key) as unknown as Uint8Array
-            }
+            const data = await forageStorage.getItem(key) as unknown as Uint8Array | undefined
 
             if (data) {
                 await writer.writeBackup(key, data)
             } else {
                 missingAssets.push(key)
-            }
-            if(forageStorage.isAccount && !isCached){
-                await sleep(100)
             }
         }
     }
@@ -472,8 +434,10 @@ export function LoadLocalBackup(){
                         try {
                             const meta = JSON.parse(new TextDecoder().decode(data)) as typeof encryptionMeta
                             if (meta.type === 'account' && meta.time) {
-                                encryptionMeta.type = 'account'
-                                encryptionMeta.time = meta.time
+                                // Risu 서버 키로 암호화된 백업: 서버에 접속하지 않고 바로 중단한다.
+                                await reader.cancel().catch(() => {})
+                                alertError(SERVER_ENCRYPTED_BACKUP_MESSAGE)
+                                return
                             } else {
                                 alertError('암호화 메타데이터가 올바르지 않아 복호화 없이 데이터베이스 백업을 불러옵니다.')
                             }
@@ -520,9 +484,6 @@ export function LoadLocalBackup(){
                         }
                     }
                     await sleep(10);
-                    if (forageStorage.isAccount) {
-                        await sleep(1000);
-                    }
 
                     offset += 4 + nameLength + 4 + dataLength;
                 }
@@ -534,18 +495,7 @@ export function LoadLocalBackup(){
                 return
             }
 
-            let db = pendingDatabase;
-            if(encryptionMeta.type === 'account' && encryptionMeta.time){
-                try {
-                    const key = (await (await fetch(`https://sv.risuai.xyz/cryptokey?key=${encryptionMeta.time}`)).json()).key
-                    const decrypted = await decryptBuffer(db, key)
-                    db = new Uint8Array(decrypted)
-                }
-                catch (e) {
-                    console.error('Failed to decrypt database backup:', e)
-                    alertError('데이터베이스 백업을 복호화하지 못해 복호화 없이 불러옵니다.')
-                }
-            }
+            const db = pendingDatabase;
             const { database: dbData, kv: kvData } = await decodeRisuSave(db);
             const restorePendingPluginItem = async (key: string) => {
                 if(!pendingPluginColdStorage.has(key)){

@@ -16,22 +16,18 @@ import { checkRisuUpdate } from "./update";
 import { MobileGUI, botMakerMode, selectedCharID, loadedStore, DBState, LoadingStatusState } from "./stores.svelte";
 import { loadPlugins } from "./plugins/plugins.svelte";
 import { alertError, alertMd, alertTOS, waitAlert, alertConfirm, alertInput } from "./alert";
-import { checkDriverInit } from "./drive/drive";
 import { characterURLImport } from "./characterCards";
 import { defaultJailbreak, defaultMainPrompt, oldJailbreak, oldMainPrompt } from "./storage/defaultPrompts";
-import { loadRisuAccountData } from "./drive/accounter";
 import { decodeRisuSave, encodeRisuSave } from "./storage/risuSave";
 import { saveKV } from "./storage/saveKV";
 import { updateAnimationSpeed } from "./gui/animation";
 import { updateColorScheme, updateTextThemeAndCSS } from "./gui/colorscheme";
-import { autoServerBackup } from "./kei/backup";
 import { language } from "src/lang";
 import { startObserveDom } from "./observer.svelte";
 import { updateGuisize } from "./gui/guisize";
 import { updateLorebooks } from "./characters";
 import { initMobileGesture } from "./hotkey";
 import { moduleUpdate } from "./process/modules";
-import type { AccountStorage } from "./storage/accountStorage";
 import { makeColdData, migratePluginStorage } from "./process/coldstorage.svelte";
 import { getRemoteSaveCleanupAction, getRemoteSavePayloadName } from "./storage/remoteSaveCleanup";
 import {
@@ -149,43 +145,6 @@ export async function loadData() {
                     }
                 }
 
-                if (await forageStorage.checkAccountSync()) {
-                    LoadingStatusState.text = "계정 동기화 확인 중..."
-                    let gotStorage: Uint8Array = await (forageStorage.realStorage as AccountStorage).getItem('database/database.bin', (v) => {
-                        LoadingStatusState.text = `원격 저장 파일 불러오는 중 ${(v * 100).toFixed(2)}%`
-                    })
-                    if (checkNullish(gotStorage)) {
-                        gotStorage = await encodeRisuSave({})
-                        await forageStorage.setItem('database/database.bin', gotStorage)
-                    }
-                    try {
-                        await applyDecodedSave(gotStorage)
-                    } catch (error) {
-                        const backups = await getDbBackups()
-                        let backupLoaded = false
-                        for (const backup of backups) {
-                            try {
-                                LoadingStatusState.text = `백업 파일 ${backup} 읽는 중...`
-                                const backupData: Uint8Array = await forageStorage.getItem(`database/dbbackup-${backup}.bin`) as unknown as Uint8Array
-                                await applyDecodedSave(backupData)
-                                backupLoaded = true
-                                break
-                            } catch (error) { }
-                        }
-                        if (!backupLoaded) {
-                            // throw "Your save file is corrupted"
-                            await autoServerBackup()
-                            await sleep(10000)
-                        }
-                    }
-                }
-                LoadingStatusState.text = "계정 동기화 다시 확인 중..."
-                await forageStorage.checkAccountSync()
-                LoadingStatusState.text = "드라이브 동기화 확인 중..."
-                const isDriverMode = await checkDriverInit()
-                if (isDriverMode) {
-                    return
-                }
                 LoadingStatusState.text = "서비스 워커 확인 중..."
                 // 단독 HTML(file://) 에서는 서비스 워커를 등록할 수 없으므로 사용하지 않는다.
                 if (navigator.serviceWorker && !isStandalone) {
@@ -214,12 +173,6 @@ export async function loadData() {
             try {
                 await loadPlugins()
             } catch (error) { }
-            if (getDatabase().account) {
-                LoadingStatusState.text = "계정 데이터 확인 중..."
-                try {
-                    await loadRisuAccountData()
-                } catch (error) { }
-            }
             try {
                 //@ts-expect-error navigator.standalone is iOS Safari non-standard property, not in Navigator interface
                 const isInStandaloneMode = (window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone) || document.referrer.includes('android-app://');
@@ -528,9 +481,6 @@ async function cleanChunks(options:{
 } = {}) {
     const cleanColdStorage = options.cleanColdStorage ?? false
     const db = getDatabase()
-    if (db.account?.useSync) {
-        return
-    }
     if(db.coldstorage && !cleanColdStorage){
         return
     }

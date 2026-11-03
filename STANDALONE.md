@@ -64,11 +64,11 @@ Actions 탭에서 **Standalone HTML Build** 를 수동 실행할 수도 있습�
 
 ### AI 요청은 직접 보냅니다
 
-원본 웹 버전은 AI 요청을 Risu 프록시 서버(`sv.risuai.xyz/proxy2`)를 거쳐 보내지만, 이 서버는 원본 사이트 주소에서 온 요청만 받습니다.
-그래서 단독 빌드(GitHub Pages / HTML 파일)는 **항상 브라우저에서 AI 서비스로 직접 요청**합니다. (고급 설정의 '직접 요청 보내기'가 항상 켜진 것과 같음)
+원본 웹 버전은 AI 요청을 Risu 프록시 서버를 거쳐 보내지만, 이 포크는 개인정보 보호를 위해 Risu 서버를 전혀 사용하지 않습니다.
+그래서 웹 빌드(GitHub Pages / HTML 파일 포함)는 **항상 브라우저에서 AI 서비스로 직접 요청**합니다. (고급 설정의 '직접 요청 보내기'가 항상 켜진 것과 같음)
 
 - OpenAI, Anthropic(Claude), Google Gemini, OpenRouter 처럼 브라우저 직접 호출(CORS)을 허용하는 서비스는 정상 동작합니다.
-- 직접 호출을 허용하지 않는 서비스는 이 버전에서 사용할 수 없습니다. (Risu 계정 로그인/동기화, RisuRealm 도 같은 이유로 사용 불가)
+- 직접 호출을 허용하지 않는 서비스는 이 버전에서 사용할 수 없습니다.
 - 토큰 수 계산용 토크나이저 파일을 받지 못하면, 앱에 내장된 토크나이저로 근사 계산하고 채팅은 그대로 진행합니다.
 
 ### 인터넷 연결이 필요한 기능
@@ -94,7 +94,21 @@ localStorage.setItem('risu_standalone_asset_base', 'https://example.com/risu-pub
   - Firefox: 파일 경로에 따라 저장소가 분리될 수 있습니다.
 - `DecompressionStream` 을 지원하는 최신 브라우저가 필요합니다. (Chrome/Edge 80+, Firefox 113+, Safari 16.4+)
 - `file://` 에서 열기 때문에 서비스 워커 기반 기능(공유 대상 등록, 에셋 캐시)은 동작하지 않습니다.
-- 원본 웹 버전과 마찬가지로 CORS 를 허용하지 않는 API 는 Risuai 프록시(`sv.risuai.xyz`)를 거쳐 호출됩니다.
+- CORS 를 허용하지 않는 API 는 Risu 프록시를 거치지 않으므로 사용할 수 없습니다.
+
+### Risu 서버 관련 기능 제거
+
+채팅 내용, API 키, 백업 등 어떤 데이터도 원작자가 운영하는 Risu 서버로 보내지 않도록 다음 기능을 제거했습니다.
+
+- RisuRealm (검색·다운로드·업로드/공유, realm 링크)
+- Risu 계정 로그인, 계정 동기화 저장소, 서버 자동 백업(Kei), 서버 콜드 스토리지
+- 구글 드라이브 백업 (Risu 서버를 거쳐 토큰을 교환하므로) — 로컬 파일 백업/복원은 그대로 사용 가능
+- 후원자 목록 페이지
+- Risu 프록시(`/proxy2`)를 통한 요청 — 웹에서는 항상 직접 요청
+- transformers.js 모델은 Risu 서버 대신 Hugging Face(huggingface.co)에서 직접 받습니다.
+
+원본 사이트(risuai.xyz)에서 만든 **암호화된 백업**은 Risu 서버의 키가 있어야 풀 수 있으므로 불러올 수 없습니다.
+또한 혹시 남은 코드나 플러그인이 Risu 서버로 요청하더라도 막히도록 차단 목록(`src/ts/network/risuBlocklist.ts`)을 두었습니다.
 
 ## 이 포크에서 추가한 기능
 

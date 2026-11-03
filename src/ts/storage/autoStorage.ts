@@ -1,25 +1,14 @@
 import localforage from "localforage"
-import { replaceDbResources } from "../globalApi.svelte"
 import { isNodeServer } from "src/ts/platform"
 import { NodeStorage } from "./nodeStorage"
 import { OpfsStorage } from "./opfsStorage"
-import { alertError, alertInput, alertSelect, alertStore } from "../alert"
-import { getDatabase, type Database } from "./database.svelte"
-import { AccountStorage } from "./accountStorage"
-import { decodeRisuSave, encodeRisuSave } from "./risuSave";
-import { saveKV } from "./saveKV";
-import { language } from "src/lang"
+import { alertStore } from "../alert"
 
 export class AutoStorage{
-    isAccount:boolean = false
-
-    realStorage:LocalForage|NodeStorage|OpfsStorage|AccountStorage
+    realStorage:LocalForage|NodeStorage|OpfsStorage
 
     async setItem(key:string, value:Uint8Array):Promise<string|null> {
         await this.Init()
-        if(this.isAccount){
-            return await (this.realStorage as AccountStorage).setItem(key, value)
-        }
         await this.realStorage.setItem(key, value)
         return null
     }
@@ -38,145 +27,10 @@ export class AutoStorage{
         return await this.realStorage.removeItem(key)
     }
 
-    async checkAccountSync(){
-        let db = getDatabase({ snapshot: true })
-        if(this.isAccount){
-            return true
-        }
-        if(localStorage.getItem('dosync') === 'avoid'){
-            return false
-        }
-        if((localStorage.getItem('dosync') === 'sync' || db?.account?.useSync) && (localStorage.getItem('accountst') !== 'able')){
-            const keys = (await this.realStorage.keys()).filter((key) => {
-                return key !== 'database/database.bin'
-                    && !key.startsWith('coldstorage/')
-                    && !key.startsWith('coldstorage_')
-            })
-            let i = 0;
-            const accountStorage = new AccountStorage()
-
-            let a:Buffer | null = null
-            try {
-                a = await accountStorage.getItem('database/database.bin')
-            } catch (error) {
-                alertError(error)
-                return false
-            }
-            if(a){
-                const sel = await alertSelect([language.loadDataFromAccount, language.saveCurrentDataToAccount, language.cancelAccountSync])
-                if(sel === "0"){
-                    this.realStorage = accountStorage
-                    alertStore.set({
-                        type: "none",
-                        msg: ""
-                    })
-                    localStorage.setItem('accountst', 'able')
-                    localStorage.setItem('fallbackRisuToken',JSON.stringify(db.account))
-                    this.isAccount = true
-                    return true
-                }
-                else if(sel === "2"){
-                    localStorage.setItem('dosync', 'avoid')
-                    if(db?.account){
-                        db.account.useSync = false
-                    }
-                    return false
-                }
-            }
-
-            const confirm = await alertInput(`데이터를 덮어쓰려면 "RISUAI"를 입력하세요`)
-            if(confirm !== "RISUAI"){
-                localStorage.setItem('dosync', 'avoid')
-                return false
-            }
-
-            const {
-                collectColdStorageBackupPayloads,
-                replaceColdStoragePayloadResources,
-                setAccountColdStorageItem
-            } = await import("../process/coldstorage.svelte")
-            const coldStoragePayloads = await collectColdStorageBackupPayloads(db)
-            const unavailableColdStorageCount = coldStoragePayloads.missingKeys.length + coldStoragePayloads.invalidKeys.length
-            if(unavailableColdStorageCount > 0){
-                alertError(`콜드 스토리지 항목 ${unavailableColdStorageCount}개가 없거나 올바르지 않아 계정 동기화로 옮기지 못했습니다.`)
-                return false
-            }
-
-            let replaced:{[key:string]:string} = {}
-            try {
-                for(const key of keys){
-                    alertStore.set({
-                        type: "wait",
-                        msg: `Migrating your data...(${i}/${keys.length})`
-                    })
-                    const rkey = await accountStorage.setItem(key,await this.realStorage.getItem(key))
-                    if(rkey !== key){
-                        replaced[key] = rkey
-                    }
-                    i += 1
-                }
-            } catch (error) {
-                alertError(error)
-                return false
-            }
-
-            const failedColdKeys:string[] = []
-            for(let coldIndex = 0; coldIndex < coldStoragePayloads.payloads.length; coldIndex++){
-                const payload = coldStoragePayloads.payloads[coldIndex]
-                alertStore.set({
-                    type: "wait",
-                    msg: `Migrating cold storage data...(${coldIndex + 1}/${coldStoragePayloads.payloads.length})`
-                })
-                const rewrittenPayload = replaceColdStoragePayloadResources(payload.value, replaced)
-                if(!await setAccountColdStorageItem(payload.key, rewrittenPayload)){
-                    failedColdKeys.push(payload.key)
-                }
-            }
-            if(failedColdKeys.length > 0){
-                alertError(`콜드 스토리지 항목 ${failedColdKeys.length}개를 계정 동기화로 옮기지 못했습니다.`)
-                return false
-            }
-
-            const dba = replaceDbResources(db, replaced)
-            const comp = await encodeRisuSave(dba, { compression: true, kv: saveKV })
-            //try decoding
-            try {
-                const z:Database = (await decodeRisuSave(comp)).database
-                if(!z.formatversion){
-                    throw new Error('Encoded account database is invalid.')
-                }
-                await accountStorage.setItem('database/database.bin', comp)
-            } catch (error) {
-                alertError(error)
-                return false
-            }
-            this.realStorage = accountStorage
-            alertStore.set({
-                type: "none",
-                msg: ""
-            })
-
-            localStorage.setItem('accountst', 'able')
-            localStorage.setItem('fallbackRisuToken',JSON.stringify(db.account))
-            this.isAccount = true
-            await localforage.clear()
-            return true
-        }
-        else if(localStorage.getItem('accountst') === 'able'){
-            localStorage.setItem('accountst', 'able')
-            this.realStorage = new AccountStorage()
-            this.isAccount = true
-        }
-        return false
-    }
-
     async Init(){
         if(!this.realStorage){
-            if(localStorage.getItem('accountst') === 'able'){
-                this.realStorage = new AccountStorage()
-                this.isAccount = true
-                return
-            }
+            // Risu 계정 동기화는 제거되었다. 예전에 저장된 'accountst' / 'dosync' 플래그는 무시하고
+            // 항상 이 기기의 로컬 저장소(노드 서버/OPFS/localforage)를 사용한다.
             if(isNodeServer){
                 console.log("using node storage")
                 this.realStorage = new NodeStorage()

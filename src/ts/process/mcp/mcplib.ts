@@ -650,7 +650,9 @@ export class MCPClient{
             discoveryURLS = await oauthResponse.json()
         }
 
-        const redirectURL = "https://account.sionyw.com/oauthhelper" //Just a placeholder, should be replaced with actual redirect URL
+        // Risu 서버(계정 서버)의 OAuth 도우미 대신 루프백 주소로 리디렉션하고,
+        // 사용자가 인증 후 브라우저 주소창의 주소(또는 code 값)를 직접 붙여넣게 한다.
+        const redirectURL = "http://127.0.0.1/oauth/callback"
 
         const registerResponse = await fetchNative(discoveryURLS.registration_endpoint, {
             method: "POST",
@@ -687,25 +689,12 @@ export class MCPClient{
         authUrl.searchParams.set("code_challenge_method", "S256")
 
         openURL(authUrl.toString())
-        const code = await alertInput("인증 코드를 입력하세요")
+        const pasted = await alertInput("인증을 마친 뒤 이동한 페이지의 주소창 전체 주소(또는 code 값)를 붙여넣으세요")
+        const authCode = extractOAuthCode(pasted)
 
-        const authHelperResponse = await fetchNative("https://account.sionyw.com/oauthhelper/api", {
-            method: "POST",
-            body: JSON.stringify({
-                code: code,
-            }),
-            headers: {
-                "Accept": "application/json"
-            }
-        })
-
-        const authHelperResponseJson = await authHelperResponse.json()
-
-        if(authHelperResponseJson.success !== true){
-            throw new Error("Failed to get authorization code from helper")
+        if(!authCode){
+            throw new Error("인증 코드를 찾지 못했습니다")
         }
-
-        const payload = authHelperResponseJson.payload
 
         const tokenResponse = await fetchNative(discoveryURLS.token_endpoint, {
             method: "POST",
@@ -714,7 +703,7 @@ export class MCPClient{
             },
             body: (new URLSearchParams({
                 grant_type: "authorization_code",
-                code: payload.code || "",
+                code: authCode,
                 redirect_uri: redirectURL,
                 client_id: clientData.client_id,
                 client_secret: clientData.client_secret,
@@ -856,5 +845,21 @@ export class MCPClient{
 
     ping(){
         return this.request("ping")
+    }
+}
+
+/**
+ * 붙여넣은 리디렉션 주소(또는 code 값 자체)에서 OAuth 인증 코드를 꺼낸다.
+ */
+function extractOAuthCode(input:string|null|undefined):string{
+    const trimmed = (input ?? '').trim()
+    if(!trimmed){
+        return ''
+    }
+    try {
+        const url = new URL(trimmed)
+        return url.searchParams.get('code') ?? ''
+    } catch {
+        return trimmed
     }
 }

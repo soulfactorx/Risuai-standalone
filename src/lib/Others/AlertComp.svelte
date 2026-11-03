@@ -6,7 +6,7 @@
     import { ParseMarkdown } from '../../ts/parser/parser.svelte';
     import BarIcon from '../SideBars/BarIcon.svelte';
     import { ChevronRightIcon, User } from '@lucide/svelte';
-    import { hubURL, isCharacterHasAssets } from 'src/ts/characterCards';
+    import { isCharacterHasAssets } from 'src/ts/characterCards';
     import TextInput from '../UI/GUI/TextInput.svelte';
     import { aiLawApplies, openURL, getFetchLogs } from 'src/ts/globalApi.svelte';
     import Button from '../UI/GUI/Button.svelte';
@@ -61,7 +61,7 @@
 
     let btn
     let input = $state('')
-    let cardExportType = $state('realm')
+    let cardExportType = $state('')
     let cardExportType2 = $state('')
     let cardLicense = $state('')
     let generationInfoMenuIndex = $state(0)
@@ -132,7 +132,7 @@
             branchHover = null
         }
         if($alertStore.type !== 'cardexport'){
-            cardExportType = 'realm'
+            cardExportType = ''
             cardExportType2 = ''
             cardLicense = ''
         }
@@ -175,16 +175,6 @@
     }
 </script>
 
-<svelte:window onmessage={async (e) => {
-    if(e.origin.startsWith("https://sv.risuai.xyz") || e.origin.startsWith("https://nightly.sv.risuai.xyz") || e.origin.startsWith("http://127.0.0.1") || e.origin === window.location.origin){
-        if(e.data.msg?.data?.vaild && $alertStore.type === 'login'){
-            $alertStore = {
-                type: 'none',
-                msg: JSON.stringify(e.data.msg)
-            }
-        }
-    }
-}}></svelte:window>
 
 {#if $alertStore.type !== 'none' &&  $alertStore.type !== 'toast' &&  $alertStore.type !== 'cardexport' && $alertStore.type !== 'branches' && $alertStore.type !== 'selectModule' && $alertStore.type !== 'pukmakkurit' && $alertStore.type !== 'requestlogs'}
     <div class="absolute w-full h-full z-50 bg-black/50 flex justify-center items-center" class:vis={ $alertStore.type === 'wait2'}>
@@ -375,11 +365,6 @@
                         {/each}
                     </datalist>
                 {/if}
-            {:else if $alertStore.type === 'login'}
-                <div class="fixed top-0 left-0 bg-black/50 w-full h-full flex justify-center items-center">
-                    <iframe src={hubURL + '/hub/login'} title="로그인" class="w-full h-full">
-                    </iframe>
-                </div>
             {:else if $alertStore.type === 'selectChar'}
                 <div class="flex w-full items-start flex-wrap gap-2 justify-start">
                     {#each DBState.db.characters as char, i}
@@ -750,7 +735,7 @@
                 {:else if $alertStore.submsg === 'preset'}
                     <span class="text-textcolor2 text-sm">{language.risupresetDesc}</span>
                     {#if cardExportType2 === 'preset' && (DBState.db.botPresets[DBState.db.botPresetsId].image || DBState.db.botPresets[DBState.db.botPresetsId].regex?.length > 0)}
-                        <span class="text-red-500 text-sm">프리셋을 공유하려면 RisuRealm을 사용하세요. 이미지나 정규식이 포함된 프리셋은 현재 내보낼 수 없습니다.</span>
+                        <span class="text-red-500 text-sm">이미지나 정규식이 포함된 프리셋은 현재 내보낼 수 없습니다.</span>
                     {/if}
                 {:else}
                     <span class="text-textcolor2 text-sm">{language.ccv3Desc}</span>
@@ -763,19 +748,14 @@
             {:else if cardExportType === 'ccv2'}
                 <span class="text-textcolor2 text-sm">{language.ccv2Desc}</span>
                 <span class="text-red-500 text-sm">{language.v2Warning}</span>
-            {:else}
-                <span class="text-textcolor2 text-sm">{language.realmDesc}</span>
             {/if}
             <div class="flex items-center flex-wrap mt-2">
                 {#if $alertStore.submsg === 'preset'}
-                    <button class="bg-bgcolor px-2 py-4 rounded-lg flex-1" class:ring-1={cardExportType === 'realm'} onclick={() => {cardExportType = 'realm'}}>RisuRealm</button>
-                    <button class="bg-bgcolor px-2 py-4 rounded-lg ml-2 flex-1" class:ring-1={cardExportType === ''} onclick={() => {cardExportType = ''}}>Risupreset</button>
+                    <button class="bg-bgcolor px-2 py-4 rounded-lg flex-1" class:ring-1={cardExportType === ''} onclick={() => {cardExportType = ''}}>Risupreset</button>
                 {:else if $alertStore.submsg === 'module'}
-                    <button class="bg-bgcolor px-2 py-4 rounded-lg ml-2 flex-1" class:ring-1={cardExportType === 'realm'} onclick={() => {cardExportType = 'realm'}}>RisuRealm</button>
                     <button class="bg-bgcolor px-2 py-4 rounded-lg flex-1" class:ring-1={cardExportType === ''} onclick={() => {cardExportType = ''}}>RisuM</button>
                 {:else}
-                    <button class="bg-bgcolor px-2 py-4 rounded-lg flex-1" class:ring-1={cardExportType === 'realm'} onclick={() => {cardExportType = 'realm'}}>RisuRealm</button>
-                    <button class="bg-bgcolor px-2 py-4 rounded-lg ml-2 flex-1" class:ring-1={cardExportType === ''} onclick={() => {
+                    <button class="bg-bgcolor px-2 py-4 rounded-lg flex-1" class:ring-1={cardExportType === ''} onclick={() => {
                         cardExportType = ''
                         cardExportType2 = 'charxJpeg'
                     }}>캐릭터 카드 V3</button>
@@ -799,7 +779,7 @@
                         type2: cardExportType2
                     })
                 })
-            }}>{cardExportType === 'realm' ? language.shareCloud : language.export}</Button>
+            }}>{language.export}</Button>
         </div>
     </div>
 

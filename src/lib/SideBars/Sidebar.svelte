@@ -7,7 +7,6 @@
     settingsOpen,
     sideBarClosing,
     sideBarStore,
-    OpenRealmStore,
     PlaygroundStore,
 
     QuickSettings,
@@ -416,7 +415,6 @@
     reseter();
     selectedCharID.set(-1)
     PlaygroundStore.set(0)
-    OpenRealmStore.set(false)
   }}
 >
   <HomeIcon />
@@ -504,7 +502,6 @@
           reseter();
           selectedCharID.set(-1)
           PlaygroundStore.set(0)
-          OpenRealmStore.set(false)
         }}><HomeIcon /></BarIcon>
       <div class="mt-2"></div>
       <BarIcon
@@ -848,7 +845,6 @@
           reseter();
           selectedCharID.set(-1)
           PlaygroundStore.set(0)
-          OpenRealmStore.set(false)
         }}><HomeIcon /></BarIcon>
       <div class="mt-2"></div>
       <BarIcon

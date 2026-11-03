@@ -1,7 +1,7 @@
 <script lang="ts">
     import { MobileGUIStack, MobileSideBar, selectedCharID } from "src/ts/stores.svelte";
     import Settings from "../Setting/Settings.svelte";
-    import RealmMain from "../UI/Realm/RealmMain.svelte";
+    import FileImportPanel from "../UI/FileImportPanel.svelte";
     import MobileCharacters from "./MobileCharacters.svelte";
     import ChatScreen from "../ChatScreens/ChatScreen.svelte";
     import CharConfig from "../SideBars/CharConfig.svelte";
@@ -47,7 +47,11 @@
     {:else if $selectedCharID !== -1}
         <ChatScreen />
     {:else if $MobileGUIStack === 0}
-        <RealmMain />
+        <!-- RisuRealm 대신 파일 가져오기 화면을 보여준다. -->
+        <div class="w-full flex flex-col p-4 text-textcolor">
+            <h1 class="text-2xl font-bold mb-4">파일 가져오기</h1>
+            <FileImportPanel />
+        </div>
     {:else if $MobileGUIStack === 1}
         <MobileCharacters />
     {:else if $MobileGUIStack === 2}
