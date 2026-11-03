@@ -2,6 +2,7 @@
     import { ArrowLeft, ChevronDown } from "@lucide/svelte";
     import { fly, fade } from "svelte/transition";
     import { MediaQuery } from "svelte/reactivity";
+    import { publicAssetURL } from "src/ts/standalone";
     import MarkdownIt from "markdown-it";
     import DOMPurify from "dompurify";
     import { changeLanguage, language } from "src/lang";
@@ -34,15 +35,11 @@
     // steps go 0-6, then jump to 10 when done
     const stepOrder = [0, 1, 2, 3, 4, 5, 6, 10]
 
+    // 한국어 전용: 언어 선택 단계(0)를 건너뛰고 바로 이름 입력부터 시작한다.
     {
-        const browserLang = navigator.language
-        const browserLangShort = browserLang.split('-')[0]
-        const usableLangs = ['de', 'en', 'es', 'ko', 'cn', 'vi', 'zh-Hant']
-        if(usableLangs.includes(browserLangShort)){
-            changeLanguage(browserLangShort)
-            DBState.db.language = browserLangShort
-            step = 1
-        }
+        changeLanguage('ko')
+        DBState.db.language = 'ko'
+        step = 1
     }
 
     // what the user already saved on a step, so revisiting it doesn't make them type it again
@@ -125,7 +122,7 @@
 
     const title = $derived.by(() => {
         switch(step){
-            case 0: return 'Choose your language'
+            case 0: return '언어를 선택하세요'
             case 1: return language.setup.welcomeTitleName
             case 2: return language.setup.welcomeTitleGuide
             case 3: return language.setup.welcomeTitleProvider
@@ -161,7 +158,7 @@
         DBState.db.language
         if(provider === 'claude'){
             return language.setup.setupClaudeSteps.map((text, i) =>
-                `![](/welcome/claude/ant_${i}.webp)\n\n${i === 0 ? 'https://console.anthropic.com/login?returnTo=%2F%3F\n\n' : ''}` + text
+                `![](${publicAssetURL(`/welcome/claude/ant_${i}.webp`)})\n\n${i === 0 ? 'https://console.anthropic.com/login?returnTo=%2F%3F\n\n' : ''}` + text
             )
         }
         const guide = provider === 'openai' ? language.setup.setupOpenAI : language.setup.setupOpenRouter
@@ -182,7 +179,7 @@
                     break
                 }
                 if(!input.startsWith('sk-')){
-                    alertError('Invalid API key')
+                    alertError('올바르지 않은 API 키입니다')
                     break
                 }
                 if(provider === 'openai'){
@@ -306,7 +303,7 @@
     <header class="relative z-20 flex shrink-0 items-center p-[clamp(1rem,2.4vmin,1.75rem)]">
         <!-- scales with the shorter screen side so tablets don't get a phone-sized logo -->
         <div class="rounded-[clamp(1rem,2.4vmin,1.5rem)] bg-darkbg/85 px-[clamp(1rem,2.2vmin,1.5rem)] py-[clamp(0.625rem,1.6vmin,1rem)] shadow-xl backdrop-blur">
-            <img src="/logo_typo_trans.png" alt="Risuai" class="h-[clamp(1.5rem,5.5vmin,3.25rem)] w-auto">
+            <img src={publicAssetURL("/logo_typo_trans.png")} alt="Risuai" class="h-[clamp(1.5rem,5.5vmin,3.25rem)] w-auto">
         </div>
     </header>
 
@@ -315,7 +312,7 @@
         <div class="relative z-10 flex max-h-[78%] w-full flex-col rounded-t-[2rem] bg-darkbg shadow-2xl lg:absolute lg:left-1/4 lg:top-1/2 lg:h-[clamp(30rem,62%,40rem)] lg:max-h-[calc(100%-2.5rem)] lg:w-[clamp(26rem,32vw,36rem)] lg:-translate-x-1/2 lg:-translate-y-1/2 lg:rounded-[2rem]">
             <img src={Airisu} alt="" class="airisu pointer-events-none absolute bottom-full right-4 -mb-3 h-44 w-auto lg:hidden" draggable="false">
             <div class="flex items-center justify-between px-7 pt-6">
-                <button class="-ml-2 flex h-9 w-9 items-center justify-center rounded-full text-textcolor2 transition-colors hover:bg-textcolor/10 hover:text-textcolor disabled:invisible" disabled={step === 0 || step === 10} onclick={goBack} aria-label={language.goback}>
+                <button class="-ml-2 flex h-9 w-9 items-center justify-center rounded-full text-textcolor2 transition-colors hover:bg-textcolor/10 hover:text-textcolor disabled:invisible" disabled={step === 0 || step === 10 || history.length === 0} onclick={goBack} aria-label={language.goback}>
                     <ArrowLeft size={20} />
                 </button>
                 <div class="flex items-center gap-1.5">
@@ -419,7 +416,7 @@
                     </div>
 
                     {#if step !== 4 && step !== 10}
-                        <p class="mt-auto pt-6 text-center text-xs text-textcolor2">{step === 0 ? 'You can change it later in settings.' : language.setup.welcomeChangeLater}</p>
+                        <p class="mt-auto pt-6 text-center text-xs text-textcolor2">{step === 0 ? '나중에 설정에서 바꿀 수 있습니다.' : language.setup.welcomeChangeLater}</p>
                     {/if}
                 </div>
                 {#if moreBelow}

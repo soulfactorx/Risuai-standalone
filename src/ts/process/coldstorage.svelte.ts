@@ -261,7 +261,7 @@ export async function cleanColdStorage(){
     else{
         for(let i=0;i<unusedKeys.length;i++){
             const key = unusedKeys[i]
-            alertWait(`Removing unused cold storage item: ${key} (${i + 1} / ${unusedKeys.length})`)
+            alertWait(`사용하지 않는 콜드 스토리지 항목 삭제 중: ${key} (${i + 1} / ${unusedKeys.length})`)
             await removeColdStorageItems([key])
         }
     }
@@ -589,7 +589,7 @@ export async function makeColdData(){
 
     while(queue.length > 0){
         const batch = queue.splice(0, 5) //process 5 at a time to avoid blocking
-        alertWait(`Creating character cold storage data... ${queue.length} items left`)
+        alertWait(`캐릭터 콜드 스토리지 데이터 생성 중... ${queue.length}개 남음`)
         const results = await Promise.all(batch.map(fn => fn()))
 
         if(results.some(Boolean)){
@@ -605,7 +605,7 @@ export async function makeColdData(){
 
     while(queue.length > 0){
         const batch = queue.splice(0, 5) //process 5 at a time to avoid blocking
-        alertWait(`Creating chat cold storage data... ${queue.length} items left`)
+        alertWait(`채팅 콜드 스토리지 데이터 생성 중... ${queue.length}개 남음`)
         const results = await Promise.all(batch.map(fn => fn()))
 
         if(results.some(Boolean)){

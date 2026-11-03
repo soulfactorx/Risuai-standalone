@@ -31,11 +31,11 @@
     }))
 </script>
 
-<h2 class="text-4xl text-textcolor my-6 font-black relative">CBS Docs Beta</h2>
+<h2 class="text-4xl text-textcolor my-6 font-black relative">CBS 문서 (베타)</h2>
 <div class="max-w-4xl w-full p-6">
     <div class="mb-8 w-full">
         <TextInput
-            placeholder="Search documentation..."
+            placeholder="문서 검색..."
             className="w-full"
             fullwidth
             bind:value={searchTerm}
@@ -55,7 +55,7 @@
                 
                 {#if item.alias.length > 0}
                     <div class="flex flex-wrap gap-2">
-                        <span class="text-sm text-textcolor2 mr-2">Aliases:</span>
+                        <span class="text-sm text-textcolor2 mr-2">별칭:</span>
                         {#each item.alias as alias}
                             <span class="bg-darkbg text-textcolor2 text-xs px-2 py-1 rounded-full">{alias}</span>
                         {/each}
@@ -68,8 +68,8 @@
     {#if !doc || doc.length === 0}
         <div class="text-center py-12">
             <div class="text-gray-400 text-6xl mb-4">📚</div>
-            <h3 class="text-xl text-gray-600 mb-2">No documentation found</h3>
-            <p class="text-gray-500">Documentation will appear here when available.</p>
+            <h3 class="text-xl text-gray-600 mb-2">문서를 찾을 수 없습니다</h3>
+            <p class="text-gray-500">문서가 준비되면 여기에 표시됩니다.</p>
         </div>
     {/if}
 </div>

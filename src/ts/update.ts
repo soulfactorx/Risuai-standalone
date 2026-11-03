@@ -54,7 +54,7 @@ export async function checkRisuUpdate(){
             const conf = await alertConfirm(language.newVersion)
             if(conf){
                 clearUpdateReminder()
-                alertWait(`Updating to ${checked.version}...`)
+                alertWait(`${checked.version} 버전으로 업데이트 중...`)
                 await checked.downloadAndInstall()
                 await relaunch()
             } else {

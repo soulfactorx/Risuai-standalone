@@ -30,7 +30,7 @@
         alertMd(mdTable)
     }}
 >
-Show Statistics
+통계 보기
 </Button>
 
 <Button
@@ -72,5 +72,5 @@ Show Statistics
 
     }}
 >
-Export Settings for Bug Report
+버그 제보용 설정 내보내기
 </Button>

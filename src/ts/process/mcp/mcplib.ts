@@ -687,7 +687,7 @@ export class MCPClient{
         authUrl.searchParams.set("code_challenge_method", "S256")
 
         openURL(authUrl.toString())
-        const code = await alertInput("Input Authorization Code")
+        const code = await alertInput("인증 코드를 입력하세요")
 
         const authHelperResponse = await fetchNative("https://account.sionyw.com/oauthhelper/api", {
             method: "POST",

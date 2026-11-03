@@ -13,6 +13,7 @@ import { translateHTML } from "./translator/translator";
 import { doingChat } from "./process/index.svelte";
 import { importCharacter } from "./characterCards";
 import { PngChunk } from "./pngChunk";
+import { publicAssetURL } from "./standalone";
 import { getColdStorageItem } from "./process/coldstorage.svelte";
 
 export function createNewCharacter() {
@@ -57,7 +58,7 @@ export async function getCharImage(loc:string, type:'plain'|'css'|'contain'|'lgc
     // Return placeholder when hideAllImages is enabled
     if(db.hideAllImages){
         if(type === 'plain'){
-            return '/none.webp'
+            return publicAssetURL('/none.webp')
         }
         return ''  // For CSS types, return empty to show default ? icon
     }
@@ -192,7 +193,7 @@ export function rmCharEmotion(charId:number, emotionId:number) {
 export async function exportChat(page:number){
     try {
 
-        const mode = await alertSelect(['Export as JSON', "Export as TXT", "Export as HTML File", "Export as HTML Embed"])
+        const mode = await alertSelect(['JSON으로 내보내기', "TXT로 내보내기", "HTML 파일로 내보내기", "HTML 임베드로 내보내기"])
         const doTranslate = (mode === '2' || mode === '3') ? (await alertSelect([language.translateContent, language.doNotTranslate])) === '0' : false
         const anonymous = (mode === '2' || mode === '3') ? ((await alertSelect([language.includePersonaName, language.hidePersonaName])) === '1') : false
         const selectedID = get(selectedCharID)
@@ -238,7 +239,7 @@ export async function exportChat(page:number){
 
             let i = 0
             for(const v of chat.message){
-                alertWait(`Translating... ${i++}/${chat.message.length}`)
+                alertWait(`번역 중... ${i++}/${chat.message.length}`)
                 const name = v.saying ? findCharacterbyId(v.saying).name : v.role === 'char' ? char.name : anonymous ? '×××' : getUserName()
                 chatContentHTML += `<div class="chat">
                     <h2>${name}</h2>
@@ -309,7 +310,7 @@ export async function exportChat(page:number){
 
             let i = 0
             for(const v of chat.message){
-                alertWait(`Translating... ${i++}/${chat.message.length}`)
+                alertWait(`번역 중... ${i++}/${chat.message.length}`)
                 const name = v.saying ? findCharacterbyId(v.saying).name : v.role === 'char' ? char.name : anonymous ? '×××' : getUserName()
                 chatContentHTML += `<tr>
                     <td>${name}</td>

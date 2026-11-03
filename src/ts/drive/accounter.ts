@@ -23,7 +23,7 @@ export function risuLogin() {
 export async function saveRisuAccountData() {
     const db = getDatabase()
     if(!db.account){
-        alertError("Not logged in error")
+        alertError("로그인되어 있지 않습니다")
         return
     }
     const s = await fetch(hubURL + '/hub/account/save', {
@@ -42,7 +42,7 @@ export async function saveRisuAccountData() {
 export async function loadRisuAccountData() {
     const db = getDatabase()
     if(!db.account){
-        alertError("Not logged in error")
+        alertError("로그인되어 있지 않습니다")
         return
     }
     const s = await fetchProtectedResource('/hub/account/load', {
@@ -58,7 +58,7 @@ export async function loadRisuAccountData() {
 export async function loadRisuAccountBackup() {
     const db = getDatabase()
     if(!db.account){
-        alertError("Not logged in error")
+        alertError("로그인되어 있지 않습니다")
         return
     }
     const s = await fetchProtectedResource('/hub/backup/list', {
@@ -70,7 +70,7 @@ export async function loadRisuAccountBackup() {
     }
     const backups = await s.json() as string[]
     if(!backups.length){
-        alertError("No backups found")
+        alertError("백업을 찾을 수 없습니다")
         return
     }
     const backupIdStr = await alertSelect([...backups.map((v) => {
@@ -94,7 +94,7 @@ export async function loadRisuAccountBackup() {
         return
     }
     if(isNaN(backupIdNum)){
-        alertError("Invalid backup id")
+        alertError("올바르지 않은 백업 ID입니다")
         return
     }
     if(!await alertConfirm(language.backupLoadConfirm)){
@@ -126,17 +126,17 @@ export async function loadRisuAccountBackup() {
             if(done){
                 break
             }
-            alertWait("Downloading backup: " + buf.buffer.byteLength)
+            alertWait("백업 다운로드 중: " + buf.buffer.byteLength)
             buf.append(value)
         }
 
-        alertWait("Loading backup")
+        alertWait("백업 불러오는 중")
 
         const decoded = await decodeRisuSave(buf.buffer)
         setDatabase(decoded.database)
         saveKV.load(decoded.kv)
     
-        alertNormal('Loaded backup')
+        alertNormal('백업을 불러왔습니다')
     }
 
 }

@@ -29,7 +29,7 @@
         if($doingChat){
             return false
         }
-        alertWait("Loading...")
+        alertWait("불러오는 중...")
         await sendChat(-1, {
             preview: previewJoin !== 'prompt',
             previewPrompt: previewJoin === 'prompt'
@@ -84,19 +84,19 @@
 
         for(let i=0;i<formated.length;i++){
             
-            md += '### ' + (styledRole[formated[i].role] ?? '🤔 Unknown role') + '\n'
+            md += '### ' + (styledRole[formated[i].role] ?? '🤔 알 수 없는 역할') + '\n'
             const modals = formated[i].multimodals
 
             if(modals && modals.length > 0){
-                md += `> ${modals.length} non-text content(s) included\n` 
+                md += `> ${modals.length} 개의 텍스트 외 콘텐츠 포함\n` 
             }
 
             if(formated[i].thoughts && formated[i].thoughts.length > 0){
-                md += `> ${formated[i].thoughts.length} thought(s) included\n`
+                md += `> ${formated[i].thoughts.length} 개의 생각 포함\n`
             }
 
             if(formated[i].cachePoint){
-                md += `> Cache point\n`
+                md += `> 캐시 지점\n`
             }
 
             md += '```\n' + formated[i].content.replaceAll('```', '\\`\\`\\`') + '\n```\n'
@@ -108,13 +108,13 @@
     let autopilot = $state([])
 </script>
 
-<Accordion styled name={"Variables"}>
+<Accordion styled name={"변수"}>
     <div class="rounded-md border border-darkborderc grid grid-cols-2 gap-2 p-2">
         {#if DBState.db.characters[$selectedCharID].chats[DBState.db.characters[$selectedCharID].chatPage].scriptstate &&  Object.keys(DBState.db.characters[$selectedCharID].chats[DBState.db.characters[$selectedCharID].chatPage].scriptstate).length > 0}
             {#each Object.keys(DBState.db.characters[$selectedCharID].chats[DBState.db.characters[$selectedCharID].chatPage].scriptstate) as key}
                 <span>{key}</span>
                 {#if typeof DBState.db.characters[$selectedCharID].chats[DBState.db.characters[$selectedCharID].chatPage].scriptstate[key] === "object"}
-                    <div class="p-2 text-center">Object</div>
+                    <div class="p-2 text-center">객체</div>
                 {:else if typeof DBState.db.characters[$selectedCharID].chats[DBState.db.characters[$selectedCharID].chatPage].scriptstate[key] === "string"}
                     <TextInput bind:value={DBState.db.characters[$selectedCharID].chats[DBState.db.characters[$selectedCharID].chatPage].scriptstate[key] as string} />
                 {:else if typeof DBState.db.characters[$selectedCharID].chats[DBState.db.characters[$selectedCharID].chatPage].scriptstate[key] === "number"}
@@ -122,45 +122,45 @@
                 {/if}
             {/each}
         {:else}
-            <div class="p-2 text-center">No variables</div>
+            <div class="p-2 text-center">변수 없음</div>
         {/if}
     </div>
 </Accordion>
 
-<Accordion styled name={"Tokens"}>
+<Accordion styled name={"토큰"}>
     <div class="rounded-md border border-darkborderc grid grid-cols-2 gap-2 p-2">
         {#await getCharToken(DBState.db.characters[$selectedCharID])}
-            <span>Character Persistant</span>
-            <div class="p-2 text-center">Loading...</div>
-            <span>Character Dynamic</span>
-            <div class="p-2 text-center">Loading...</div>
+            <span>캐릭터 고정</span>
+            <div class="p-2 text-center">불러오는 중...</div>
+            <span>캐릭터 동적</span>
+            <div class="p-2 text-center">불러오는 중...</div>
         {:then token}
-            <span>Character Persistant</span>
-            <div class="p-2 text-center">{token.persistant} Tokens</div>
-            <span>Character Dynamic</span>
-            <div class="p-2 text-center">{token.dynamic} Tokens</div>
+            <span>캐릭터 고정</span>
+            <div class="p-2 text-center">{token.persistant} 토큰</div>
+            <span>캐릭터 동적</span>
+            <div class="p-2 text-center">{token.dynamic} 토큰</div>
         {/await}
         {#await getChatToken(DBState.db.characters[$selectedCharID].chats[DBState.db.characters[$selectedCharID].chatPage])}
-            <span>Current Chat</span>
-            <div class="p-2 text-center">Loading...</div>
+            <span>현재 채팅</span>
+            <div class="p-2 text-center">불러오는 중...</div>
         {:then token}
-            <span>Current Chat</span>
-            <div class="p-2 text-center">{token} Tokens</div>
+            <span>현재 채팅</span>
+            <div class="p-2 text-center">{token} 토큰</div>
         {/await}
         {#if DBState.db.promptTemplate}
             {#await tokenizePreset(DBState.db.promptTemplate)}
-                <span>Prompt Template</span>
-                <div class="p-2 text-center">Loading...</div>
+                <span>프롬프트 템플릿</span>
+                <div class="p-2 text-center">불러오는 중...</div>
             {:then token}
-                <span>Prompt Template</span>
-                <div class="p-2 text-center">{token} Tokens</div>
+                <span>프롬프트 템플릿</span>
+                <div class="p-2 text-center">{token} 토큰</div>
             {/await}
         {/if}
     </div>
-    <span class="text-sm text-textcolor2">This is a estimate. The actual token count may be different.</span>
+    <span class="text-sm text-textcolor2">추정치입니다. 실제 토큰 수와 다를 수 있습니다.</span>
 </Accordion>
 
-<Accordion styled name={"Autopilot"}>
+<Accordion styled name={"자동 진행"}>
     <div class="flex flex-col p-2 border border-darkborderc rounded-md">
         {#each autopilot as text, i}
             <TextAreaInput bind:value={autopilot[i]} />
@@ -235,39 +235,39 @@
             currentChat = currentChar.chats[currentChar.chatPage]
         }
         doingChat.set(false)
-    }}>Run</Button>
+    }}>실행</Button>
 </Accordion>
 
 
-<Accordion styled name={"Preview Prompt"}>
-    <span>Type</span>
+<Accordion styled name={"프롬프트 미리보기"}>
+    <span>유형</span>
     <SelectInput bind:value={previewMode}>
-        <OptionInput value="chat">Chat</OptionInput>
-        <OptionInput value="instruct">Instruct</OptionInput>
+        <OptionInput value="chat">채팅</OptionInput>
+        <OptionInput value="instruct">인스트럭트</OptionInput>
     </SelectInput>
     {#if previewMode === 'instruct'}
-        <span>Instruction Type</span>
+        <span>인스트럭트 형식</span>
         <SelectInput bind:value={instructType}>
             {#each Object.keys(chatTemplates) as template}
                 <OptionInput value={template}>{template}</OptionInput>
             {/each}
-            <OptionInput value="jinja">Custom Jinja</OptionInput>
+            <OptionInput value="jinja">사용자 지정 Jinja</OptionInput>
         </SelectInput>
         {#if instructType === 'jinja'}
-            <span>Custom Jinja</span>
+            <span>사용자 지정 Jinja</span>
             <TextAreaInput bind:value={instructCustom} />
         {/if}
     {/if}
-    <span>Join</span>
+    <span>합치기</span>
     <SelectInput bind:value={previewJoin}>
-        <OptionInput value="yes">With Join</OptionInput>
-        <OptionInput value="no">Without Join</OptionInput>
-        <OptionInput value="prompt">As Request</OptionInput>
+        <OptionInput value="yes">합쳐서 보기</OptionInput>
+        <OptionInput value="no">합치지 않고 보기</OptionInput>
+        <OptionInput value="prompt">요청 본문으로 보기</OptionInput>
     </SelectInput>
-    <Button className="mt-2" onclick={() => {preview()}}>Run</Button>
+    <Button className="mt-2" onclick={() => {preview()}}>실행</Button>
 </Accordion>
 
-<Accordion styled name={"Preview Lorebook"}>
+<Accordion styled name={"로어북 미리보기"}>
     <Button className="mt-2" onclick={async () => {
         const lorebookResult = await loadLoreBookV3Prompt()
         const html = `
@@ -276,15 +276,15 @@
         }).join('\n')}
         `.trim()
         alertMd(html)
-    }}>Test Lore</Button>
+    }}>로어 테스트</Button>
     <Button className="mt-2" onclick={async () => {
         const lorebookResult = await loadLoreBookV3Prompt()
         const html = `
         <table>
             <thead>
                 <tr>
-                    <th>Key</th>
-                    <th>Source</th>
+                    <th>키</th>
+                    <th>출처</th>
                 </tr>
             </thead>
             <tbody>
@@ -298,7 +298,7 @@
         </table>
         `.trim()
         alertMd(html)
-    }}>Match Sources</Button>
+    }}>매칭 출처</Button>
 </Accordion>
 
 <Button className="mt-2" onclick={() => {
@@ -309,8 +309,8 @@
     }).join('\n')}
     `.trim()
     alertMd(html)
-}}>Preview Module</Button>
+}}>모듈 미리보기</Button>
 
 <Button className="mt-2" onclick={() => {
     alertMd(getRequestLog())
-}}>Request Log</Button>
+}}>요청 로그</Button>

@@ -8,7 +8,7 @@ export async function hotReloadPluginFiles(){
 
 
     if(!('showOpenFilePicker' in window)){
-        alertError("Your browser does not support the File System Access API, which is required for hot-reloading plugin files.")
+        alertError("이 브라우저는 플러그인 파일 핫 리로드에 필요한 File System Access API를 지원하지 않습니다.")
         return
     }
 

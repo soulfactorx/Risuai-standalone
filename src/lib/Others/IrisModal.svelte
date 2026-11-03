@@ -232,7 +232,7 @@
         if(res.type === 'success') {
             pushDialogue({speaker: 'Iris', text: res.result});
         } else {
-            alertError("Failed to get response from LLM: " + res.result);
+            alertError("LLM 응답을 받지 못했습니다: " + res.result);
             dialogue.pop();
         }
     }
@@ -297,12 +297,12 @@
     <button
         onclick={hide}
         class="absolute right-4 top-4 flex items-center gap-1 rounded-md bg-black/40 px-2 py-1 text-xs text-white/50 transition hover:bg-black/60 hover:text-white/80"
-        aria-label="Close"
+        aria-label="닫기"
     >
         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
-        Close
+        닫기
     </button>
 
     <!-- Character sprite -->
@@ -334,7 +334,7 @@
                 >
                     <button
                         class="text-white/40 transition hover:text-white/80"
-                        aria-label="Reset"
+                        aria-label="초기화"
                         onclick={() => {
                             resetDialogue();
                             showBacklog = false;
@@ -357,7 +357,7 @@
                     <button
                         onclick={() => (showBacklog = false)}
                         class="text-white/40 transition hover:text-white/80"
-                        aria-label="Close backlog"
+                        aria-label="대화 기록 닫기"
                     >
                         <svg
                             class="h-4 w-4"
@@ -422,7 +422,7 @@
             <!-- Backlog button -->
             <button
                 onclick={openBacklog}
-                title="View backlog (L)"
+                title="대화 기록 보기 (L)"
                 class="absolute right-4 top-4 flex items-center gap-1 rounded-md px-2 py-1 text-xs text-white/40 transition hover:bg-white/10 hover:text-white/70"
             >
                 <svg
@@ -438,7 +438,7 @@
                         d="M4 6h16M4 10h16M4 14h10"
                     />
                 </svg>
-                Log
+                기록
             </button>
 
             <!-- Speaker name tag -->
@@ -485,7 +485,7 @@
                     class="mt-1 flex items-center gap-2"
                     transition:fade={{ duration: 150 }}
                 >
-                    <span class="text-xs text-white/40">Iris is typing</span
+                    <span class="text-xs text-white/40">Iris가 입력 중</span
                     >
                     <span class="flex gap-1">
                         <span
@@ -522,7 +522,7 @@
                         disabled={!userInput.trim() || waitingForReply || isUnsupportedModel}
                         class="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:opacity-40"
                     >
-                        Send
+                        보내기
                     </button>
                 </div>
             {/if}
@@ -534,7 +534,7 @@
         <button
             onclick={advance}
             class="absolute inset-0 -z-10 h-full w-full cursor-pointer bg-transparent"
-            aria-label="Advance dialogue"
+            aria-label="대화 진행"
         ></button>
     {/if}
 </div>

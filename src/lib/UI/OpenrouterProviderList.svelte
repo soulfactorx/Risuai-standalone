@@ -39,7 +39,7 @@
                     onclick={() => {
                         openOptions = false
                     }}
-                    title="Back"
+                    title="뒤로"
                 >
                     <ArrowLeft size={20} />
                 </button>

@@ -48,7 +48,7 @@
         if(Array.isArray(currentModule.lorebook)){
             currentModule.lorebook.push({
                 key: '',
-                comment: `New Lore`,
+                comment: `새 로어`,
                 content: '',
                 mode: 'normal',
                 insertorder: 100,
@@ -66,7 +66,7 @@
             const id = v4()
             currentModule.lorebook.push({
                 key: '\uf000folder:' + id,
-                comment: `New Folder`,
+                comment: `새 폴더`,
                 content: '',
                 mode: 'folder',
                 insertorder: 100,

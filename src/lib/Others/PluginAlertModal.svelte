@@ -41,7 +41,7 @@
                 
                 <details class="mb-4 text-gray-200">
                     <summary class="cursor-pointer text-gray-200 mb-2">
-                        Dev Info
+                        개발 정보
                     </summary>
 
                     {#each pluginAlertModalStore.errors as error}

@@ -170,17 +170,17 @@
     <ModelList bind:value={DBState.db.subModel}/>
 
     {#if modelInfo.provider === LLMProvider.GoogleCloud || subModelInfo.provider === LLMProvider.GoogleCloud}
-        <span class="text-textcolor">GoogleAI API Key</span>
+        <span class="text-textcolor">GoogleAI API 키</span>
         <TextInput marginBottom={true} size={"sm"} placeholder="..." hideText={DBState.db.hideApiKey} bind:value={DBState.db.google.accessToken}/>
     {/if}
     {#if modelInfo.provider === LLMProvider.VertexAI || subModelInfo.provider === LLMProvider.VertexAI}
-        <span class="text-textcolor">Project ID</span>
+        <span class="text-textcolor">프로젝트 ID</span>
         <TextInput marginBottom={true} size={"sm"} placeholder="..." bind:value={DBState.db.google.projectId} oninput={clearVertexToken}/>
-        <span class="text-textcolor">Vertex Client Email</span>
+        <span class="text-textcolor">Vertex 클라이언트 이메일</span>
         <TextInput marginBottom={true} size={"sm"} placeholder="..." bind:value={DBState.db.vertexClientEmail} oninput={clearVertexToken}/>
-        <span class="text-textcolor">Vertex Private Key</span>
+        <span class="text-textcolor">Vertex 비공개 키</span>
         <TextInput marginBottom={true} size={"sm"} placeholder="..." hideText={DBState.db.hideApiKey} bind:value={DBState.db.vertexPrivateKey} oninput={clearVertexToken}/>
-        <span class="text-textcolor">Region</span>
+        <span class="text-textcolor">리전</span>
         <SelectInput value={DBState.db.vertexRegion} onchange={(e) => {
             DBState.db.vertexRegion = e.currentTarget.value
             clearVertexToken()
@@ -214,16 +214,16 @@
         <TextInput hideText={DBState.db.hideApiKey} marginBottom={true} size={"sm"} placeholder="..." bind:value={DBState.db.mistralKey}/>
     {/if}
     {#if modelInfo.provider === LLMProvider.NovelAI || subModelInfo.provider === LLMProvider.NovelAI}
-        <span class="text-textcolor">NovelAI Bearer Token</span>
+        <span class="text-textcolor">NovelAI Bearer 토큰</span>
         <TextInput bind:value={DBState.db.novelai.token}/>
     {/if}
     {#if DBState.db.aiModel === 'reverse_proxy' || DBState.db.subModel === 'reverse_proxy'}
         <span class="text-textcolor mt-2">URL <Help key="forceUrl"/></span>
         <TextInput marginBottom={false} size={"sm"} bind:value={DBState.db.forceReplaceUrl} placeholder="https//..." />
         <span class="text-textcolor mt-4"> {language.proxyAPIKey}</span>
-        <TextInput hideText={DBState.db.hideApiKey} marginBottom={false} size={"sm"} placeholder="leave it blank if it hasn't password" bind:value={DBState.db.proxyKey} />
+        <TextInput hideText={DBState.db.hideApiKey} marginBottom={false} size={"sm"} placeholder="비밀번호가 없다면 비워 두세요" bind:value={DBState.db.proxyKey} />
         <span class="text-textcolor mt-4"> {language.proxyRequestModel}</span>
-        <TextInput marginBottom={false} size={"sm"} bind:value={DBState.db.customProxyRequestModel} placeholder="Name" />
+        <TextInput marginBottom={false} size={"sm"} bind:value={DBState.db.customProxyRequestModel} placeholder="이름" />
         <span class="text-textcolor mt-4"> {language.format}</span>
         <SelectInput value={DBState.db.customAPIFormat.toString()} onchange={(e) => {
             DBState.db.customAPIFormat = parseInt(e.currentTarget.value) as LLMFormat
@@ -263,14 +263,14 @@
         <SegmentedControl
             bind:value={DBState.db.ollamaInputMode}
             options={[
-                { value: 'list', label: (language as any).nanoGPTSelectFromList || 'Select from List' },
-                { value: 'manual', label: (language as any).nanoGPTManualInput || 'Manual Input' }
+                { value: 'list', label: (language as any).nanoGPTSelectFromList || '목록에서 선택' },
+                { value: 'manual', label: (language as any).nanoGPTManualInput || '직접 입력' }
             ]}
             size="md"
         />
 
         {#if DBState.db.ollamaInputMode === 'manual'}
-            <TextInput marginBottom={false} size={"sm"} bind:value={DBState.db.ollamaCloudModel} placeholder="Model" oninput={() => DBState.db.ollamaCloudModelName = ''} />
+            <TextInput marginBottom={false} size={"sm"} bind:value={DBState.db.ollamaCloudModel} placeholder="모델" oninput={() => DBState.db.ollamaCloudModelName = ''} />
         {:else}
             {#await getOllamaModels(DBState.db.ollamaURL, 'cloud', DBState.db.ollamaApiKey)}
                 <ModelGrid bind:value={DBState.db.ollamaCloudModel} loading={true} />
@@ -309,35 +309,35 @@
             </SelectInput>
 
             <div class="mt-2">
-                <CheckInput bind:check={DBState.db.useStreaming} name={`Response ${language.streaming}`} />
+                <CheckInput bind:check={DBState.db.useStreaming} name={`응답 ${language.streaming}`} />
             </div>
         {/if}
 
         {#if usesOllamaLocal}
-        <span class="text-textcolor mt-4">Ollama Model</span>
-        <TextInput marginBottom={false} size={"sm"} bind:value={DBState.db.ollamaModel} placeholder="Model" oninput={() => { DBState.db.ollamaModelSource = 'local'; DBState.db.ollamaModelName = '' }} />
+        <span class="text-textcolor mt-4">Ollama 모델</span>
+        <TextInput marginBottom={false} size={"sm"} bind:value={DBState.db.ollamaModel} placeholder="모델" oninput={() => { DBState.db.ollamaModelSource = 'local'; DBState.db.ollamaModelName = '' }} />
         {/if}
 
         {#if usesOllamaLocal || (usesOllamaCloud && DBState.db.ollamaRequestFormat === LLMFormat.Ollama)}
-        <span class="text-textcolor mt-4">Ollama Thinking</span>
+        <span class="text-textcolor mt-4">Ollama 사고 모드</span>
         <SelectInput bind:value={DBState.db.ollamaThinkingMode}>
             <OptionInput value="auto">
-                Auto
+                자동
             </OptionInput>
             <OptionInput value="off">
-                Off
+                끄기
             </OptionInput>
             <OptionInput value="on">
-                On
+                켜기
             </OptionInput>
             <OptionInput value="low">
-                Low
+                낮음
             </OptionInput>
             <OptionInput value="medium">
-                Medium
+                보통
             </OptionInput>
             <OptionInput value="high">
-                High
+                높음
             </OptionInput>
         </SelectInput>
         {/if}
@@ -358,8 +358,8 @@
         <SegmentedControl
             bind:value={nanogptInputMode}
             options={[
-                { value: 'list', label: (language as any).nanoGPTSelectFromList || 'Select from List' },
-                { value: 'manual', label: (language as any).nanoGPTManualInput || 'Manual Input' }
+                { value: 'list', label: (language as any).nanoGPTSelectFromList || '목록에서 선택' },
+                { value: 'manual', label: (language as any).nanoGPTManualInput || '직접 입력' }
             ]}
             size="md"
         />
@@ -423,10 +423,10 @@
 
     <div class="py-2 flex flex-col gap-2 mb-4">
         {#if !usesOllamaCloud && (modelInfo.flags.includes(LLMFlags.hasStreaming) || subModelInfo.flags.includes(LLMFlags.hasStreaming))}
-            <Check bind:check={DBState.db.useStreaming} name={`Response ${language.streaming}`}/>
+            <Check bind:check={DBState.db.useStreaming} name={`응답 ${language.streaming}`}/>
             
             {#if DBState.db.useStreaming && (modelInfo.flags.includes(LLMFlags.geminiThinking) || subModelInfo.flags.includes(LLMFlags.geminiThinking))}
-                <Check bind:check={DBState.db.streamGeminiThoughts} name={`Stream Gemini Thoughts`}/>
+                <Check bind:check={DBState.db.streamGeminiThoughts} name={`Gemini 생각 과정 스트리밍`}/>
             {/if}
         {/if}
 
@@ -443,7 +443,7 @@
     {#if DBState.db.aiModel === 'custom' || DBState.db.subModel === 'custom'}
         <span class="text-textcolor mt-2">{language.plugin}</span>
         <SelectInput className="mt-2 mb-4" bind:value={DBState.db.currentPluginProvider}>
-            <OptionInput value="">None</OptionInput>
+            <OptionInput value="">없음</OptionInput>
             {#each $customProviderStore as plugin}
                 <OptionInput value={plugin}>{plugin}</OptionInput>
             {/each}
@@ -456,9 +456,9 @@
     {/if}
 
     {#if DBState.db.aiModel === 'echo_model' || DBState.db.subModel === 'echo_model'}
-        <span class="text-textcolor mt-2">Echo Message</span>
+        <span class="text-textcolor mt-2">에코 메시지</span>
         <TextAreaInput margin="bottom" bind:value={DBState.db.echoMessage} placeholder={"The message you want to receive as the bot's response\n(e.g., Lumi tilts her head, her white hair sliding down as her pretty green and aqua eyes sparkle…)"}/>
-        <span class="text-textcolor mt-2">Echo Delay (Seconds)</span>
+        <span class="text-textcolor mt-2">에코 지연 (초)</span>
         <NumberInput marginBottom={true} bind:value={DBState.db.echoDelay} min={0}/>
     {/if}
 
@@ -470,13 +470,13 @@
         || DBState.db.aiModel === 'mancer' || DBState.db.subModel === 'mancer'}
         <span class="text-textcolor mt-2">Blocking {language.providerURL}</span>
         <TextInput marginBottom={true} bind:value={DBState.db.textgenWebUIBlockingURL} placeholder="https://..."/>
-        <span class="text-draculared text-xs mb-2">You must use textgen webui with --public-api</span>
+        <span class="text-draculared text-xs mb-2">textgen webui를 --public-api 옵션과 함께 실행해야 합니다</span>
         <span class="text-textcolor mt-2">Stream {language.providerURL}</span>
         <TextInput marginBottom={true} bind:value={DBState.db.textgenWebUIStreamURL} placeholder="wss://..."/>
         {#if !isTauri}
-            <span class="text-draculared text-xs mb-2">You are using web version. you must use ngrok or other tunnels to use your local webui.</span>
+            <span class="text-draculared text-xs mb-2">웹 버전을 사용 중입니다. 로컬 webui를 사용하려면 ngrok 같은 터널링 도구를 사용해야 합니다.</span>
         {/if}
-        <span class="text-draculared text-xs mb-2">Warning: For Ooba version over 1.7, use "Ooba" as model, and use url like http://127.0.0.1:5000/v1/chat/completions</span>
+        <span class="text-draculared text-xs mb-2">경고: Ooba 1.7 이상 버전에서는 모델을 "Ooba"로 선택하고 http://127.0.0.1:5000/v1/chat/completions 형식의 URL을 사용하세요</span>
     {/if}
     {#if DBState.db.aiModel === 'ooba' || DBState.db.subModel === 'ooba'}
         <span class="text-textcolor mt-2">Ooba {language.providerURL}</span>
@@ -495,9 +495,9 @@
     <!-- Data-driven basic parameters -->
     <SettingRenderer items={allBasicParameterItems} {modelInfo} {subModelInfo} />
     {#if DBState.db.aiModel === 'textgen_webui' || DBState.db.aiModel === 'mancer' || DBState.db.aiModel.startsWith('local_') || DBState.db.aiModel.startsWith('hf:::')}
-        <span class="text-textcolor">Repetition Penalty</span>
+        <span class="text-textcolor">반복 패널티</span>
         <SliderInput min={1} max={1.5} step={0.01} fixed={2} marginBottom bind:value={DBState.db.ooba.repetition_penalty}/>
-        <span class="text-textcolor">Length Penalty</span>
+        <span class="text-textcolor">길이 패널티</span>
         <SliderInput min={-5} max={5} step={0.05} marginBottom fixed={2} bind:value={DBState.db.ooba.length_penalty}/>
         <span class="text-textcolor">Top K</span>
         <SliderInput min={0} max={100} step={1} marginBottom bind:value={DBState.db.ooba.top_k} />
@@ -507,7 +507,7 @@
         <SliderInput min={0} max={1} step={0.01} marginBottom fixed={2} bind:value={DBState.db.ooba.typical_p}/>
         <span class="text-textcolor">Top A</span>
         <SliderInput min={0} max={1} step={0.01} marginBottom fixed={2} bind:value={DBState.db.ooba.top_a}/>
-        <span class="text-textcolor">No Repeat n-gram Size</span>
+        <span class="text-textcolor">반복 금지 n-gram 크기</span>
         <SliderInput min={0} max={20} step={1} marginBottom bind:value={DBState.db.ooba.no_repeat_ngram_size}/>
         <div class="flex items-center mt-4">
             <Check bind:check={DBState.db.ooba.do_sample} name={'Do Sample'}/>
@@ -563,9 +563,9 @@
     
     {:else if modelInfo.format === LLMFormat.NovelAI}
         <div class="flex flex-col p-3 bg-darkbg mt-4">
-            <span class="text-textcolor">Starter</span>
+            <span class="text-textcolor">시작 문자열</span>
             <TextInput bind:value={DBState.db.NAIsettings.starter} placeholder={'⁂'} />
-            <span class="text-textcolor">Seperator</span>
+            <span class="text-textcolor">구분자</span>
             <TextInput bind:value={DBState.db.NAIsettings.seperator} placeholder={"\\n"}/>
         </div>
         <span class="text-textcolor">Top P</span>
@@ -574,19 +574,19 @@
         <SliderInput min={0} max={100} step={1} marginBottom bind:value={DBState.db.NAIsettings.topK}/>
         <span class="text-textcolor">Top A</span>
         <SliderInput min={0} max={1} step={0.01} marginBottom fixed={2} bind:value={DBState.db.NAIsettings.topA}/>
-        <span class="text-textcolor">Tailfree Sampling</span>
+        <span class="text-textcolor">Tailfree 샘플링</span>
         <SliderInput min={0} max={1} step={0.001} marginBottom fixed={3} bind:value={DBState.db.NAIsettings.tailFreeSampling}/>
         <span class="text-textcolor">Typical P</span>
         <SliderInput min={0} max={1} step={0.01} marginBottom fixed={2} bind:value={DBState.db.NAIsettings.typicalp}/>
-        <span class="text-textcolor">Repetition Penalty</span>
+        <span class="text-textcolor">반복 패널티</span>
         <SliderInput min={0} max={3} step={0.01} marginBottom fixed={2} bind:value={DBState.db.NAIsettings.repetitionPenalty}/>
-        <span class="text-textcolor">Repetition Penalty Range</span>
+        <span class="text-textcolor">반복 패널티 범위</span>
         <SliderInput min={0} max={8192} step={1} marginBottom fixed={0} bind:value={DBState.db.NAIsettings.repetitionPenaltyRange}/>
-        <span class="text-textcolor">Repetition Penalty Slope</span>
+        <span class="text-textcolor">반복 패널티 기울기</span>
         <SliderInput min={0} max={10} step={0.01} marginBottom fixed={2} bind:value={DBState.db.NAIsettings.repetitionPenaltySlope}/>
-        <span class="text-textcolor">Frequency Penalty</span>
+        <span class="text-textcolor">빈도 패널티</span>
         <SliderInput min={-2} max={2} step={0.01} marginBottom fixed={2} bind:value={DBState.db.NAIsettings.frequencyPenalty}/>
-        <span class="text-textcolor">Presence Penalty</span>
+        <span class="text-textcolor">프리센스 패널티</span>
         <SliderInput min={-2} max={2} step={0.01} marginBottom fixed={2} bind:value={DBState.db.NAIsettings.presencePenalty}/>
         <span class="text-textcolor">Mirostat LR</span>
         <SliderInput min={0} max={1} step={0.01} marginBottom fixed={2} bind:value={DBState.db.NAIsettings.mirostat_lr}/>
@@ -598,11 +598,11 @@
     {:else if modelInfo.format === LLMFormat.NovelList}
         <span class="text-textcolor">Top P</span>
         <SliderInput min={0} max={2} step={0.01} marginBottom fixed={2} bind:value={DBState.db.ainconfig.top_p}/>
-        <span class="text-textcolor">Reputation Penalty</span>
+        <span class="text-textcolor">반복 패널티</span>
         <SliderInput min={0} max={2} step={0.01} marginBottom fixed={2} bind:value={DBState.db.ainconfig.rep_pen}/>
-        <span class="text-textcolor">Reputation Penalty Range</span>
+        <span class="text-textcolor">반복 패널티 범위</span>
         <SliderInput min={0} max={2048} step={1} marginBottom fixed={2} bind:value={DBState.db.ainconfig.rep_pen_range}/>
-        <span class="text-textcolor">Reputation Penalty Slope</span>
+        <span class="text-textcolor">반복 패널티 기울기</span>
         <SliderInput min={0} max={10} step={0.1} marginBottom fixed={2} bind:value={DBState.db.ainconfig.rep_pen_slope}/>
         <span class="text-textcolor">Top K</span>
         <SliderInput min={1} max={500} step={1} marginBottom fixed={2} bind:value={DBState.db.ainconfig.top_k}/>
@@ -627,11 +627,11 @@
 {/if}
 
 {#if submenu === 3 || submenu === -1}
-    <Accordion styled name="Bias " help="bias">
+    <Accordion styled name="바이어스 " help="bias">
         <table class="contain w-full max-w-full tabler">
             <tbody>
             <tr>
-                <th class="font-medium">Bias</th>
+                <th class="font-medium">바이어스</th>
                 <th class="font-medium">{language.value}</th>
                 <th>
                     <button class="font-medium cursor-pointer hover:text-green-500 w-full flex justify-center items-center" onclick={() => {

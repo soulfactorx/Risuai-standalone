@@ -24,6 +24,7 @@ import { chatCompletion, unloadEngine } from "../webllm";
 import { hypaV3ProgressStore } from "src/ts/stores.svelte";
 import { type ChatTokenizer } from "src/ts/tokenizer";
 import { inlayTokenRegex } from "src/ts/util/inlayTokens";
+import { getPrompt } from "src/ts/prompts/customPrompts";
 
 export interface HypaV3Preset {
     name: string;
@@ -103,7 +104,10 @@ export interface HypaV3Result {
 }
 
 const logPrefix = "[HypaV3]";
-const memoryPromptTag = "Past Events Summary";
+/** 기억을 감싸는 XML 태그 이름 (사용자 지정 가능: 설정 → 프롬프트 관리의 hypaV3MemoryTag) */
+function getMemoryPromptTag(): string {
+    return getPrompt("hypaV3MemoryTag").trim() || "Past Events Summary";
+}
 const summarySeparator = "\n\n";
 
 function splitBySeparator(text: string, separator: string): string[] {
@@ -237,7 +241,7 @@ async function hypaMemoryV3MainExp(
     // Reserve memory tokens
     const emptyMemoryTokens = await tokenizer.tokenizeChat({
         role: "system",
-        content: wrapWithXml(memoryPromptTag, ""),
+        content: wrapWithXml(getMemoryPromptTag(), ""),
     });
     const memoryTokens = Math.floor(
         maxContextTokens * settings.memoryTokensRatio
@@ -879,7 +883,7 @@ async function hypaMemoryV3MainExp(
 
     // Generate final memory prompt
     const memory = wrapWithXml(
-        memoryPromptTag,
+        getMemoryPromptTag(),
         selectedSummaries.map((e) => e.text).join(summarySeparator)
     );
     const realMemoryTokens = await tokenizer.tokenizeChat({
@@ -1016,7 +1020,7 @@ async function hypaMemoryV3Main(
     // Reserve memory tokens
     const emptyMemoryTokens = await tokenizer.tokenizeChat({
         role: "system",
-        content: wrapWithXml(memoryPromptTag, ""),
+        content: wrapWithXml(getMemoryPromptTag(), ""),
     });
     const memoryTokens = Math.floor(
         maxContextTokens * settings.memoryTokensRatio
@@ -1191,7 +1195,7 @@ async function hypaMemoryV3Main(
     // Early return if no summaries
     if (data.summaries.length === 0) {
         // Generate final memory prompt
-        const memory = wrapWithXml(memoryPromptTag, "");
+        const memory = wrapWithXml(getMemoryPromptTag(), "");
 
         const newChats: OpenAIChat[] = [
             {
@@ -1542,7 +1546,7 @@ async function hypaMemoryV3Main(
 
     // Generate final memory prompt
     const memory = wrapWithXml(
-        memoryPromptTag,
+        getMemoryPromptTag(),
         selectedSummaries.map((e) => e.text).join(summarySeparator)
     );
     const realMemoryTokens = await tokenizer.tokenizeChat({

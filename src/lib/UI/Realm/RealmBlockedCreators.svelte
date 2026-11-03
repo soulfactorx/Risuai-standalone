@@ -17,7 +17,7 @@
     <div class="flex max-h-full w-xl max-w-full flex-col gap-4 overflow-y-auto rounded-md bg-darkbg p-6" role="presentation" onclick={(e) => e.stopPropagation()}>
         <div class="flex items-center justify-between gap-4">
             <h1 class="text-2xl font-bold">{language.blockedRealmCreators}</h1>
-            <button class="text-textcolor2 hover:text-green-500" onclick={onClose} aria-label="Close">
+            <button class="text-textcolor2 hover:text-green-500" onclick={onClose} aria-label="닫기">
                 <XIcon />
             </button>
         </div>

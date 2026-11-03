@@ -20,7 +20,7 @@
     <div class="ml-4 mt-4 flex flex-col items-start text-start">
         <h2 class="text-lg font-semibold break-all line-clamp-1">{card.name}</h2>
         {#if card.hidden}
-            <span class="text-sm text-red-500 line-clamp-1 text-wrap max-w-full break-all whitespace-pre-wrap">Private</span>
+            <span class="text-sm text-red-500 line-clamp-1 text-wrap max-w-full break-all whitespace-pre-wrap">비공개</span>
         {:else if card.authorname}
             <span class="text-sm text-gray-500 line-clamp-1 text-wrap max-w-full break-all whitespace-pre-wrap">By {card.authorname}</span>
         {/if}

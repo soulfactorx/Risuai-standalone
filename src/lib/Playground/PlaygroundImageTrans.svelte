@@ -8,9 +8,11 @@
     import { alertError } from "src/ts/alert";
     import SelectInput from "../UI/GUI/SelectInput.svelte";
     import NumberInput from "../UI/GUI/NumberInput.svelte";
+    import { getPrompt } from 'src/ts/prompts/customPrompts';
 
-    const autoPrompt = ('extract text chunk from the image, with all the positions and background color, and translate them to {{slot}} in a JSON format.Format of: \n\n [\n  {\n    "bg_hex_color": string\n    "content": string\n    "text_hex_color": string,\n    "x_max": number,\n    "x_min": number,\n    "y_max": number,\n    "y_min": number\n    "translation": string,\n  }\n]\n\n each properties is:\n - x_min, y_min, x_max, y_max: range of 0 (most left/top point of the image) to 1 (most bottom/right point of the image), it is the bounding boxes of the original text chunk.\n - bg_hex_color is the color of the background.\n - text_hex_color is the color of the text.\n - translation is the translated text.\n - content is the original text chunk.').replace(/\n/g, '\\n');
-    const manualPrompt = (`extract text from the image, and translate it to {{slot}} in a JSON format. Format of: \n\n{\n  "content": string,\n  "translation": string\n}\n\n each properties is:\n - content: the original text chunk.\n - translation: the translated text.`).replace(/\n/g, '\\n');
+    // 기본 프롬프트는 설정 → 프롬프트 관리에서 바꿀 수 있다. (playgroundImageTransAuto / playgroundImageTransManual)
+    const autoPrompt = getPrompt('playgroundImageTransAuto').replace(/\n/g, '\\n');
+    const manualPrompt = getPrompt('playgroundImageTransManual').replace(/\n/g, '\\n');
 
     let mode:'auto'|'manual' = $state('auto');
     let fontSize = $state(0);
@@ -67,14 +69,14 @@
             }
             else{
                 if(!inputImage){
-                    return alertError('Please select an image first');
+                    return alertError('먼저 이미지를 선택하세요');
                 }
                 const slicedCanvas = document.createElement('canvas');
                 slicedCanvas.width = canvas.width;
                 slicedCanvas.height = canvas.height;
                 const slicedCtx = slicedCanvas.getContext('2d');
                 if(!slicedCtx){
-                    return alertError('Failed to create canvas context');
+                    return alertError('캔버스 컨텍스트를 만들지 못했습니다');
                 }
                 const selectionRect = selection.getBoundingClientRect();
                 const canvasRect = canvas.getBoundingClientRect();
@@ -174,7 +176,7 @@
 
             if(d.type === 'streaming' || d.type === 'multiline'){
                 loading = false;
-                return alertError('This model is not supported in the playground')
+                return alertError('이 모델은 플레이그라운드에서 지원하지 않습니다')
             }
 
             if(d.type !== 'success'){
@@ -344,7 +346,7 @@
 <span class="text-textcolor text-lg mt-4">{language.font}</span>
 <TextInput bind:value={fontFamily} />
 
-<span class="text-textcolor text-lg mt-4">fontSize</span>
+<span class="text-textcolor text-lg mt-4">글자 크기</span>
 <NumberInput bind:value={fontSize} />
 
 {#if mode === 'manual'}

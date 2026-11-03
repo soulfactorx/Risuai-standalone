@@ -566,7 +566,7 @@ async function translateLLM(text:string, arg:{to:string, from:string, regenerate
         return text
     }
     if(rq.type === 'streaming' || rq.type === 'multiline'){
-        alertError('Unexpected response type')
+        alertError('예상하지 못한 응답 형식입니다')
         return text
     }
     const result = rq.result.replace(/<style-data style-index="(\d+)" ?\/?>/g, (match, p1) => {

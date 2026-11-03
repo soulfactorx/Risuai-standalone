@@ -33,6 +33,7 @@
     import PluginDefinedIcon from '../Others/PluginDefinedIcon.svelte';
     import { getAdditionalChatLoadPages, getInitialChatLoadPages } from 'src/ts/chatLoadPages';
     import { getActiveOnboarding, isOnboardingPending } from 'src/ts/onboarding';
+    import { getPrompt } from 'src/ts/prompts/customPrompts';
 
     const loadPlaygroundMenu = () => import('../Playground/PlaygroundMenu.svelte').then(m => m.default);
     
@@ -175,7 +176,8 @@
                     if(DBState.db.useSayNothing){
                         cha.push({
                             role: 'user',
-                            data: '*says nothing*',
+                            // 사용자 지정 가능: 설정 → 프롬프트 관리 (saysNothing)
+                            data: getPrompt('saysNothing'),
                             name: $ConnectionOpenStore ? DBState.db.username : null
                         })
                     }
@@ -452,18 +454,18 @@
             loadPages = Infinity
             const html2canvas = await import('html-to-image');
             const chats = document.querySelectorAll('.default-chat-screen .risu-chat')
-            alertWait("Taking screenShot...")
+            alertWait("스크린샷 찍는 중...")
             let canvases:HTMLCanvasElement[] = []
 
             for(const chat of chats){
                 const cnv = await html2canvas.toCanvas(chat as HTMLElement)
-                alertWait("Taking screenShot... "+canvases.length+"/"+chats.length)
+                alertWait("스크린샷 찍는 중... "+canvases.length+"/"+chats.length)
                 canvases.push(cnv)
             }
 
             canvases.reverse()
 
-            alertWait("Merging images...")
+            alertWait("이미지 합치는 중...")
 
             let mergedCanvas = document.createElement('canvas');
             mergedCanvas.width = 0;
@@ -499,7 +501,7 @@
             loadPages = getInitialChatLoadPages(DBState.db)
         } catch (error) {
             console.error(error)
-            alertError("Error while taking screenshot")
+            alertError("스크린샷을 찍는 중 오류가 발생했습니다")
         }
     }
 
@@ -558,7 +560,7 @@
     {/if}
     {#if isScrollingToMessage}
         <div class="absolute inset-0 z-50 flex items-center justify-center bg-black/50 text-white text-xl font-bold backdrop-blur-sm">
-            Loading...
+            불러오는 중...
         </div>
     {/if}
     {#if $selectedCharID < 0}
@@ -738,12 +740,12 @@
                                     <video controls class="max-w-48 max-h-48 border border-darkborderc">
                                         <source src={inlayAsset.data} type="video/mp4" />
                                         <track kind="captions" />
-                                        Your browser does not support the video tag.
+                                        브라우저가 비디오 태그를 지원하지 않습니다.
                                     </video>
                                 {:else if inlayAsset.type === 'audio'}
                                     <audio controls class="max-w-48 max-h-24 border border-darkborderc">
                                         <source src={inlayAsset.data} type="audio/mpeg" />
-                                        Your browser does not support the audio tag.
+                                        브라우저가 오디오 태그를 지원하지 않습니다.
                                     </audio>
                                 {:else}
                                     <div class="max-w-24 max-h-24">{file}</div>

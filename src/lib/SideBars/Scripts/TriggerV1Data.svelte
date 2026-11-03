@@ -42,7 +42,7 @@
                 onClose()
             }
         }}>
-            <span>{value.comment.length === 0 ? 'Unnamed Trigger' : value.comment}</span>
+            <span>{value.comment.length === 0 ? '이름 없는 트리거' : value.comment}</span>
         </button>
         <button class="valuer" onclick={async () => {
             const d = await alertConfirm(language.removeConfirm + value.comment)
@@ -68,7 +68,7 @@
                 <OptionInput value="manual">{language.triggerManual}</OptionInput>
             </SelectInput>
             
-            <span class="text-textcolor mt-4">Conditions
+            <span class="text-textcolor mt-4">조건
                 <button aria-labelledby="Add Conditions" class="float-right text-textcolor2 hover:text-green-500" onclick={() => {
                     value.conditions.push({
                         type: 'value',
@@ -166,7 +166,7 @@
                 {/each}
             </div>
 
-            <span class="text-textcolor mt-4">Effects
+            <span class="text-textcolor mt-4">효과
                 <button aria-labelledby="Add Effects" class="float-right text-textcolor2 hover:text-green-500" onclick={() => {
                     if(value.type === 'start'){
                         value.effect.push({

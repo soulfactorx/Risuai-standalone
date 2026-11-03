@@ -200,7 +200,7 @@ describe('GUI rendering without a browser session', () => {
         expect(checkbox.target.querySelector('svg')).not.toBeNull()
 
         const defaultInput = optionalText.getBySelector<HTMLInputElement>('input[type="text"]')
-        expect(defaultInput.value).toBe('Using default')
+        expect(defaultInput.value).toBe('기본값 사용 중')
         expect(defaultInput.disabled).toBe(true)
 
         const optionalNumberInput = optionalNumber.getBySelector<HTMLInputElement>('input[type="number"]')
@@ -208,7 +208,7 @@ describe('GUI rendering without a browser session', () => {
         expect(optionalNumber.target.firstElementChild?.classList.contains('mb-4')).toBe(true)
 
         const booleanButtons = Array.from(optionalBoolean.target.querySelectorAll<HTMLButtonElement>('button'))
-        expect(booleanButtons.map((button) => button.textContent?.trim())).toEqual(['True', 'False'])
+        expect(booleanButtons.map((button) => button.textContent?.trim())).toEqual(['참', '거짓'])
         expect(booleanButtons[0].classList.contains('text-textcolor2')).toBe(true)
         expect(booleanButtons[1].classList.contains('text-textcolor2')).toBe(false)
 

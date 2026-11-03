@@ -26,7 +26,7 @@
             >
                 {#if DBState.db.customSidebarItems.length === 0}
                     <div class="text-textcolor2">
-                        No custom sidebar items configured
+                        설정된 사용자 지정 사이드바 항목이 없습니다
                     </div>
                 {/if}
 
@@ -45,7 +45,7 @@
                                     );
                             }}
                         >
-                            Delete
+                            삭제
                         </button>
                     </div>
                 {/each}
@@ -56,7 +56,7 @@
                     configPage = "add";
                 }}
             >
-                Add Item
+                항목 추가
             </Button>
 
             <Button
@@ -64,7 +64,7 @@
                     customSideBarConfigDialogStore.open = false;
                 }}
             >
-                Close
+                닫기
             </Button>
         {/if}
 
@@ -139,19 +139,19 @@
                     configPage = "list";
                 }}
             >
-                Back to List
+                목록으로
             </Button>
         {/if}
 
         {#if configPage === "addSettingsSubmenu"}
             <div class="flex flex-col gap-2">
-                <TextInput bind:value={search} placeholder="Search..." />
+                <TextInput bind:value={search} placeholder="검색..." />
                 <Button
                     onclick={() => {
                         configPage = "add";
                     }}
                 >
-                    Back
+                    뒤로
                 </Button>
 
                 {#each getFullSettingsData(search) as type}

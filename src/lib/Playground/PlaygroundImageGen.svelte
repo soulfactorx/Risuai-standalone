@@ -24,14 +24,14 @@
 
 <h2 class="text-4xl text-textcolor my-6 font-black relative">{language.imageGeneration}</h2>
 
-<span class="text-textcolor text-lg">Prompt</span>
+<span class="text-textcolor text-lg">프롬프트</span>
 <TextAreaInput bind:value={prompt} />
 
-<span class="text-textcolor text-lg">Neg. Prompt</span>
+<span class="text-textcolor text-lg">네거티브 프롬프트</span>
 <TextAreaInput bind:value={negPrompt} />
 
 {#if img}
-    <span class="text-textcolor text-lg">Generated</span>
+    <span class="text-textcolor text-lg">생성 결과</span>
     <img src={img} class="max-w-full mt-4" alt="Generated"/>
 {/if}
 
@@ -39,6 +39,6 @@
     {#if generating}
         <div class="loadmove"></div>
     {:else}
-        Generate
+        생성
     {/if}
 </Button>

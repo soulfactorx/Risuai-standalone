@@ -90,7 +90,7 @@
                 const sel = parseInt(await alertSelect([language.createfromScratch, language.importCharacter]))
                 if(sel === 0){
                     DBState.db.personas.push({
-                        name: 'New Persona',
+                        name: '새 페르소나',
                         icon: '',
                         personaPrompt: '',
                         note: ''
@@ -131,7 +131,7 @@
     </div>
     <div class="flex grow flex-col p-2 max-w-full">
         <span class="text-sm text-textcolor2">{language.name}</span>
-        <TextInput marginBottom size="lg" placeholder="User" bind:value={DBState.db.username}/>
+        <TextInput marginBottom size="lg" placeholder="사용자" bind:value={DBState.db.username}/>
         <span class="text-sm text-textcolor2">{language.note}</span>
         <TextInput marginBottom size="lg" bind:value={DBState.db.userNote} placeholder={language.personaNotePlaceholder} />
         <span class="text-sm text-textcolor2">{language.description}</span>

@@ -125,13 +125,13 @@
                 
                 // Basic condition check
                 if (!evt.from || !evt.to) {
-                    alertError('Error: \'evt.from\' or \'evt.to\' is null');
+                    alertError('오류: \'evt.from\' 또는 \'evt.to\'가 null입니다');
                     await recreateStb();
                     return;
                 }
                 
                 if (evt.oldIndex === undefined || evt.newIndex === undefined) {
-                    alertError('Error: oldIndex or newIndex is undefined');
+                    alertError('오류: oldIndex 또는 newIndex가 정의되지 않았습니다');
                     await recreateStb();
                     return;
                 }
@@ -363,7 +363,7 @@
             {@const visibleItems = externalLoreBooks.filter(book => (!showFolder && !book.folder) || (showFolder === book.folder))}
             {@const lastVisibleItem = visibleItems[visibleItems.length - 1]}
             {#if externalLoreBooks.length === 0}
-                <span class="text-textcolor2">No Lorebook</span>
+                <span class="text-textcolor2">로어북 없음</span>
             {:else}
                 {#each externalLoreBooks as book, i}
                     {#if (!showFolder && !book.folder) || (showFolder === book.folder)}
@@ -414,7 +414,7 @@
             {@const visibleItems = DBState.db.characters[$selectedCharID].globalLore.filter(book => (!showFolder && !book.folder) || (showFolder === book.folder))}
             {@const lastVisibleItem = visibleItems[visibleItems.length - 1]}
             {#if DBState.db.characters[$selectedCharID].globalLore.length === 0}
-                <span class="text-textcolor2">No Lorebook</span>
+                <span class="text-textcolor2">로어북 없음</span>
             {:else}
                 {#each DBState.db.characters[$selectedCharID].globalLore as book, i}
                     {#if (!showFolder && !book.folder) || (showFolder === book.folder)}
@@ -465,7 +465,7 @@
             {@const visibleItems = DBState.db.characters[$selectedCharID].chats[DBState.db.characters[$selectedCharID].chatPage].localLore.filter(book => (!showFolder && !book.folder) || (showFolder === book.folder))}
             {@const lastVisibleItem = visibleItems[visibleItems.length - 1]}
             {#if DBState.db.characters[$selectedCharID].chats[DBState.db.characters[$selectedCharID].chatPage].localLore.length === 0}
-                <span class="text-textcolor2">No Lorebook</span>
+                <span class="text-textcolor2">로어북 없음</span>
             {:else}
                 {#each DBState.db.characters[$selectedCharID].chats[DBState.db.characters[$selectedCharID].chatPage].localLore as book, i}
                     {#if (!showFolder && !book.folder) || (showFolder === book.folder)}

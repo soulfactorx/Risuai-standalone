@@ -47,6 +47,7 @@ import { isTauri } from "./platform";
 import { registerModelDynamic } from "./model/modellist";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { appDataDir, join } from "@tauri-apps/api/path";
+import { isStandalone } from "./standalone";
 
 const appWindow = isTauri ? getCurrentWebviewWindow() : null
 
@@ -58,7 +59,7 @@ export async function loadData() {
     if (!loaded) {
         try {
             if (isTauri) {
-                LoadingStatusState.text = "Checking Files..."
+                LoadingStatusState.text = "파일 확인 중..."
                 appWindow.maximize()
                 if (!await exists('', { baseDir: BaseDirectory.AppData })) {
                     await mkdir('', { baseDir: BaseDirectory.AppData })
@@ -74,7 +75,7 @@ export async function loadData() {
                 }
                 const appDataDirPath = await appDataDir();
                 try {
-                    LoadingStatusState.text = "Reading Save File..."
+                    LoadingStatusState.text = "저장 파일 읽는 중..."
                     const dbPath = await join(appDataDirPath, 'database/database.bin');
                     const assetUrl = convertFileSrc(dbPath);
                     const response = await fetch(assetUrl);
@@ -82,18 +83,18 @@ export async function loadData() {
                         throw new Error(`Failed to load database: ${response.status}`);
                     }
                     const readed = new Uint8Array(await response.arrayBuffer());
-                    LoadingStatusState.text = "Cleaning Unnecessary Files..."
+                    LoadingStatusState.text = "불필요한 파일 정리 중..."
                     getDbBackups() //this also cleans the backups
-                    LoadingStatusState.text = "Decoding Save File..."
+                    LoadingStatusState.text = "저장 파일 해독 중..."
                     await applyDecodedSave(readed)
                 } catch (error) {
-                    LoadingStatusState.text = "Reading Backup Files..."
+                    LoadingStatusState.text = "백업 파일 읽는 중..."
                     const backups = await getDbBackups()
                     let backupLoaded = false
                     for (const backup of backups) {
                         if (!backupLoaded) {
                             try {
-                                LoadingStatusState.text = `Reading Backup File ${backup}...`
+                                LoadingStatusState.text = `백업 파일 ${backup} 읽는 중...`
                                 const backupPath = await join(appDataDirPath, `database/dbbackup-${backup}.bin`);
                                 const backupAssetUrl = convertFileSrc(backupPath);
                                 const backupResponse = await fetch(backupAssetUrl);
@@ -112,7 +113,7 @@ export async function loadData() {
                         throw "Your save file is corrupted"
                     }
                 }
-                LoadingStatusState.text = "Checking Update..."
+                LoadingStatusState.text = "업데이트 확인 중..."
                 await checkRisuUpdate()
                 await changeFullscreen()
 
@@ -120,9 +121,9 @@ export async function loadData() {
             else {
                 await forageStorage.Init()
 
-                LoadingStatusState.text = "Loading Local Save File..."
+                LoadingStatusState.text = "로컬 저장 파일 불러오는 중..."
                 let gotStorage: Uint8Array = await forageStorage.getItem('database/database.bin') as unknown as Uint8Array
-                LoadingStatusState.text = "Decoding Local Save File..."
+                LoadingStatusState.text = "로컬 저장 파일 해독 중..."
                 if (checkNullish(gotStorage)) {
                     gotStorage = await encodeRisuSave({})
                     await forageStorage.setItem('database/database.bin', gotStorage)
@@ -135,7 +136,7 @@ export async function loadData() {
                     let backupLoaded = false
                     for (const backup of backups) {
                         try {
-                            LoadingStatusState.text = `Reading Backup File ${backup}...`
+                            LoadingStatusState.text = `백업 파일 ${backup} 읽는 중...`
                             const backupData: Uint8Array = await forageStorage.getItem(`database/dbbackup-${backup}.bin`) as unknown as Uint8Array
                             await applyDecodedSave(backupData)
                             backupLoaded = true
@@ -149,9 +150,9 @@ export async function loadData() {
                 }
 
                 if (await forageStorage.checkAccountSync()) {
-                    LoadingStatusState.text = "Checking Account Sync..."
+                    LoadingStatusState.text = "계정 동기화 확인 중..."
                     let gotStorage: Uint8Array = await (forageStorage.realStorage as AccountStorage).getItem('database/database.bin', (v) => {
-                        LoadingStatusState.text = `Loading Remote Save File ${(v * 100).toFixed(2)}%`
+                        LoadingStatusState.text = `원격 저장 파일 불러오는 중 ${(v * 100).toFixed(2)}%`
                     })
                     if (checkNullish(gotStorage)) {
                         gotStorage = await encodeRisuSave({})
@@ -164,7 +165,7 @@ export async function loadData() {
                         let backupLoaded = false
                         for (const backup of backups) {
                             try {
-                                LoadingStatusState.text = `Reading Backup File ${backup}...`
+                                LoadingStatusState.text = `백업 파일 ${backup} 읽는 중...`
                                 const backupData: Uint8Array = await forageStorage.getItem(`database/dbbackup-${backup}.bin`) as unknown as Uint8Array
                                 await applyDecodedSave(backupData)
                                 backupLoaded = true
@@ -178,15 +179,16 @@ export async function loadData() {
                         }
                     }
                 }
-                LoadingStatusState.text = "Rechecking Account Sync..."
+                LoadingStatusState.text = "계정 동기화 다시 확인 중..."
                 await forageStorage.checkAccountSync()
-                LoadingStatusState.text = "Checking Drive Sync..."
+                LoadingStatusState.text = "드라이브 동기화 확인 중..."
                 const isDriverMode = await checkDriverInit()
                 if (isDriverMode) {
                     return
                 }
-                LoadingStatusState.text = "Checking Service Worker..."
-                if (navigator.serviceWorker) {
+                LoadingStatusState.text = "서비스 워커 확인 중..."
+                // 단독 HTML(file://) 에서는 서비스 워커를 등록할 수 없으므로 사용하지 않는다.
+                if (navigator.serviceWorker && !isStandalone) {
                     setUsingSw(true)
                     await registerSw()
                 }
@@ -198,7 +200,7 @@ export async function loadData() {
                 }
             }
             //plugins stay unloaded until their storage is migrated
-            LoadingStatusState.text = "Migrating Plugin Storage..."
+            LoadingStatusState.text = "플러그인 저장소 이전 중..."
             try {
                 await migratePluginStorage((message) => {
                     if (message) {
@@ -208,12 +210,12 @@ export async function loadData() {
             } catch (error) {
                 console.error('Failed to migrate plugin storage:', error)
             }
-            LoadingStatusState.text = "Loading Plugins..."
+            LoadingStatusState.text = "플러그인 불러오는 중..."
             try {
                 await loadPlugins()
             } catch (error) { }
             if (getDatabase().account) {
-                LoadingStatusState.text = "Checking Account Data..."
+                LoadingStatusState.text = "계정 데이터 확인 중..."
                 try {
                     await loadRisuAccountData()
                 } catch (error) { }
@@ -227,11 +229,11 @@ export async function loadData() {
             } catch (error) {
 
             }
-            LoadingStatusState.text = "Checking For Format Update..."
+            LoadingStatusState.text = "형식 업데이트 확인 중..."
             await checkNewFormat()
             const db = getDatabase();
 
-            LoadingStatusState.text = "Updating States..."
+            LoadingStatusState.text = "상태 갱신 중..."
             updateColorScheme()
             updateTextThemeAndCSS()
             updateAnimationSpeed()

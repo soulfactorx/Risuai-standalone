@@ -10,6 +10,7 @@ export function stringlizeNAIChat(formated:OpenAIChat[], char:string, continued:
 
     for(const form of formated){
         if(form.role === 'system'){
+            // memo 로 판별하므로 '새 채팅 시작' 문구를 바꿔도 동작한다.
             if(form.memo === 'NewChatExample' || form.memo === 'NewChat' || form.content === "[Start a new chat]"){
                 resultString.push(starter)
             }

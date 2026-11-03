@@ -245,7 +245,7 @@ export async function sayTTS(character:character,text:string) {
                 if (response.ok) {
                     await playAudio(response.data.buffer, 'audio/wav', { ttsMode: character.ttsMode ?? '', characterId: character.chaId })
                 } else {
-                    alertError("Error fetching or decoding audio data");
+                    alertError("오디오 데이터를 가져오거나 디코딩하는 중 오류가 발생했습니다");
                 }
                 break;
             }
@@ -281,7 +281,7 @@ export async function sayTTS(character:character,text:string) {
                         const mimeType = response.headers.get('content-type') || 'audio/wav'
                         await playAudio(buffer, mimeType, { ttsMode: character.ttsMode ?? '', characterId: character.chaId })
                     } else {
-                        alertError("Error fetching or decoding audio data");
+                        alertError("오디오 데이터를 가져오거나 디코딩하는 중 오류가 발생했습니다");
                     }
                     return
                 }
@@ -418,7 +418,7 @@ export async function sayTTS(character:character,text:string) {
             }
         }
     } catch (error) {
-        alertError(`TTS Error: ${error}`)
+        alertError(`TTS 오류: ${error}`)
     }
 }
 

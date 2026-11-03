@@ -4,6 +4,7 @@ import type { RisuModule } from './process/modules';
 import type { LLMModel } from './model/modellist';
 import { LLMFlags, LLMFormat } from './model/types';
 import { get } from 'svelte/store';
+import { publicAssetURL } from './standalone';
 import { CurrentTriggerIdStore } from './stores.svelte';
 
 export const defaultCBSRegisterArg: CBSRegisterArg = {
@@ -881,7 +882,7 @@ export function registerCBS(arg:CBSRegisterArg) {
         name: 'risu',
         callback: (str, matcherArg, args, vars) => {
             const size = args[0] || '45'
-            return `<img src="/logo2.png" style="height:${size}px;width:${size}px" />`
+            return `<img src="${publicAssetURL("/logo2.png")}" style="height:${size}px;width:${size}px" />`
         },
         alias: [],
         description: 'Displays the Risuai logo image with specified size in pixels. Default size is 45px if no argument provided. Returns HTML img element.\n\nUsage:: {{risu}} or {{risu::60}}',

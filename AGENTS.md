@@ -108,6 +108,9 @@ pnpm build
 # Web build for hosting
 pnpm buildsite
 
+# 단독 HTML 빌드 (file:// 로 바로 실행, STANDALONE.md 참고)
+pnpm build:standalone
+
 # Tauri desktop build
 pnpm tauribuild
 pnpm tauri build

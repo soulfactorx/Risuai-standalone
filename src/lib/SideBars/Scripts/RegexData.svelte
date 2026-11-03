@@ -64,18 +64,18 @@ interface Props {
 
     const flags = [
         //Vanila JS flags
-        ['Global (g)', 'g'],
-        ['Case Insensitive (i)', 'i'],
-        ['Multi Line (m)', 'm'],
-        ['Unicode (u)', 'u'],
+        ['전역 (g)', 'g'],
+        ['대소문자 무시 (i)', 'i'],
+        ['여러 줄 (m)', 'm'],
+        ['유니코드 (u)', 'u'],
         ['Dot All (s)', 's'],
 
         //Custom flags
-        ['Move Top', '<move_top>'],
-        ['Move Bottom', '<move_bottom>'],
-        ['Repeat Back', '<repeat_back>'],
-        ['IN CBS Parsing', '<cbs>'],
-        ['No Newline Subfix', '<no_end_nl>'],
+        ['맨 위로 이동', '<move_top>'],
+        ['맨 아래로 이동', '<move_bottom>'],
+        ['이전 반복', '<repeat_back>'],
+        ['IN CBS 파싱', '<cbs>'],
+        ['끝 줄바꿈 없음', '<no_end_nl>'],
     ]
 
     let open = $state(false)
@@ -92,7 +92,7 @@ interface Props {
                 onClose()
             }
         }}>
-            <span>{value.comment.length === 0 ? 'Unnamed Script' : value.comment}</span>
+            <span>{value.comment.length === 0 ? '이름 없는 스크립트' : value.comment}</span>
         </button>
         <button class="valuer" onclick={async () => {
             const d = await alertConfirm(language.removeConfirm + value.comment)
@@ -112,7 +112,7 @@ interface Props {
             <TextInput size="sm" bind:value={value.comment} onchange={(e) => {
                 $ReloadGUIPointer += 1
             }} />
-            <span class="text-textcolor mt-4">Modification Type</span>
+            <span class="text-textcolor mt-4">수정 유형</span>
             <SelectInput bind:value={value.type} onchange={(e) => {
                 $ReloadGUIPointer += 1
             }}>
@@ -132,8 +132,8 @@ interface Props {
             {#if value.ableFlag}
                 <!-- <span class="text-textcolor mt-6">FLAG:</span>
                 <TextInput size="sm" bind:value={value.flag} /> -->
-                <Accordion styled name="FLAGS">
-                    <span class="text-textcolor mt-3">Normal Flag</span>
+                <Accordion styled name="플래그">
+                    <span class="text-textcolor mt-3">일반 플래그</span>
                     <div class="grid w-full grid-cols-2 rounded-md border border-darkborderc">
                         {#each flags as flag, i}
                             <button class="w-full bg-darkbg border-darkborderc text-sm py-1"
@@ -150,7 +150,7 @@ interface Props {
                         {/each}
                     </div>
 
-                    <span class="text-textcolor mt-3">Order Flag</span>
+                    <span class="text-textcolor mt-3">순서 플래그</span>
                     <NumberInput value={getOrder(value.flag)} onChange={(e)=>{
                         changeOrder(parseInt(e.currentTarget.value))
                     }} />
@@ -163,7 +163,7 @@ interface Props {
                         value.flag = 'g'
                     }
                 }}/>
-                <span>Custom Flag</span>
+                <span>사용자 지정 플래그</span>
             </div>
        </div>
     {/if}

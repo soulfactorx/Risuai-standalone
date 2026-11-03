@@ -41,19 +41,19 @@
             {#if chara.hasEmotion}
                 <div class="text-textcolor2 hover:text-green-500 transition-colors" role="button" tabindex="0" onclick={((e) => {
                     e.stopPropagation()
-                    alertNormal("This character includes emotion images")
+                    alertNormal("이 캐릭터에는 감정 이미지가 포함되어 있습니다")
                 })} onkeydown={(e) => {}}><SmileIcon /></div>
             {/if}
             {#if chara.hasAsset}
                 <div class="text-textcolor2 hover:text-green-500 transition-colors" role="button" tabindex="0" onclick={((e) => {
                     e.stopPropagation()
-                    alertNormal("This character includes additional assets")
+                    alertNormal("이 캐릭터에는 추가 에셋이 포함되어 있습니다")
                 })} onkeydown={(e) => {}}><ImageIcon /></div>
             {/if}
             {#if chara.hasLore}
                 <div class="text-textcolor2 hover:text-green-500 transition-colors" role="button" tabindex="0" onclick={((e) => {
                     e.stopPropagation()
-                    alertNormal("This character includes lorebook")
+                    alertNormal("이 캐릭터에는 로어북이 포함되어 있습니다")
                 })} onkeydown={(e) => {}}><BookIcon /></div>
             {/if}
         </div>

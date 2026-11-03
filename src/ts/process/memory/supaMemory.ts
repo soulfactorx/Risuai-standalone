@@ -8,6 +8,7 @@ import { globalFetch } from "src/ts/globalApi.svelte";
 import { runSummarizer } from "../transformers";
 import { parseChatML } from "src/ts/parser/chatML";
 import { getUserName } from "src/ts/util";
+import { getPrompt } from "src/ts/prompts/customPrompts";
 
 export async function supaMemory(
         chats:OpenAIChat[],
@@ -158,7 +159,7 @@ export async function supaMemory(
                 const s = await hypa.similaritySearch(stringlizeChat(filteredChat.slice(0, 4), char?.name ?? '', false))
                 hypaResult = ''
                 if(s.length > 0){
-                    hypaResult = "past events: " + s.slice(0,3)
+                    hypaResult = getPrompt('supaHypaResultPrefix') + s.slice(0,3)
                     currentTokens += await tokenizer.tokenizeChat({
                         role: "assistant",
                         content: hypaResult,

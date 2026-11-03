@@ -46,17 +46,17 @@
     <button class="h-12 w-44 bg-slate-700 font-bold text-sm" onclick={() => {
         openURL("https://sv.risuai.xyz/patreon")
     }}>
-        ADD YOUR NAME
+        이름 올리기
     </button>
 </div>
 
 <!-- Supporters -->
 
 {#await loadSupporters()}
-    <span>Loading...</span>
+    <span>불러오는 중...</span>
 
 {:then supporter}
-    <h3 class="text-xl font-bold mt-4">Supporter V</h3>
+    <h3 class="text-xl font-bold mt-4">후원자 V</h3>
     <div class="flex w-full max-w-full flex-wrap gap-2"> 
         {#each supporter.V as support}
             <div class="flex flex-col items-center justify-center border-selected border rounded-sm">
@@ -66,7 +66,7 @@
             </div>
         {/each}
     </div>
-    <h3 class="text-xl font-bold mt-4">Supporter IV</h3>
+    <h3 class="text-xl font-bold mt-4">후원자 IV</h3>
     <div class="flex w-full max-w-3xl flex-wrap gap-2"> 
         {#each supporter.IV as support}
             <div class="flex flex-col items-center justify-center border-selected border rounded-sm">
@@ -76,7 +76,7 @@
             </div>
         {/each}
     </div>
-    <h3 class="text-xl font-bold mt-4">Supporter III</h3>
+    <h3 class="text-xl font-bold mt-4">후원자 III</h3>
     <div class="flex w-full max-w-3xl flex-wrap gap-2"> 
         {#each supporter.III as support}
             <!-- make a card -->
@@ -87,7 +87,7 @@
             </div>
         {/each}
     </div>
-    <h3 class="text-xl font-bold mt-4">Supporter II</h3>
+    <h3 class="text-xl font-bold mt-4">후원자 II</h3>
     <div class="flex w-full max-w-3xl flex-wrap gap-2"> 
         {#each supporter.II as support}
             <!-- make a card -->
@@ -98,7 +98,7 @@
             </div>
         {/each}
     </div>
-    <h3 class="text-xl font-bold mt-4">Supporter I</h3>
+    <h3 class="text-xl font-bold mt-4">후원자 I</h3>
     <div class="flex w-full max-w-3xl flex-wrap gap-2"> 
         {#each supporter.I as support}
             <!-- make a card -->

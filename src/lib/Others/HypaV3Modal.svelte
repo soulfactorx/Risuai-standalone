@@ -254,7 +254,7 @@
     } catch (error) {
       console.error('Re-summarize Failed:', error);
       bulkResummaryState = null;
-      await alertNormalWait(`Re-summarize Failed: ${error.message || error}`);
+      await alertNormalWait(`다시 요약하지 못했습니다: ${error.message || error}`);
     }
   }
 
@@ -318,7 +318,7 @@
     } catch (error) {
       console.error('Re-summarize Retry Failed:', error);
       bulkResummaryState = null;
-      await alertNormalWait(`Re-summarize Retry Failed: ${error.message || error}`);
+      await alertNormalWait(`다시 요약 재시도에 실패했습니다: ${error.message || error}`);
     }
   }
 
@@ -338,7 +338,7 @@
     }
 
     bulkResummaryState.isTranslating = true;
-    bulkResummaryState.translation = "Loading...";
+    bulkResummaryState.translation = "불러오는 중...";
 
     try {
       const result = await translateHTML(bulkResummaryState.result, false, "", -1, regenerate);
@@ -613,7 +613,7 @@
       if (hypaV2Data.mainChunks.length === 0) {
         return {
           success: false,
-          error: "No main chunks found.",
+          error: "메인 청크를 찾을 수 없습니다.",
         };
       }
 

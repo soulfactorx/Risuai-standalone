@@ -326,7 +326,7 @@ export function promptConvertion(files:{ name: string, content: string, type:str
     }
     if(files.findIndex(x=>x.type === 'STCHAT') !== -1){
         if(type !== ''){
-            alertError(`Both ${type} and STCHAT are not supported together.`)
+            alertError(`${type}와(과) STCHAT은 함께 사용할 수 없습니다.`)
             return
         }
         type = 'STCHAT'
@@ -418,7 +418,7 @@ export function promptConvertion(files:{ name: string, content: string, type:str
         preset.subModel = 'openrouter'
         DBState.db.botPresets.push(preset)
     
-        alertNormal('Preset converted successfully. You can find it in bot setting presets')
+        alertNormal('프리셋을 변환했습니다. 봇 설정의 프리셋 목록에서 확인할 수 있습니다')
         return
     }
 
@@ -494,5 +494,5 @@ export function promptConvertion(files:{ name: string, content: string, type:str
 
     DBState.db.botPresets.push(preset)
 
-    alertNormal('Preset converted successfully. You can find it in bot setting presets')
+    alertNormal('프리셋을 변환했습니다. 봇 설정의 프리셋 목록에서 확인할 수 있습니다')
 }

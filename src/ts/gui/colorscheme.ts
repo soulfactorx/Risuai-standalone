@@ -319,14 +319,14 @@ export async function importColorScheme(){
             typeof colorScheme.darkbutton !== 'string' ||
             typeof colorScheme.type !== 'string'
         ){
-            alertError('Invalid color scheme')
+            alertError('올바르지 않은 색상 테마입니다')
             return
         }
         DBState.db.customColorScheme = colorScheme
         updateCustomColorScheme()
     }
     catch(e){
-        alertError('Invalid color scheme')
+        alertError('올바르지 않은 색상 테마입니다')
         return
     
     }

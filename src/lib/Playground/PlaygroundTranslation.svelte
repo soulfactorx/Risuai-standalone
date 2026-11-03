@@ -9,6 +9,7 @@
     import OptionInput from "../UI/GUI/OptionInput.svelte";
     import CheckInput from "../UI/GUI/CheckInput.svelte";
     import { tokenize } from "src/ts/tokenizer";
+    import { fillPrompt } from "src/ts/prompts/customPrompts";
 
 
     const userPreferedLang = navigator.language.split('-')[0]
@@ -42,11 +43,11 @@
 <TextAreaInput value={output} />
 
 <CheckInput bind:check={bulk}>
-    Bulk
+    일괄 번역
 </CheckInput>
 {#if bulk}
     <CheckInput bind:check={keepContext}>
-        Keep Context
+        문맥 유지
     </CheckInput>
 {/if}
 
@@ -89,7 +90,6 @@
         }
 
         console.log(preChunks, jsonMode)
-        let pvc = 'Previous Content is the content that was translated before the current content. This is used to keep the context of the translation. do not retranslate or return it.'
 
         for(let i = 0; i < preChunks.length; i++){
             try {
@@ -112,7 +112,8 @@
                 }
 
                 const translatedChunk = await runTranslator(preChunks[i], false, sourceLang, outputLang, {
-                    translatorNote: prContext ? `<Previous Content>${prContext.trim()}</Previous Content>\n${pvc}` : ""
+                    // 사용자 지정 가능: 설정 → 프롬프트 관리 (playgroundTranslationContext)
+                    translatorNote: prContext ? fillPrompt('playgroundTranslationContext', { '{{slot}}': prContext.trim() }) : ""
                 })
                 if(keepContext){
                     prContexts.push(`<Original>${preChunks[i]}</Original><Translated>${translatedChunk}</Translated>`)
@@ -147,13 +148,13 @@
     }
 }}>
     {#if loading}
-        Loading... {bulkProgressText}
+        불러오는 중... {bulkProgressText}
     {:else}
-        Translate
+        번역
     {/if}
 </Button>
 <Button className="mt-4" onclick={() => {
     LLMCacheStorage.clear()
 }}>
-    Clear Cache
+    캐시 비우기
 </Button>

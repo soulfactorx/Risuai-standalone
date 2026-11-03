@@ -18,6 +18,7 @@
   } from "../../ts/stores.svelte";
     import { setDatabase, type folder } from "../../ts/storage/database.svelte";
     import { DBState } from 'src/ts/stores.svelte';
+    import { publicAssetURL } from 'src/ts/standalone';
     import BarIcon from "./BarIcon.svelte";
     import SidebarIndicator from "./SidebarIndicator.svelte";
     import {
@@ -290,7 +291,7 @@
     }
     if(typeof (target) === 'string'){
       const newFolder:folder = {
-        name: "New Folder",
+        name: "새 폴더",
         data: [main, target],
         color: "",
         id: v4()
@@ -591,7 +592,7 @@
           >
           {#if char.type === 'normal'}
             <SidebarAvatar 
-              src={char.img ? getCharImage(char.img, "plain") : "/none.webp"} 
+              src={char.img ? getCharImage(char.img, "plain") : publicAssetURL("/none.webp")} 
               size="56" 
               rounded={IconRounded} 
               name={char.name}
@@ -628,7 +629,7 @@
                   db.characterOrder[ind] = oder
                 }
                 else if(sel === 2) {
-                  const sel = parseInt(await alertSelect(['Reset to Default Image', 'Select Image File']))
+                  const sel = parseInt(await alertSelect(['기본 이미지로 초기화', '이미지 파일 선택']))
                   const db = DBState.db
                   const oder = db.characterOrder[ind]
                   if(typeof(oder) === 'string'){
@@ -753,7 +754,7 @@
                   }}
                 >
                 <SidebarAvatar 
-                  src={char2.img ? getCharImage(char2.img, "plain") : "/none.webp"} 
+                  src={char2.img ? getCharImage(char2.img, "plain") : publicAssetURL("/none.webp")} 
                   size="56" 
                   rounded={IconRounded} 
                   name={char2.name}
@@ -929,8 +930,8 @@
   {#if sideBarMode === 0}
     {#if $selectedCharID < 0 || $settingsOpen}
       <div>
-        <h1 class="text-xl">Welcome to RisuAI!</h1>
-        <span class="text-xs text-textcolor2">Select a bot to start chatting</span>
+        <h1 class="text-xl">RisuAI에 오신 것을 환영합니다!</h1>
+        <span class="text-xs text-textcolor2">채팅을 시작할 봇을 선택하세요</span>
       </div>
     {:else if DBState.db.characters[$selectedCharID]?.chaId === '§playground'}
       <SideChatList bind:chara={ DBState.db.characters[$selectedCharID]} />

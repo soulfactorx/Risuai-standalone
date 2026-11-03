@@ -55,7 +55,7 @@ export async function checkDriver(type:'save'|'load'|'loadtauri'|'savetauri'|'re
             }
         } catch (error) {
             console.error(error)
-            alertError(`Backup Error: ${error}`)
+            alertError(`백업 오류: ${error}`)
         }
     }
 }
@@ -118,7 +118,7 @@ export async function checkDriverInit() {
         }   
     } catch (error) {
         console.error(error)
-        alertError(`Backup Error: ${error}`)
+        alertError(`백업 오류: ${error}`)
         const currentURL = new URL(location.href)
         currentURL.search = ''
         window.history.replaceState( {} , "", currentURL.href );
@@ -216,7 +216,7 @@ async function backupDrive(ACCESS_TOKEN:string) {
     await createFileInFolder(ACCESS_TOKEN, `${(Date.now() / 1000).toFixed(0)}-database.risudat`, dbData)
 
 
-    alertNormal('Success')
+    alertNormal('완료되었습니다')
 }
 
 type DriveFile = {
@@ -327,7 +327,7 @@ async function loadDrive(ACCESS_TOKEN:string, mode: 'backup'|'sync'):Promise<voi
         const coldStorageRestoreFailures = await restoreColdStorageFromDrive(ACCESS_TOKEN, files, db, mode)
         if(coldStorageRestoreFailures.length > 0){
             if(mode === 'sync'){
-                alertError(`Sync failed. ${coldStorageRestoreFailures.length} cold storage item(s) could not be restored.`)
+                alertError(`동기화에 실패했습니다. 콜드 스토리지 항목 ${coldStorageRestoreFailures.length}개를 복원하지 못했습니다.`)
                 return
             }
             if(!await confirmIncompleteColdStorageOperation(db, coldStorageRestoreFailures, 'restore')){

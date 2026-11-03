@@ -16,7 +16,7 @@ async function requestPersistantStorageMain() {
         const isChromium = window.chrome;
         if (isChromium) {
             //chromium requires notification to persist
-            alertNormal("For chromium based browsers, you need to allow notifications to persist data")
+            alertNormal("Chromium 기반 브라우저에서는 데이터를 영구 보존하려면 알림을 허용해야 합니다")
             const status = await Notification.requestPermission()
             
             if(status === 'granted') {

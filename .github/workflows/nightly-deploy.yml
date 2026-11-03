@@ -11,6 +11,8 @@ concurrency:
 
 jobs:
   deploy:
+    # 이 포크에서는 원본 저장소 전용 배포(Cloudflare/도커 이미지)를 실행하지 않는다.
+    if: github.repository == 'kwaroran/Risuai'
     name: Build & Deploy
     runs-on: ubuntu-latest
     permissions:

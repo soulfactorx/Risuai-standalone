@@ -56,7 +56,7 @@ export async function importRegex(o?:customscript[]):Promise<customscript[]>{
             return o
         }
         else{
-            alertError("File invaid or corrupted")
+            alertError("파일이 올바르지 않거나 손상되었습니다")
         }
 
     } catch (error) {

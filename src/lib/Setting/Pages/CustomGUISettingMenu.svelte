@@ -239,13 +239,13 @@
     <div class="flex">
         <button class="mr-2 p-2 border border-black rounded-sm" class:text-gray-500={subMenu !== 0} onclick={() => {
             subMenu = 0
-        }}>Component</button>
+        }}>컴포넌트</button>
         <button class="mr-2 p-2 border border-black rounded-sm" class:text-gray-500={subMenu !== 1} onclick={() => {
             subMenu = 1
-        }}>Container</button>
+        }}>컨테이너</button>
         <button class="mr-2 p-2 border border-black rounded-sm" class:text-gray-500={subMenu !== 2} onclick={() => {
             subMenu = 2
-        }}>Help</button>
+        }}>도움말</button>
     </div>
     <div class="border-b border-b-gray-200">
 
@@ -265,12 +265,12 @@
             }}>{container.type}</button>
         {/each}
     {:else if subMenu === 2}
-        <p>Left click to select, Right click to delete</p>
-        <p>Press a component/container in the menu to add it to the selected container</p>
+        <p>왼쪽 클릭으로 선택, 오른쪽 클릭으로 삭제</p>
+        <p>메뉴에서 컴포넌트/컨테이너를 누르면 선택한 컨테이너에 추가됩니다</p>
     {/if}
 </div>
 {:else}
     <button class="absolute top-0 right-0 z-20 p-2 border bg-white rounded-sm" onclick={() => {
         menuOpen = !menuOpen
-    }}>Menu</button>
+    }}>메뉴</button>
 {/if}

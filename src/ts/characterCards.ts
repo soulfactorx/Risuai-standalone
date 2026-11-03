@@ -21,6 +21,7 @@ import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
 import { AccountStorage } from "./storage/accountStorage"
 import { filterBlockedRealmCards, isRealmCreatorBlocked } from "./realmBlocking"
 import { normalizeOnboarding } from "./onboarding"
+import { fetchPublicAsset } from "./standalone"
 
 
 const EXTERNAL_HUB_URL = 'https://sv.risuai.xyz';
@@ -107,7 +108,7 @@ export async function importCharacterProcess<T extends boolean = false>(f:{
                     else{
                         chunks.push(r.value)
                     }
-                    alertWait(`Loading... (Reading) ${readedBytes} Bytes`)
+                    alertWait(`불러오는 중... (읽는 중) ${readedBytes} 바이트`)
                 }
                 let offset = 0
                 const uint8 = new Uint8Array(readedBytes)
@@ -245,7 +246,7 @@ export async function importCharacterProcess<T extends boolean = false>(f:{
             const assetIndex = chunk.key.replace('chara-ext-asset_:', '').replace('chara-ext-asset_', '')
             const assetData = Buffer.from(chunk.value, 'base64')
             if(pngChunks === 0){
-                alertWait('Loading... (Loaded ' + readedPngChunks + ' Assets)')
+                alertWait('불러오는 중... (에셋 ' + readedPngChunks + '개 불러옴)')
             }
             else{
                 alertStore.set({
@@ -439,7 +440,7 @@ export async function characterURLImport() {
     const charPath = (new URLSearchParams(location.search)).get('charahub')
     try {
         if(charPath){
-            alertWait('Loading from Chub...')
+            alertWait('Chub에서 불러오는 중...')
             const url = new URL(location.href);
             url.searchParams.delete('charahub');
             window.history.pushState(null, '', url.toString());
@@ -719,7 +720,7 @@ export async function exportChar(charaID:number):Promise<string> {
     }
 
     if(!char.image){
-        const res = await fetch('/none.webp')
+        const res = await fetchPublicAsset('/none.webp')
         const data = new Uint8Array(await res.arrayBuffer())
         char.image = await saveAsset(data)
     }
@@ -752,7 +753,7 @@ async function readCardExportImage(image?: string) {
         }
     }
 
-    const res = await fetch('/none.webp')
+    const res = await fetchPublicAsset('/none.webp')
     if(!res.ok){
         throw new Error(`Failed to load fallback character image: ${res.status} ${res.statusText}`)
     }
@@ -923,7 +924,7 @@ async function importCharacterCardSpec<T extends boolean = false>(card:Character
                         imgp = await saveAsset(Buffer.from(b64, 'base64'))
                     }
                     else{
-                        alertError('Data URI too large')
+                        alertError('Data URI가 너무 큽니다')
                         continue
                     }
                 }
@@ -1743,7 +1744,7 @@ export async function shareRisuHub2(char:character, arg:{
             tagList.push("nsfw")
         }
     
-        alertWait("Uploading...")
+        alertWait("업로드 중...")
         
     
         let tags = tagList.filter((v, i) => {
@@ -1933,7 +1934,7 @@ export async function downloadRisuHub(id:string, arg:{
     } catch (error) {
         console.error(error)
         console.log(error.stack)
-        alertError("Error while importing")
+        alertError("가져오는 중 오류가 발생했습니다")
     }
 }
 

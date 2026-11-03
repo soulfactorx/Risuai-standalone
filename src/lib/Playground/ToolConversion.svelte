@@ -35,15 +35,15 @@
                 {#if file.type !== 'NOTSUPPORTED'}
                     <span class="bg-blue-500 rounded-md text-white mr-2 font-bold px-2 py-1">{file.type}</span>
                 {:else}
-                    <span class="bg-red-500 rounded-md text-white mr-2 font-bold px-2 py-1">NOTSUPPORTED</span>
+                    <span class="bg-red-500 rounded-md text-white mr-2 font-bold px-2 py-1">지원 안 됨</span>
                 {/if}
                 <span>{file.name}</span>
             </div>
-            <Button>Delete</Button>
+            <Button>삭제</Button>
         </div>
     {/each}
-    <Button onclick={addFile}>Add</Button>
+    <Button onclick={addFile}>추가</Button>
 </div>
 <Button className="mt-6" onclick={() => {
     promptConvertion(files)
-}}>Run</Button>
+}}>실행</Button>

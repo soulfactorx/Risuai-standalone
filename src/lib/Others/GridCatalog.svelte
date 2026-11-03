@@ -44,7 +44,7 @@
                     index: i,
                     type: c.type,
                     name: c.name,
-                    desc: c.creatorNotes ?? 'No description',
+                    desc: c.creatorNotes ?? '설명 없음',
                     chaId: c.chaId
                 })
             }
@@ -60,12 +60,12 @@
                 <button 
                     class="flex items-center justify-center p-2 rounded-lg hover:bg-selected transition-colors shrink-0"
                     onclick={() => endGrid()}
-                    title="Back"
+                    title="뒤로"
                 >
                     <ArrowLeft size={20} />
                 </button>
                 <div class="flex-1">
-                    <TextInput placeholder="Search" bind:value={search} size="lg" autocomplete="off" fullwidth={true}/>
+                    <TextInput placeholder="검색" bind:value={search} size="lg" autocomplete="off" fullwidth={true}/>
                 </div>
             </div>
             <div class="flex flex-wrap gap-2 mt-2">
@@ -112,7 +112,7 @@
                 <div class="flex p-2 border border-darkborderc rounded-md mb-2">
                     <BarIcon onClick={() => {changeChar(char.index)}} additionalStyle={getCharImage(char.image, 'css')}></BarIcon>
                     <div class="flex-1 flex flex-col ml-2">
-                        <h4 class="text-textcolor font-bold text-lg mb-1">{char.name || "Unnamed"}</h4>
+                        <h4 class="text-textcolor font-bold text-lg mb-1">{char.name || "이름 없음"}</h4>
                         <span class="text-textcolor2">{parseMultilangString(char.desc)['en'] || parseMultilangString(char.desc)['xx'] || 'No description'}</span>
                         <div class="flex gap-2 justify-end">
                             <button class="hover:text-textcolor text-textcolor2" onclick={() => {
@@ -135,7 +135,7 @@
                 <div class="flex p-2 border border-darkborderc rounded-md mb-2">
                     <BarIcon onClick={() => {changeChar(char.index)}} additionalStyle={getCharImage(char.image, 'css')}></BarIcon>
                     <div class="flex-1 flex flex-col ml-2">
-                        <h4 class="text-textcolor font-bold text-lg mb-1">{char.name || "Unnamed"}</h4>
+                        <h4 class="text-textcolor font-bold text-lg mb-1">{char.name || "이름 없음"}</h4>
                         <span class="text-textcolor2">{parseMultilangString(char.desc)['en'] || parseMultilangString(char.desc)['xx'] || 'No description'}</span>
                         <div class="flex gap-2 justify-end">
                             <button class="hover:text-textcolor text-textcolor2" onclick={() => {

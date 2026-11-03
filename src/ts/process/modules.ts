@@ -9,6 +9,7 @@ import { compressImage } from '../media'
 import { decodeRPack, encodeRPack } from "../rpack/rpack_js"
 import { DBState, HideIconStore, moduleBackgroundEmbedding, ReloadGUIPointer } from "../stores.svelte"
 import {get} from "svelte/store"
+import { fetchPublicAsset } from "../standalone"
 import { convertCharacterToModule, convertModuleToCharacter } from "../interchangeability"
 import { exportCharacterCard, importCharacterProcess } from "../characterCards"
 
@@ -41,7 +42,7 @@ export async function exportModule(module:RisuModule, arg:{
 
     const char = convertModuleToCharacter(module)
     if(!char.image){
-        const res = await fetch('/none.webp')
+        const res = await fetchPublicAsset('/none.webp')
         const data = new Uint8Array(await res.arrayBuffer())
         char.image = await saveAsset(data)
         char.extentions ??= {}
@@ -196,7 +197,7 @@ export async function readModule(buf:Buffer):Promise<RisuModule> {
                 } catch (error) {
                     failed.push(task)
                 } finally {
-                    alertWait(`Loading... (Adding Assets ${completed} / ${totalAssets})`)
+                    alertWait(`불러오는 중... (에셋 추가 ${completed} / ${totalAssets})`)
                 }
             })()
             inFlight.add(promise)

@@ -16,6 +16,8 @@ import { getModuleLorebooks, getModuleTriggers } from "./modules";
 import { Mutex } from "../mutex";
 import { tokenize } from "../tokenizer";
 import { fetchNative, readImage } from "../globalApi.svelte";
+import { fetchPublicAsset } from "../standalone";
+import PyWorker from "./pyworker?worker";
 import { loadLoreBookV3Prompt } from './lorebook.svelte';
 import { getPersonaPrompt, getUserName, getUserIcon } from '../util';
 let luaFactory:LuaFactory
@@ -1206,7 +1208,7 @@ async function makeLuaFactory(){
         let code = ''
         for(let i = 0; i < 3; i++){
             try {
-                const res = await fetch('/lua/' + name)
+                const res = await fetchPublicAsset('/lua/' + name)
                 if(res.status >= 200 && res.status < 300){
                     code = await res.text()
                     break
@@ -1518,9 +1520,8 @@ class PyodideContext{
     apis: Record<string, (...args:any[]) => any> = {};
     inited: boolean = false;
     constructor(){
-        this.worker = new Worker(new URL('./pyworker.ts', import.meta.url), {
-            type: 'module'
-        })
+        // `?worker` 임포트를 사용해야 단독 HTML 빌드에서 워커가 번들 안에 인라인된다.
+        this.worker = new PyWorker()
         this.worker.onmessage = (event:MessageEvent) => {
             if(event.data.type === 'call'){
                 const { function: func, args, callId } = event.data;

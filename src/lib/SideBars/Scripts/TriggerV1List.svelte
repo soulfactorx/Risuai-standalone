@@ -75,7 +75,7 @@
     bind:this={ele}
   >
     {#if value.length === 0}
-      <div class="text-textcolor2">No Scripts</div>
+      <div class="text-textcolor2">스크립트 없음</div>
     {/if}
     {#each value as triggerscript, i}
       <TriggerData

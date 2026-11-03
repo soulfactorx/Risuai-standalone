@@ -1,4 +1,5 @@
 import type { Tiktoken } from "@dqbd/tiktoken";
+import { fetchPublicAsset } from "./standalone";
 import type { Tokenizer } from "@mlc-ai/web-tokenizers";
 import { type groupChat, type character, type Chat, getCurrentCharacter, getDatabase } from "./storage/database.svelte";
 import type { MultiModal, OpenAIChat } from "./process/index.svelte";
@@ -258,7 +259,7 @@ async function gemmaTokenize(text:string) {
     if(!gemmaTokenizer){
         const {GemmaTokenizer} = await import('@huggingface/transformers')
         gemmaTokenizer = new GemmaTokenizer(
-            await (await fetch("/token/llama/llama3.json")
+            await (await fetchPublicAsset("/token/llama/llama3.json")
         ).json(), {})
     }
     return gemmaTokenizer.encode(text)
@@ -323,63 +324,63 @@ async function tokenizeWebTokenizers(text:string, type:tokenizerType) {
         switch(type){
             case "novellist":
                 tokenizersTokenizer = await webTokenizer.Tokenizer.fromSentencePiece(
-                    await (await fetch("/token/trin/spiece.model")
+                    await (await fetchPublicAsset("/token/trin/spiece.model")
                 ).arrayBuffer())
                 break
             case "claude":
                 tokenizersTokenizer = await webTokenizer.Tokenizer.fromJSON(
-                    await (await fetch("/token/claude/claude.json")
+                    await (await fetchPublicAsset("/token/claude/claude.json")
                 ).arrayBuffer())
                 break
             case 'llama3':
                 tokenizersTokenizer = await webTokenizer.Tokenizer.fromJSON(
-                    await (await fetch("/token/llama/llama3.json")
+                    await (await fetchPublicAsset("/token/llama/llama3.json")
                 ).arrayBuffer())
                 break
             case 'cohere':
                 tokenizersTokenizer = await webTokenizer.Tokenizer.fromJSON(
-                    await (await fetch("/token/cohere/tokenizer.json")
+                    await (await fetchPublicAsset("/token/cohere/tokenizer.json")
                 ).arrayBuffer())
                 break
             case 'novelai':
                 tokenizersTokenizer = await webTokenizer.Tokenizer.fromSentencePiece(
-                    await (await fetch("/token/nai/nerdstash_v2.model")
+                    await (await fetchPublicAsset("/token/nai/nerdstash_v2.model")
                 ).arrayBuffer())
                 
                 break
             case 'llama':
                 tokenizersTokenizer = await webTokenizer.Tokenizer.fromSentencePiece(
-                    await (await fetch("/token/llama/llama.model")
+                    await (await fetchPublicAsset("/token/llama/llama.model")
                 ).arrayBuffer())
                 break
             case 'mistral':
                 tokenizersTokenizer = await webTokenizer.Tokenizer.fromSentencePiece(
-                    await (await fetch("/token/mistral/tokenizer.model")
+                    await (await fetchPublicAsset("/token/mistral/tokenizer.model")
                 ).arrayBuffer())
                 break
             case 'gemma':
                 tokenizersTokenizer = await webTokenizer.Tokenizer.fromSentencePiece(
-                    await (await fetch("/token/gemma/tokenizer.model")
+                    await (await fetchPublicAsset("/token/gemma/tokenizer.model")
                 ).arrayBuffer())
                 break
             case 'DeepSeek':
                 tokenizersTokenizer = await webTokenizer.Tokenizer.fromJSON(
-                    await (await fetch("/token/deepseek/tokenizer.json")
+                    await (await fetchPublicAsset("/token/deepseek/tokenizer.json")
                 ).arrayBuffer())
                 break
             case 'DeepSeekV4':
                 tokenizersTokenizer = await webTokenizer.Tokenizer.fromJSON(
-                    await (await fetch("/token/deepseek/v4/tokenizer.json")
+                    await (await fetchPublicAsset("/token/deepseek/v4/tokenizer.json")
                 ).arrayBuffer())
                 break
             case 'GLM4':
                 tokenizersTokenizer = await webTokenizer.Tokenizer.fromJSON(
-                    await (await fetch("/token/glm4/tokenizer.json")
+                    await (await fetchPublicAsset("/token/glm4/tokenizer.json")
                 ).arrayBuffer())
                 break
             case 'GLM5':
                 tokenizersTokenizer = await webTokenizer.Tokenizer.fromJSON(
-                    await (await fetch("/token/glm5/tokenizer.json")
+                    await (await fetchPublicAsset("/token/glm5/tokenizer.json")
                 ).arrayBuffer())
                 break
 

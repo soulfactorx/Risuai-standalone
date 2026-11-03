@@ -62,7 +62,7 @@
             <button class="bg-darkbg rounded-md p-6 flex flex-col transition-shadow hover:ring-1" onclick={() => {
                 PlaygroundStore.set(13)
             }}>
-                <h1 class="text-2xl font-bold text-start">CBS Doc</h1>
+                <h1 class="text-2xl font-bold text-start">CBS 문서</h1>
             </button>
             <button class="bg-darkbg rounded-md p-6 flex flex-col transition-shadow hover:ring-1" onclick={() => {
                 PlaygroundStore.set(3)
@@ -92,7 +92,7 @@
             <button class="bg-darkbg rounded-md p-6 flex flex-col transition-shadow hover:ring-1" onclick={() => {
                 PlaygroundStore.set(8)
             }}>
-                <h1 class="text-2xl font-bold text-start">Parser</h1>
+                <h1 class="text-2xl font-bold text-start">파서</h1>
             </button>
             <button class="bg-darkbg rounded-md p-6 flex flex-col transition-shadow hover:ring-1" onclick={() => {
                 PlaygroundStore.set(9)
@@ -134,11 +134,11 @@
             }}>
                 <h1 class="text-2xl font-bold text-start">
                     {#if easterEggTouch <= 10}
-                        🤗 Coming soon
+                        🤗 곧 공개 예정
                     {:else if easterEggTouch <= 30}
-                        🤗 Still coming soon
+                        🤗 아직도 공개 예정
                     {:else if easterEggTouch <= 50}
-                        😇 Really soon
+                        😇 진짜 곧
                     {/if}
                 </h1>
             </button>
