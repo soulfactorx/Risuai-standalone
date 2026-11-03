@@ -35,15 +35,11 @@
     // steps go 0-6, then jump to 10 when done
     const stepOrder = [0, 1, 2, 3, 4, 5, 6, 10]
 
+    // 한국어 전용: 언어 선택 단계(0)를 건너뛰고 바로 이름 입력부터 시작한다.
     {
-        const browserLang = navigator.language
-        const browserLangShort = browserLang.split('-')[0]
-        const usableLangs = ['de', 'en', 'es', 'ko', 'cn', 'vi', 'zh-Hant']
-        if(usableLangs.includes(browserLangShort)){
-            changeLanguage(browserLangShort)
-            DBState.db.language = browserLangShort
-            step = 1
-        }
+        changeLanguage('ko')
+        DBState.db.language = 'ko'
+        step = 1
     }
 
     // what the user already saved on a step, so revisiting it doesn't make them type it again
@@ -316,7 +312,7 @@
         <div class="relative z-10 flex max-h-[78%] w-full flex-col rounded-t-[2rem] bg-darkbg shadow-2xl lg:absolute lg:left-1/4 lg:top-1/2 lg:h-[clamp(30rem,62%,40rem)] lg:max-h-[calc(100%-2.5rem)] lg:w-[clamp(26rem,32vw,36rem)] lg:-translate-x-1/2 lg:-translate-y-1/2 lg:rounded-[2rem]">
             <img src={Airisu} alt="" class="airisu pointer-events-none absolute bottom-full right-4 -mb-3 h-44 w-auto lg:hidden" draggable="false">
             <div class="flex items-center justify-between px-7 pt-6">
-                <button class="-ml-2 flex h-9 w-9 items-center justify-center rounded-full text-textcolor2 transition-colors hover:bg-textcolor/10 hover:text-textcolor disabled:invisible" disabled={step === 0 || step === 10} onclick={goBack} aria-label={language.goback}>
+                <button class="-ml-2 flex h-9 w-9 items-center justify-center rounded-full text-textcolor2 transition-colors hover:bg-textcolor/10 hover:text-textcolor disabled:invisible" disabled={step === 0 || step === 10 || history.length === 0} onclick={goBack} aria-label={language.goback}>
                     <ArrowLeft size={20} />
                 </button>
                 <div class="flex items-center gap-1.5">

@@ -94,9 +94,8 @@ export function setDatabase(data:Database){
     if(checkNullish(data.forceReplaceUrl)){
         data.forceReplaceUrl = ''
     }
-    if(checkNullish(data.language)){
-        data.language = 'en'
-    }
+    // 한국어 전용: 저장된 언어 값과 상관없이 항상 한국어를 사용한다.
+    data.language = 'ko'
     if(checkNullish(data.swipe)){
         data.swipe = true
     }
@@ -200,6 +199,10 @@ export function setDatabase(data:Database){
     }
     if(checkNullish(data.requestRetrys)){
         data.requestRetrys = 2
+    }
+    // 사용자 지정 프롬프트 (src/ts/prompts/customPrompts.ts)
+    if(checkNullish(data.customPrompts) || typeof data.customPrompts !== 'object'){
+        data.customPrompts = {}
     }
     if(checkNullish(data.useSayNothing)){
         data.useSayNothing = true
@@ -888,6 +891,8 @@ export interface Database{
     localNetworkTimeoutSec:number
     emotionPrompt2:string
     useSayNothing:boolean
+    /** 사용자 지정 프롬프트: 키 → 사용자 값 (없는 키는 기본값 사용, src/ts/prompts/customPrompts.ts) */
+    customPrompts:{[key:string]:string}
     didFirstSetup: boolean
     showUnrecommended:boolean
     elevenLabKey:string

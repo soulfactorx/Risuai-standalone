@@ -1,6 +1,7 @@
 import type { OpenAIChat } from "./index.svelte";
 import type { character } from "../storage/database.svelte";
 import { risuChatParser } from "./scripts";
+import { getPrompt } from "../prompts/customPrompts";
 
 export function exampleMessage(char:character, userName:string):OpenAIChat[]{
     if(char.exampleMessage === ''){
@@ -26,7 +27,7 @@ export function exampleMessage(char:character, userName:string):OpenAIChat[]{
             add()
             result.push({
                 role: "system",
-                content: '[Start a new chat]',
+                content: getPrompt('startNewChat'),
                 memo: "NewChatExample",
             })
             currentMessage = null

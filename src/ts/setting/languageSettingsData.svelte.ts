@@ -7,8 +7,7 @@
 
 import type { SettingItem } from './types';
 import { isTauri } from '../platform';
-import { changeLanguage, language } from 'src/lang';
-import { languageEnglish } from 'src/lang/en';
+import { language } from 'src/lang';
 import { sleep } from '../util';
 import { alertNormal, alertSelect, alertConfirm, alertError, alertWait } from '../alert';
 import { downloadFile } from '../globalApi.svelte';
@@ -25,69 +24,7 @@ export const languageSettingsItems: SettingItem[] = [
         options: { level: 'h2' },
     },
 
-    // UI Language
-    {
-        id: 'lang.uiLanguage',
-        type: 'select',
-        labelKey: 'UiLanguage',
-        bindKey: 'language',
-        classes: 'mt-4',
-        options: {
-            selectOptions: [
-                { value: 'de', label: 'Deutsch' },
-                { value: 'en', label: 'English' },
-                { value: 'ko', label: '한국어' },
-                { value: 'cn', label: '中文' },
-                { value: 'zh-Hant', label: '中文(繁體)' },
-                { value: 'vi', label: 'Tiếng Việt' },
-                { value: 'translang', label: '[Translate in your own language]' },
-            ],
-        },
-        onChange: async (val, ctx) => {
-            if (val === 'translang') {
-                const j = await alertSelect([
-                    'Continue Translating Existing Language',
-                    'Make a new language',
-                ]);
-
-                if (parseInt(j) === 0) {
-                    const langs = ['de', 'ko', 'cn', 'vi', 'zh-Hant'];
-                    const lang = parseInt(await alertSelect(langs));
-                    changeLanguage(langs[lang]);
-                    downloadFile(
-                        'lang.json',
-                        new TextEncoder().encode(JSON.stringify(language, null, 4)),
-                    );
-                    alertNormal(
-                        'Downloaded JSON, translate it, and send it to the dev by discord DM and email. I will add it to the next version.',
-                    );
-                } else {
-                    downloadFile(
-                        'lang.json',
-                        new TextEncoder().encode(JSON.stringify(languageEnglish, null, 4)),
-                    );
-                    alertNormal(
-                        'Downloaded JSON, translate it, and send it to the dev by discord DM and email. I will add it to the next version.',
-                    );
-                }
-
-                ctx.db.language = 'en';
-            }
-
-            await sleep(10);
-            changeLanguage(ctx.db.language);
-            langState.changed = true;
-        },
-    },
-
-    {
-        id: 'lang.restartWarn',
-        type: 'header',
-        fallbackLabel: 'Close the settings to take effect',
-        options: { level: 'span' },
-        classes: 'bg-red-500 text-sm',
-        condition: () => langState.changed,
-    },
+    // 화면 언어 선택은 제거함 (이 포크는 한국어 전용)
 
     // Translator Base
     {
@@ -99,19 +36,19 @@ export const languageSettingsItems: SettingItem[] = [
         options: {
             selectOptions: [
                 { value: '', labelKey: 'disabled' },
-                { value: 'ko', label: 'Korean' },
-                { value: 'ru', label: 'Russian' },
-                { value: 'zh', label: 'Chinese' },
-                { value: 'zh-TW', label: 'Chinese (Traditional)', condition: (ctx) => ctx.db.translatorType === 'google' },
-                { value: 'fa', label: 'Persian (Farsi)', condition: (ctx) => ctx.db.translatorType === 'google' },
-                { value: 'ja', label: 'Japanese' },
-                { value: 'fr', label: 'French' },
-                { value: 'es', label: 'Spanish' },
-                { value: 'pt', label: 'Portuguese' },
-                { value: 'de', label: 'German' },
-                { value: 'id', label: 'Indonesian' },
-                { value: 'ms', label: 'Malaysian' },
-                { value: 'uk', label: 'Ukranian' },
+                { value: 'ko', label: '한국어' },
+                { value: 'ru', label: '러시아어' },
+                { value: 'zh', label: '중국어' },
+                { value: 'zh-TW', label: '중국어 (번체)', condition: (ctx) => ctx.db.translatorType === 'google' },
+                { value: 'fa', label: '페르시아어', condition: (ctx) => ctx.db.translatorType === 'google' },
+                { value: 'ja', label: '일본어' },
+                { value: 'fr', label: '프랑스어' },
+                { value: 'es', label: '스페인어' },
+                { value: 'pt', label: '포르투갈어' },
+                { value: 'de', label: '독일어' },
+                { value: 'id', label: '인도네시아어' },
+                { value: 'ms', label: '말레이어' },
+                { value: 'uk', label: '우크라이나어' },
             ],
         },
     },
@@ -127,7 +64,7 @@ export const languageSettingsItems: SettingItem[] = [
             selectOptions: [
                 { value: 'google', label: 'Google' },
                 { value: 'deepl', label: 'DeepL' },
-                { value: 'llm', label: 'Ax. Model' },
+                { value: 'llm', label: '보조 모델(LLM)' },
                 { value: 'deeplX', label: 'DeepL X' },
                 { value: 'bergamot', label: 'Firefox' },
             ],
@@ -195,15 +132,15 @@ export const languageSettingsItems: SettingItem[] = [
         condition: (ctx) => !!ctx.db.translator && ctx.db.translatorType === 'google',
         options: {
             selectOptions: [
-                { value: 'auto', label: 'Auto' },
-                { value: 'en', label: 'English' },
-                { value: 'zh', label: 'Chinese' },
-                { value: 'ja', label: 'Japanese' },
-                { value: 'ko', label: 'Korean' },
-                { value: 'fr', label: 'French' },
-                { value: 'es', label: 'Spanish' },
-                { value: 'de', label: 'German' },
-                { value: 'ru', label: 'Russian' },
+                { value: 'auto', label: '자동 감지' },
+                { value: 'en', label: '영어' },
+                { value: 'zh', label: '중국어' },
+                { value: 'ja', label: '일본어' },
+                { value: 'ko', label: '한국어' },
+                { value: 'fr', label: '프랑스어' },
+                { value: 'es', label: '스페인어' },
+                { value: 'de', label: '독일어' },
+                { value: 'ru', label: '러시아어' },
             ],
         },
     },

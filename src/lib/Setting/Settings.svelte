@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { AccessibilityIcon, ActivityIcon, PackageIcon, BotIcon, BoxIcon, CodeIcon, ContactIcon, LanguagesIcon, MonitorIcon, Sailboat, UserIcon, CircleXIcon, KeyboardIcon, SparkleIcon } from "@lucide/svelte";
+    import { AccessibilityIcon, ActivityIcon, PackageIcon, BotIcon, BoxIcon, CodeIcon, ContactIcon, LanguagesIcon, MonitorIcon, Sailboat, UserIcon, CircleXIcon, KeyboardIcon, SparkleIcon, ScrollTextIcon } from "@lucide/svelte";
     import { language } from "src/lang";
     import DisplaySettings from "./Pages/DisplaySettings.svelte";
     import UserSettings from "./Pages/UserSettings.svelte";
@@ -22,6 +22,7 @@
     import ModuleSettings from "./Pages/Module/ModuleSettings.svelte";
   import { isLite } from "src/ts/lite";
     import HotkeySettings from "./Pages/HotkeySettings.svelte";
+    import CustomPromptSettings from "./Pages/CustomPromptSettings.svelte";
     import PluginDefinedIcon from "../Others/PluginDefinedIcon.svelte";
 
     let openLoreList = $state(false)
@@ -57,6 +58,16 @@
                     }}>
                         <ContactIcon />
                         <span>{language.persona}</span>
+                    </button>
+                    <!-- 프롬프트 관리: 고정 프롬프트 사용자 지정 / 전송 프롬프트 확인 -->
+                    <button class="flex gap-2 items-center hover:text-textcolor"
+                        class:text-textcolor={$SettingsMenuIndex === 20}
+                        class:text-textcolor2={$SettingsMenuIndex !== 20}
+                        onclick={() => {
+                            $SettingsMenuIndex = 20
+                    }}>
+                        <ScrollTextIcon />
+                        <span>프롬프트 관리</span>
                     </button>
                     <button class="flex gap-2 items-center hover:text-textcolor"
                         class:text-textcolor={$SettingsMenuIndex === 2}
@@ -229,6 +240,8 @@
                         }}/>
                     {:else if $SettingsMenuIndex === 15 && window.innerWidth >= 768}
                         <HotkeySettings/>
+                    {:else if $SettingsMenuIndex === 20}
+                        <CustomPromptSettings/>
                     {:else if $SettingsMenuIndex === 77}
                         <ThanksPage/>
                     {/if}

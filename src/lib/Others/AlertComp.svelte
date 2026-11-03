@@ -190,15 +190,15 @@
     <div class="absolute w-full h-full z-50 bg-black/50 flex justify-center items-center" class:vis={ $alertStore.type === 'wait2'}>
         <div class="bg-darkbg p-4 break-any rounded-md flex flex-col max-w-3xl  max-h-full overflow-y-auto">
             {#if $alertStore.type === 'error'}
-                <h2 class="text-red-700 mt-0 mb-2 w-40 max-w-full">Error</h2>
+                <h2 class="text-red-700 mt-0 mb-2 w-40 max-w-full">오류</h2>
             {:else if $alertStore.type === 'ask'}
-                <h2 class="text-green-700 mt-0 mb-2 w-40 max-w-full">Confirm</h2>
+                <h2 class="text-green-700 mt-0 mb-2 w-40 max-w-full">확인</h2>
             {:else if $alertStore.type === 'pluginconfirm'}
-                <h2 class="text-green-700 mt-0 mb-2 w-40 max-w-full">Plugin Import</h2>
+                <h2 class="text-green-700 mt-0 mb-2 w-40 max-w-full">플러그인 가져오기</h2>
             {:else if $alertStore.type === 'selectChar'}
-                <h2 class="text-green-700 mt-0 mb-2 w-40 max-w-full">Select</h2>
+                <h2 class="text-green-700 mt-0 mb-2 w-40 max-w-full">선택</h2>
             {:else if $alertStore.type === 'input'}
-                <h2 class="text-green-700 mt-0 mb-2 w-40 max-w-full">Input</h2>
+                <h2 class="text-green-700 mt-0 mb-2 w-40 max-w-full">입력</h2>
             {/if}
             {#if $alertStore.type === 'markdown'}
                 <div class="overflow-y-auto">
@@ -213,23 +213,23 @@
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
 
                 <div class="text-textcolor">
-                    You should accept
+                    계속하려면
                     <a role="button" tabindex="0" class="text-green-600 hover:text-green-500 transition-colors duration-200 cursor-pointer" onclick={() => {
                         openURL('https://account.sionyw.com/terms')
-                    }}>Terms of Service</a>
+                    }}>서비스 이용약관</a>
 
-                    and
+                    및
 
                     <a role="button" tabindex="0" class="text-green-600 hover:text-green-500 transition-colors duration-200 cursor-pointer" onclick={() => {
                         openURL('https://account.sionyw.com/privacy')
-                    }}>Privacy Policy</a>
+                    }}>개인정보 처리방침</a>
 
-                    to continue
+                    에 동의해 주세요.
                 </div>
 
                 {#if localStorage.getItem('tos2') && Date.now() - new Date('2026-05-15').getTime() < 0}
                     <div class="text-gray-500 mt-4 text-sm">
-                        You can still continue using Risuai using original terms until {new Date('2026-05-15').toLocaleDateString()}.
+                        {new Date('2026-05-15').toLocaleDateString()} 까지는 기존 약관으로 계속 사용할 수 있습니다.
                     </div>
                 {/if}
             {:else if $alertStore.type === 'pluginconfirm'}
@@ -302,13 +302,13 @@
                             type: 'none',
                             msg: 'yes'
                         })
-                    }}>YES</Button>
+                    }}>예</Button>
                     <Button className="mt-4 grow" onclick={() => {
                         alertStore.set({
                             type: 'none',
                             msg: 'no'
                         })
-                    }}>NO</Button>
+                    }}>아니요</Button>
                 </div>
             {:else if $alertStore.type === 'tos' && (import.meta.env.VITE_RISU_LEGAL_CONFIGURED || globalThis.__RISU_LEGAL_CONFIGURED__)}
                 <div class="flex gap-2 w-full">
@@ -317,13 +317,13 @@
                             type: 'none',
                             msg: 'yes'
                         })
-                    }}>Accept</Button>
+                    }}>동의</Button>
                     <Button styled={'outlined'} className="mt-4 grow" onclick={() => {
                         alertStore.set({
                             type: 'none',
                             msg: 'no'
                         })
-                    }}>Do not Accept</Button>
+                    }}>동의하지 않음</Button>
                 </div>
             {:else if $alertStore.type === 'select'}
                 {@const hasDisplay = $alertStore.msg.startsWith('__DISPLAY__')}
@@ -355,7 +355,7 @@
                         type: 'none',
                         msg: ''
                     })
-                }}>OK</Button>
+                }}>확인</Button>
             {:else if $alertStore.type === 'input'}
                 <TextInput value={$alertStore.defaultValue} id="alert-input" autocomplete="off" marginTop list="alert-input-list" />
                 <Button className="mt-4" onclick={() => {
@@ -364,7 +364,7 @@
                         //@ts-expect-error 'value' doesn't exist on Element, but target is HTMLInputElement here
                         msg: document.querySelector('#alert-input')?.value
                     })
-                }}>OK</Button>
+                }}>확인</Button>
                 {#if $alertStore.datalist}
                     <datalist id="alert-input-list">
                         {#each $alertStore.datalist as item}

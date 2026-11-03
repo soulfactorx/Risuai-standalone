@@ -243,8 +243,12 @@ function standaloneInlinePlugin(publicDir: string, outFileName: string): Plugin 
                 handled.add(css.fileName)
             }
 
+            // 코드 분할을 끄면 Vite 의 동적 임포트 프리로드 표식(__VITE_PRELOAD__)이 치환되지 않고 남는다.
+            // 미리 불러올 파일이 없으므로 빈 값(void 0)으로 바꾼다. (그대로 두면 실행 중 ReferenceError 발생)
+            const entryCode = entry.code.replaceAll("__VITE_PRELOAD__", "void 0")
+
             // JS 는 gzip 압축 후 base64 로 넣고, 로더 스크립트로 실행
-            const compressed = zlib.gzipSync(Buffer.from(entry.code, "utf-8"), { level: 9 }).toString("base64")
+            const compressed = zlib.gzipSync(Buffer.from(entryCode, "utf-8"), { level: 9 }).toString("base64")
             const entryPattern = new RegExp(
                 `<script[^>]*src="[^"]*${escapeRegExp(entry.fileName)}"[^>]*></script>\\s*`,
             )

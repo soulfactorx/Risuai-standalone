@@ -8,6 +8,7 @@ import type { OpenAIChat } from "./index.svelte"
 import { processZip } from "./processzip"
 import { keiServerURL } from "../kei/kei"
 import random from "lodash/random"
+import { fillPrompt } from "../prompts/customPrompts";
 
 export async function stableDiff(currentChar:character,prompt:string){
     let db = getDatabase()
@@ -18,7 +19,8 @@ export async function stableDiff(currentChar:character,prompt:string){
     }
 
 
-    const promptItem = `Chat:\n${prompt}`
+    // 사용자 지정 가능: 설정 → 프롬프트 관리 (imagePromptChat)
+    const promptItem = fillPrompt('imagePromptChat', { '{{slot}}': prompt })
 
     const promptbody:OpenAIChat[] = [
         {

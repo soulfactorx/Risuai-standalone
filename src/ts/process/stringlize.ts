@@ -2,6 +2,11 @@ import type { OpenAIChat } from "./index.svelte";
 import { getDatabase } from "../storage/database.svelte";
 import { getUserName } from "../util";
 
+/** '새 채팅 시작' 구분 메시지인지 확인한다. (문구가 바뀌어도 memo 로 판별) */
+export function isNewChatMarker(form:OpenAIChat){
+    return form.memo === 'NewChat' || form.memo === 'NewChatExample' || form.content === "[Start a new chat]"
+}
+
 export function multiChatReplacer(){
 
 }
@@ -49,7 +54,8 @@ export function stringlizeChatOba(formated:OpenAIChat[], characterName:string, s
     seperator = seperator ?? "\n"
 
     for(const form of formated){
-        if(form.content === "[Start a new chat]"){
+        // 문구를 사용자 지정할 수 있으므로 memo 로도 판별한다. (src/ts/prompts/customPrompts.ts 의 startNewChat)
+        if(isNewChatMarker(form)){
             resultString.push("<START>")
             continue
         }
@@ -215,7 +221,7 @@ export function stringlizeAINChat(formated:OpenAIChat[], char:string, continued:
 
     for(const form of formated){
         console.log(form)
-        if(form.memo && form.memo.startsWith("newChat") || form.content === "[Start a new chat]"){
+        if(form.memo && form.memo.startsWith("newChat") || isNewChatMarker(form)){
             resultString.push("[新しいチャットの始まり]")
             continue
         }

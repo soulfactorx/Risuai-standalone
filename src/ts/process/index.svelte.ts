@@ -33,6 +33,7 @@ import { hypaMemoryV3 } from "./memory/hypav3";
 import { getModuleAssets, getModuleToggles } from "./modules";
 import { readImage } from "../globalApi.svelte";
 import { pluginV2 } from "../plugins/plugins.svelte";
+import { fillPrompt, fillPromptWithParser, getPrompt } from "../prompts/customPrompts";
 
 export interface OpenAIChat{
     role: 'system'|'user'|'assistant'|'function'
@@ -459,7 +460,8 @@ export async function sendChat(chatProcessIndex = -1,arg:{
     if(DBState.db.chainOfThought && (!(usingPromptTemplate && DBState.db.promptSettings.customChainOfThought))){
         unformated.postEverything.push({
             role: 'system',
-            content: `<instruction> - before respond everything, Think step by step as a ai assistant how would you respond inside <Thoughts> xml tag. this must be less than 5 paragraphs.</instruction>`
+            // 사용자 지정 가능: 설정 → 프롬프트 관리 (chainOfThought)
+            content: risuChatParser(getPrompt('chainOfThought'), {chara: currentChar})
         })
     }
 
@@ -473,11 +475,11 @@ export async function sendChat(chatProcessIndex = -1,arg:{
         }
 
         if(currentChar.personality){
-            description += risuChatParser("\n\nDescription of {{char}}: " + currentChar.personality, {chara: currentChar})
+            description += risuChatParser("\n\n" + getPrompt('personalityLabel') + currentChar.personality, {chara: currentChar})
         }
 
         if(currentChar.scenario){
-            description += risuChatParser("\n\nCircumstances and context of the dialogue: " + currentChar.scenario, {chara: currentChar})
+            description += risuChatParser("\n\n" + getPrompt('scenarioLabel') + currentChar.scenario, {chara: currentChar})
         }
 
         baseDescriptionPrompt = {
@@ -487,7 +489,8 @@ export async function sendChat(chatProcessIndex = -1,arg:{
         unformated.description.push(baseDescriptionPrompt)
 
         if(nowChatroom.type === 'group'){
-            const systemMsg = `[Write the next reply only as ${currentChar.name}]`
+            // 사용자 지정 가능: 설정 → 프롬프트 관리 (groupReplyOnly), {{slot}} = 캐릭터 이름
+            const systemMsg = fillPromptWithParser('groupReplyOnly', { '{{slot}}': currentChar.name }, (text) => risuChatParser(text, {chara: currentChar}))
             unformated.postEverything.push({
                 role: 'system',
                 content: systemMsg
@@ -839,7 +842,7 @@ export async function sendChat(chatProcessIndex = -1,arg:{
     if(!DBState.db.aiModel.startsWith('novelai') && !DBState.db?.promptSettings?.trimStartNewChat){
         chats.push({
             role: 'system',
-            content: '[Start a new chat]',
+            content: getPrompt('startNewChat'),
             memo: "NewChat"
         })
     }
@@ -1178,7 +1181,7 @@ export async function sendChat(chatProcessIndex = -1,arg:{
             } as OpenAIChat
         }
         else{
-            v.content = `<Previous Conversation>${v.content}</Previous Conversation>`
+            v.content = fillPrompt('previousConversation', { '{{slot}}': v.content })
         }
         return v
     }).filter((v) => {
@@ -1228,7 +1231,7 @@ export async function sendChat(chatProcessIndex = -1,arg:{
     if(arg.continue && (DBState.db.aiModel.startsWith('claude') || DBState.db.aiModel.startsWith('gpt') || DBState.db.aiModel.startsWith('openrouter') || DBState.db.aiModel.startsWith('reverse_proxy'))){
         unformated.postEverything.push({
             role: 'system',
-            content: '[Continue the last response]'
+            content: risuChatParser(getPrompt('continueResponse'), {chara: currentChar})
         })
     }
 
@@ -2081,19 +2084,23 @@ export async function sendChat(chatProcessIndex = -1,arg:{
                 }
             }        
 
+            const emotionExampleUser = getPrompt('emotionExampleUser')
             const promptbody:OpenAIChat[] = [
                 {
                     role:'system',
-                    content: `${DBState.db.emotionPrompt2 || "From the list below, choose a word that best represents a character's outfit description, action, or emotion in their dialogue. Prioritize selecting words related to outfit first, then action, and lastly emotion. Print out the chosen word."}\n\n list: ${shuffleArray(emotionList).join(', ')} \noutput only one word.`
+                    content: `${DBState.db.emotionPrompt2 || "From the list below, choose a word that best represents a character's outfit description, action, or emotion in their dialogue. Prioritize selecting words related to outfit first, then action, and lastly emotion. Print out the chosen word."}\n\n` + fillPrompt('emotionListSuffix', { '{{slot}}': shuffleArray(emotionList).join(', ') })
                 },
-                {
-                    role: 'user',
-                    content: `"Good morning, Master! Is there anything I can do for you today?"`
-                },
-                {
-                    role: 'assistant',
-                    content: 'happy'
-                },
+                // 예시 입력을 비워 두면 예시 대화를 보내지 않는다.
+                ...(emotionExampleUser ? [
+                    {
+                        role: 'user',
+                        content: emotionExampleUser
+                    },
+                    {
+                        role: 'assistant',
+                        content: getPrompt('emotionExampleAssistant')
+                    },
+                ] as OpenAIChat[] : []),
                 {
                     role: 'user',
                     content: result

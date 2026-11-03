@@ -33,6 +33,7 @@
     import PluginDefinedIcon from '../Others/PluginDefinedIcon.svelte';
     import { getAdditionalChatLoadPages, getInitialChatLoadPages } from 'src/ts/chatLoadPages';
     import { getActiveOnboarding, isOnboardingPending } from 'src/ts/onboarding';
+    import { getPrompt } from 'src/ts/prompts/customPrompts';
 
     const loadPlaygroundMenu = () => import('../Playground/PlaygroundMenu.svelte').then(m => m.default);
     
@@ -175,7 +176,8 @@
                     if(DBState.db.useSayNothing){
                         cha.push({
                             role: 'user',
-                            data: '*says nothing*',
+                            // 사용자 지정 가능: 설정 → 프롬프트 관리 (saysNothing)
+                            data: getPrompt('saysNothing'),
                             name: $ConnectionOpenStore ? DBState.db.username : null
                         })
                     }

@@ -11,6 +11,7 @@ import { requestChatData } from "../request/request";
 import { HypaProcesser } from "./hypamemory";
 import { globalFetch } from "src/ts/globalApi.svelte";
 import { runSummarizer } from "../transformers";
+import { fillPrompt } from "src/ts/prompts/customPrompts";
 
 export interface HypaV2Data {
     lastMainChunkID: number; // can be removed, but exists to more readability of the code.
@@ -623,7 +624,8 @@ export async function hypaMemoryV2(
         chunkResultTokens += tokenized;
     }
 
-    const fullResult = `<Past Events Summary>${mainPrompt}</Past Events Summary>\n<Past Events Details>${chunkResultPrompts}</Past Events Details>`;
+    // 사용자 지정 가능: 설정 → 프롬프트 관리 (hypaV2Wrapper)
+    const fullResult = fillPrompt("hypaV2Wrapper", { "{{summary}}": mainPrompt, "{{details}}": chunkResultPrompts });
     const fullResultTokens = await tokenizer.tokenizeChat({
         role: "system",
         content: fullResult,

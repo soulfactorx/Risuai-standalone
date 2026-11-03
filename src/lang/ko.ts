@@ -1,3 +1,7 @@
+/**
+ * 한국어 언어 파일 (이 앱은 한국어 전용으로 사용한다)
+ * 다른 언어 파일은 제거했으며, 모든 화면 문구는 이 파일을 기준으로 한다.
+ */
 export const languageKorean = {
     "formating": {
         "main": "메인 프롬프트",
@@ -39,6 +43,8 @@ export const languageKorean = {
     },
     "showHelp": "도움말 보기",
     "help": {
+        "localNetworkModeDesc": "사설망/LAN 모델 주소로의 요청을 브라우저 직접 요청 대신 로컬 실행 경로로 보냅니다.\n\n**목적**\n- `192.168.x.x`, `10.x.x.x`, `localhost`, `.local` 같은 로컬 주소에 대한 브라우저의 사설망/CORS 제한을 피합니다.\n- Node 자체 호스팅 모드에서 첫 토큰이 느린 로컬 추론의 시간 초과 위험을 줄입니다.\n\n**동작 방식**\n- 로컬 네트워크 모드가 켜져 있고 대상 주소가 로컬/사설 주소로 판단될 때만 적용됩니다.\n- Node 자체 호스팅: 스트리밍은 실험적인 Job+WebSocket 중계를 먼저 사용하고(실패 시 `/proxy2`), 스트리밍이 아니면 `/proxy2`를 사용합니다.\n- Tauri: 네이티브 직접 경로를 사용합니다.\n- 공개 웹 모드: 로컬/사설 주소 직접 호출은 의도적으로 막혀 있습니다.\n\n**제한**\n- OpenAI 호환 요청 경로에만 적용됩니다.\n- 서로 다른 두 공개 도메인 사이의 Cloudflare 출처 제한은 우회하지 않습니다.\n- 이 기능은 자체 호스팅 주소(`globalThis.__NODE__ === true`)에서 사용해야 적용됩니다.",
+        "coldstorage": "콜드 스토리지는 오래된 채팅과 캐릭터 데이터를 자동으로 별도 저장소로 옮겨 기본 저장소의 크기를 줄이고 성능을 높이는 기능입니다. 전송 시간과 전송량이 줄고 채팅을 불러올 때 더 빨라집니다.",
         "model": "채팅에서 사용되는 모델입니다.",
         "submodel": "보조 모델은 감정 이미지, 자동 제안등을 분석하는 데 사용되는 모델입니다. gpt3.5가 권장됩니다.",
         "oaiapikey": "OpenAI용 API 키입니다. https://platform.openai.com/account/api-keys에서 구하실 수 있습니다.",
@@ -1373,6 +1379,8 @@ export const languageKorean = {
     "action": "동작",
     "hotkey": "단축키",
     "hotkeyDesc": {
+        "popupEditor": "팝업 편집기",
+        "loadout": "로드아웃",
         "reroll": "재생성",
         "unreroll": "재생성 취소",
         "translate": "번역",
@@ -1572,4 +1580,42 @@ export const languageKorean = {
     nanoGPTManualInput: "수동 입력",
     nanoGPTManualModelSelect: "수동 모델 선택",
     localToggles: "로컬 토글",
-} satisfies DeepPartial<typeof import('./en').languageEnglish>
+    // 아래는 원래 영어로만 있던 항목을 한국어로 옮긴 것 (한국어 전용 전환 시 추가)
+    "disableAbove": "AI에게 보낼 메시지 자르기",
+    "trimStartNewChat": "'새 채팅 시작' 메시지 제거",
+    "pluginDevelopMode": "플러그인 개발 모드",
+    "fetchLogConsent": "플러그인 {} 이(가) 요청 기록을 읽으려고 합니다. 민감한 정보가 노출될 수 있습니다. 허용할까요?",
+    "getFullDatabaseConsent": "플러그인 {} 이(가) 전체 데이터베이스에 접근하려고 합니다. 민감한 정보가 노출될 수 있습니다. 허용할까요?",
+    "mainDomAccessConsent": "플러그인 {} 이(가) 메인 문서(Document)에 접근하려고 합니다. 민감한 정보가 노출될 수 있습니다. 허용할까요?",
+    "replacerPermissionConsent": "플러그인 {} 이(가) 채팅 내용을 바꾸는 권한을 요청합니다. 대화를 조작하는 데 쓰일 수 있습니다. 허용할까요?",
+    "providerPermissionConsent": "플러그인 {} 이(가) AI 공급자 접근 권한을 요청합니다. 허락 없이 API 를 호출할 수 있게 됩니다. 허용할까요?",
+    "inlayPermissionConsent": "플러그인 {} 이(가) 인레이 접근 권한을 요청합니다. 인레이 내용을 읽고 쓰고 수정할 수 있게 됩니다. 허용할까요?",
+    "sendChatConsent": "플러그인 {} 이(가) 대신 채팅 메시지를 보내는 권한을 요청합니다. AI 응답이 실행됩니다. 허용할까요?",
+    "pluginV2Warning": "플러그인 V2 및 V2.1 은 안전하지 않은 것으로 간주되며 이후 버전에서 동작하지 않게 됩니다. **이 버전의 플러그인은 사용하지 마세요.** 이 플러그인의 개발자라면 가능한 한 빨리 V3 로 업데이트해 주세요.",
+    "createFolderOnBranch": "분기 시 폴더 만들기",
+    "pluginProviderNotFound": "알 수 없는 플러그인이 감지되었습니다. 모델을 바꾸거나 해당 플러그인을 켜 주세요.",
+    "enableRemoteSaving": "원격 저장 사용",
+    "blockquoteStyling": "인용문(blockquote) 스타일 적용",
+    "dynamicModelRegistry": "동적 모델 등록",
+    "confirmInstallPluginViaPlugin": "다른 플러그인을 통해 \"{plugin}\" 플러그인을 설치하려고 합니다. 요청한 플러그인을 신뢰할 수 없다면 위험할 수 있습니다. 계속할까요?",
+    "confirmReplacePluginViaPlugin": "다른 플러그인이 설치된 \"{plugin}\" 플러그인을 다른 스크립트로 바꾸려고 합니다. 요청한 플러그인을 신뢰할 수 없다면 위험할 수 있습니다. 계속할까요?",
+    "risuaiProTools": "Risuai 프로 도구",
+    "enableRisuaiProTools": "Risuai 프로 도구 사용",
+    "easyPanel": "간편 패널",
+    "mainModel": "메인 모델",
+    "epEnabled": "간편 패널 덮어쓰기",
+    "epRequirementsNotMet": "간편 패널 사용 조건이 충족되지 않았습니다. 아래 버튼을 누르면 간편 패널에 맞게 설정을 자동으로 조정합니다.",
+    "seperateParametersByModel": "모델별 파라미터 분리",
+    "disableSeperateParameterChangeOnPresetChange": "프리셋 변경 시 모델별 파라미터 변경 안 함",
+    "loadouts": "로드아웃",
+    "loadout": "로드아웃",
+    "coldStorage": "콜드 스토리지",
+    "cleanColdStorage": "사용하지 않는 콜드 스토리지 정리",
+    "customSidebarConfig": "사이드바 사용자 설정",
+    "cleanColdStorageConfirm": "사용하지 않는 콜드 스토리지 데이터를 모두 영구 삭제합니다. 지금은 쓰이지 않지만 나중에 필요할 수 있는 데이터가 포함될 수 있습니다. 계속할까요?",
+    "moveInsteadOfCopyOnCMPConvert": "CMP 변환 시 복사 대신 이동",
+    "successfullyConverted": "변환했습니다.",
+    "convertToModule": "모듈로 변환",
+    "skipSavingAssetsOnWebSync": "웹 동기화 시 에셋 저장 건너뛰기",
+    "applyAdditionalParamsToAll": "추가 파라미터를 모든 모델에 적용",
+}
