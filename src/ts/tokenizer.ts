@@ -254,8 +254,33 @@ async function tokenizeGoogleCloud(text:string) {
     return new Uint32Array(count)
 }
 
+/**
+ * 토크나이저 파일을 받지 못한 종류 (다시 받으려고 매번 시도하지 않도록 기억)
+ * 단독 HTML 빌드는 토크나이저 파일을 CDN 에서 받으므로, 네트워크 문제로 실패할 수 있다.
+ */
+const failedTokenizers = new Set<string>()
+
+/**
+ * 토크나이저 파일을 불러오지 못하면 앱에 내장된 cl100k 토크나이저로 근사 계산한다.
+ * (토큰 수 계산 실패 때문에 채팅 전송 자체가 막히지 않도록 함)
+ */
+async function withTokenizerFallback(type:string, text:string, run:() => Promise<Uint32Array|Int32Array|number[]>){
+    if(!failedTokenizers.has(type)){
+        try {
+            return await run()
+        } catch (error) {
+            failedTokenizers.add(type)
+            console.warn(`[tokenizer] '${type}' 토크나이저를 불러오지 못해 cl100k 로 근사 계산합니다.`, error)
+        }
+    }
+    return await tikJS(text, 'cl100k_base')
+}
+
 let gemmaTokenizer:GemmaTokenizer = null
 async function gemmaTokenize(text:string) {
+    return withTokenizerFallback('gemma-hf', text, () => gemmaTokenizeInner(text))
+}
+async function gemmaTokenizeInner(text:string) {
     if(!gemmaTokenizer){
         const {GemmaTokenizer} = await import('@huggingface/transformers')
         gemmaTokenizer = new GemmaTokenizer(
@@ -319,6 +344,10 @@ async function geminiTokenizer(text:string) {
 }
 
 async function tokenizeWebTokenizers(text:string, type:tokenizerType) {
+    return withTokenizerFallback(type, text, () => tokenizeWebTokenizersInner(text, type))
+}
+
+async function tokenizeWebTokenizersInner(text:string, type:tokenizerType) {
     if(type !== tokenizersType || !tokenizersTokenizer){
         const webTokenizer = await import('@mlc-ai/web-tokenizers')
         switch(type){

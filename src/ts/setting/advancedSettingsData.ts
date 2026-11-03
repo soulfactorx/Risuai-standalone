@@ -1,6 +1,7 @@
 
 import type { SettingItem } from './types';
 import { isNodeServer, isTauri } from '../platform';
+import { isStandalone } from "../standalone";
 
 export const advancedSettingsItems: SettingItem[] = [
     { type: 'header', id: 'adv.header', labelKey: 'advancedSettings', options: { level: 'h2' }, classes: '!mb-0' },
@@ -240,7 +241,8 @@ export const advancedSettingsItems: SettingItem[] = [
     // Unrecommended Extra (Condition: showUnrecommended)
     {
         id: 'adv.plainFetch', type: 'check', labelKey: 'forcePlainFetch', bindKey: 'usePlainFetch',
-        condition: (ctx) => ctx.db.showUnrecommended, helpKey: 'forcePlainFetch', helpUnrecommended: true, classes: 'mt-4'
+        // 단독 빌드에서는 항상 직접 요청하므로 이 설정을 숨긴다.
+        condition: (ctx) => ctx.db.showUnrecommended && !isStandalone, helpKey: 'forcePlainFetch', helpUnrecommended: true, classes: 'mt-4'
     },
     {
         id: 'adv.depTrig', type: 'check', labelKey: 'showDeprecatedTriggerV1', bindKey: 'showDeprecatedTriggerV1',

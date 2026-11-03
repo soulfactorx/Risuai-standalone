@@ -4,6 +4,10 @@ import { language } from "../lang"
 import { isTauri, isNodeServer } from "src/ts/platform"
 import { getDatabase, type MessageGenerationInfo } from "./storage/database.svelte"
 import { alertStore as alertStoreImported } from "./stores.svelte"
+import { isStandalone } from "./standalone";
+
+/** 단독 빌드에서 네트워크 오류가 났을 때 보여 줄 안내 */
+const STANDALONE_FETCH_HINT = "AI 서비스에 직접 연결하지 못했습니다. API 키와 주소를 확인해 주세요. 이 버전(GitHub Pages/HTML 파일)은 Risu 프록시 서버를 사용할 수 없어서, 브라우저 직접 호출(CORS)을 허용하지 않는 서비스는 사용할 수 없습니다. (OpenAI, Claude, Gemini, OpenRouter 등은 사용 가능)"
 
 export interface alertData{
     type: 'error'|'normal'|'none'|'ask'|'wait'|'selectChar'
@@ -61,7 +65,8 @@ export function alertError(msg: string | Error) {
 
     //check if it's a known error
     if(msg.includes('Failed to fetch') || msg.includes("NetworkError when attempting to fetch resource.")){
-        submsg =    db.usePlainFetch ? language.errors.networkFetchPlain :
+        submsg =    isStandalone ? STANDALONE_FETCH_HINT :
+                    db.usePlainFetch ? language.errors.networkFetchPlain :
                     (!isTauri && !isNodeServer) ? language.errors.networkFetchWeb : language.errors.networkFetch
     }
 
