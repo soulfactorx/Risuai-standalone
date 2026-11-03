@@ -16,6 +16,7 @@
     "test": "vitest run",
     "tauri": "tauri",
     "buildsite": "vite build --outDir dist",
+    "build:standalone": "vite build --mode standalone --outDir dist-standalone",
     "runserver": "node server/node/server.cjs",
     "sync": "node electron/sync",
     "electron": "node electron/dist/electron",

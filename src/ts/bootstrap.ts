@@ -47,6 +47,7 @@ import { isTauri } from "./platform";
 import { registerModelDynamic } from "./model/modellist";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { appDataDir, join } from "@tauri-apps/api/path";
+import { isStandalone } from "./standalone";
 
 const appWindow = isTauri ? getCurrentWebviewWindow() : null
 
@@ -186,7 +187,8 @@ export async function loadData() {
                     return
                 }
                 LoadingStatusState.text = "Checking Service Worker..."
-                if (navigator.serviceWorker) {
+                // 단독 HTML(file://) 에서는 서비스 워커를 등록할 수 없으므로 사용하지 않는다.
+                if (navigator.serviceWorker && !isStandalone) {
                     setUsingSw(true)
                     await registerSw()
                 }

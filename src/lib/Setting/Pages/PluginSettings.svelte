@@ -1,6 +1,7 @@
 <script lang="ts">
     import { PlusIcon, TrashIcon, LinkIcon, CodeXmlIcon, PowerIcon, PowerOffIcon } from "@lucide/svelte";
     import { language } from "src/lang";
+    import { publicAssetURL } from "src/ts/standalone";
     import { alertConfirm, alertMd, alertSelect } from "src/ts/alert";
     import { TriangleAlert } from '@lucide/svelte';
 
@@ -264,7 +265,7 @@
                     break;
                 case 1:{
                     const a = document.createElement('a');
-                    a.href = '/plugin_start.7z';
+                    a.href = publicAssetURL('/plugin_start.7z');
                     a.download = 'plugin_starter.7z';
                     document.body.appendChild(a);
                 }

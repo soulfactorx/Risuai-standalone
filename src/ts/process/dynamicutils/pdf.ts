@@ -1,7 +1,5 @@
 import * as pdfjs from 'pdfjs-dist'
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker?worker&url'
-
-pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker
+import { setupPdfWorker } from './pdfWorker'
 
 export async function convertPdfToImages(pdfBuffer: ArrayBuffer, options?: {
     scale?: number
@@ -10,6 +8,7 @@ export async function convertPdfToImages(pdfBuffer: ArrayBuffer, options?: {
 }): Promise<string[]> {
     const { scale = 1.5, format = 'png', quality = 0.8 } = options || {}
     
+    setupPdfWorker(pdfjs)
     const loadingTask = pdfjs.getDocument({
         data: pdfBuffer,
         cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/cmaps/',
@@ -43,6 +42,7 @@ export async function convertPdfToImages(pdfBuffer: ArrayBuffer, options?: {
 }
 
 export async function extractPdfText(pdfBuffer: ArrayBuffer): Promise<string[]> {
+    setupPdfWorker(pdfjs)
     const loadingTask = pdfjs.getDocument({
         data: pdfBuffer,
         cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/cmaps/',

@@ -13,6 +13,7 @@ import { translateHTML } from "./translator/translator";
 import { doingChat } from "./process/index.svelte";
 import { importCharacter } from "./characterCards";
 import { PngChunk } from "./pngChunk";
+import { publicAssetURL } from "./standalone";
 import { getColdStorageItem } from "./process/coldstorage.svelte";
 
 export function createNewCharacter() {
@@ -57,7 +58,7 @@ export async function getCharImage(loc:string, type:'plain'|'css'|'contain'|'lgc
     // Return placeholder when hideAllImages is enabled
     if(db.hideAllImages){
         if(type === 'plain'){
-            return '/none.webp'
+            return publicAssetURL('/none.webp')
         }
         return ''  // For CSS types, return empty to show default ? icon
     }

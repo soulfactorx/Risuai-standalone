@@ -20,6 +20,7 @@ import katex from 'katex'
 import { getModelInfo } from '../model/modellist';
 import { registerCBS, type matcherArg, type RegisterCallback } from '../cbs';
 import cssSelectorParser from 'postcss-selector-parser'
+import { publicAssetURL } from '../standalone';
 
 const markdownItOptions = {
     html: true,
@@ -56,7 +57,7 @@ DOMPurify.addHook("uponSanitizeElement", (node: HTMLElement, data) => {
             const src = node.getAttribute("src") || "";
             // Replace with placeholder if it's an external/loaded image
             if(src && !src.startsWith('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP')){
-                node.setAttribute("src", "/none.webp");
+                node.setAttribute("src", publicAssetURL("/none.webp"));
                 node.setAttribute("alt", "?");
             }
             return;

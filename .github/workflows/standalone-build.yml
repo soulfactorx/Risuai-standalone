@@ -1,0 +1,47 @@
+# 단독 HTML(risuai.html) 빌드
+# 수동 실행(workflow_dispatch) 또는 main 브랜치 푸시 시 단일 HTML 파일을 만들어 아티팩트로 올린다.
+#
+# 포크/개인 사용 빌드에서 약관 안내 화면을 끄려면 저장소 설정의
+# Settings → Secrets and variables → Actions → Variables 에
+# VITE_RISU_LEGAL_CONFIGURED 변수를 직접 추가해야 한다. (자동으로 설정하지 않음)
+name: Standalone HTML Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: 단독 HTML 빌드
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: pnpm 설치
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.1
+
+      - name: 의존성 설치
+        run: pnpm install --frozen-lockfile
+
+      - name: 단독 HTML 빌드
+        env:
+          VITE_RISU_LEGAL_CONFIGURED: ${{ vars.VITE_RISU_LEGAL_CONFIGURED }}
+        run: pnpm build:standalone
+
+      - name: 결과물 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuai-standalone
+          path: dist-standalone/risuai.html
+          if-no-files-found: error

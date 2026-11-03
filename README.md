@@ -48,6 +48,17 @@ You can get detailed information on https://github.com/kwaroran/Risuai/wiki (Wor
 - [Risuai Website](https://risuai.net) (Recommended)
 - [Github Releases](https://github.com/kwaroran/Risuai/releases)
 
+### 단독 HTML 버전 (Standalone)
+
+웹 서버 없이 HTML 파일 하나만 브라우저로 열어서 사용할 수 있습니다.
+
+```bash
+pnpm install
+pnpm build:standalone   # 결과물: dist-standalone/risuai.html
+```
+
+자세한 내용은 [STANDALONE.md](STANDALONE.md) 를 참고하세요.
+
 ### Development prerequisites
 
 - Node.js 20.19+ or 22.12+

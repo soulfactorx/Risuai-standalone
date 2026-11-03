@@ -21,6 +21,7 @@ import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
 import { AccountStorage } from "./storage/accountStorage"
 import { filterBlockedRealmCards, isRealmCreatorBlocked } from "./realmBlocking"
 import { normalizeOnboarding } from "./onboarding"
+import { fetchPublicAsset } from "./standalone"
 
 
 const EXTERNAL_HUB_URL = 'https://sv.risuai.xyz';
@@ -719,7 +720,7 @@ export async function exportChar(charaID:number):Promise<string> {
     }
 
     if(!char.image){
-        const res = await fetch('/none.webp')
+        const res = await fetchPublicAsset('/none.webp')
         const data = new Uint8Array(await res.arrayBuffer())
         char.image = await saveAsset(data)
     }
@@ -752,7 +753,7 @@ async function readCardExportImage(image?: string) {
         }
     }
 
-    const res = await fetch('/none.webp')
+    const res = await fetchPublicAsset('/none.webp')
     if(!res.ok){
         throw new Error(`Failed to load fallback character image: ${res.status} ${res.statusText}`)
     }

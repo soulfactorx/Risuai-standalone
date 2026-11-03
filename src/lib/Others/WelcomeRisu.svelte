@@ -2,6 +2,7 @@
     import { ArrowLeft, ChevronDown } from "@lucide/svelte";
     import { fly, fade } from "svelte/transition";
     import { MediaQuery } from "svelte/reactivity";
+    import { publicAssetURL } from "src/ts/standalone";
     import MarkdownIt from "markdown-it";
     import DOMPurify from "dompurify";
     import { changeLanguage, language } from "src/lang";
@@ -161,7 +162,7 @@
         DBState.db.language
         if(provider === 'claude'){
             return language.setup.setupClaudeSteps.map((text, i) =>
-                `![](/welcome/claude/ant_${i}.webp)\n\n${i === 0 ? 'https://console.anthropic.com/login?returnTo=%2F%3F\n\n' : ''}` + text
+                `![](${publicAssetURL(`/welcome/claude/ant_${i}.webp`)})\n\n${i === 0 ? 'https://console.anthropic.com/login?returnTo=%2F%3F\n\n' : ''}` + text
             )
         }
         const guide = provider === 'openai' ? language.setup.setupOpenAI : language.setup.setupOpenRouter
@@ -306,7 +307,7 @@
     <header class="relative z-20 flex shrink-0 items-center p-[clamp(1rem,2.4vmin,1.75rem)]">
         <!-- scales with the shorter screen side so tablets don't get a phone-sized logo -->
         <div class="rounded-[clamp(1rem,2.4vmin,1.5rem)] bg-darkbg/85 px-[clamp(1rem,2.2vmin,1.5rem)] py-[clamp(0.625rem,1.6vmin,1rem)] shadow-xl backdrop-blur">
-            <img src="/logo_typo_trans.png" alt="Risuai" class="h-[clamp(1.5rem,5.5vmin,3.25rem)] w-auto">
+            <img src={publicAssetURL("/logo_typo_trans.png")} alt="Risuai" class="h-[clamp(1.5rem,5.5vmin,3.25rem)] w-auto">
         </div>
     </header>
 

@@ -110,8 +110,8 @@ async function sendPofile(arg:sendFileArg){
 
 async function sendPDFFile(arg:sendFileArg) {
     const pdfjsLib = (await import('pdfjs-dist'));
-    const pdfjsWorker = await import('pdfjs-dist/build/pdf.worker?worker&url');
-    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker.default;
+    const { setupPdfWorker } = await import('../dynamicutils/pdfWorker');
+    setupPdfWorker(pdfjsLib);
     const pdf = await pdfjsLib.getDocument({data: arg.file}).promise;
     const texts:string[] = []
     for(let i = 1; i<=pdf.numPages; i++){

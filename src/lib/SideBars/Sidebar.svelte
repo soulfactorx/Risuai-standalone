@@ -18,6 +18,7 @@
   } from "../../ts/stores.svelte";
     import { setDatabase, type folder } from "../../ts/storage/database.svelte";
     import { DBState } from 'src/ts/stores.svelte';
+    import { publicAssetURL } from 'src/ts/standalone';
     import BarIcon from "./BarIcon.svelte";
     import SidebarIndicator from "./SidebarIndicator.svelte";
     import {
@@ -591,7 +592,7 @@
           >
           {#if char.type === 'normal'}
             <SidebarAvatar 
-              src={char.img ? getCharImage(char.img, "plain") : "/none.webp"} 
+              src={char.img ? getCharImage(char.img, "plain") : publicAssetURL("/none.webp")} 
               size="56" 
               rounded={IconRounded} 
               name={char.name}
@@ -753,7 +754,7 @@
                   }}
                 >
                 <SidebarAvatar 
-                  src={char2.img ? getCharImage(char2.img, "plain") : "/none.webp"} 
+                  src={char2.img ? getCharImage(char2.img, "plain") : publicAssetURL("/none.webp")} 
                   size="56" 
                   rounded={IconRounded} 
                   name={char2.name}

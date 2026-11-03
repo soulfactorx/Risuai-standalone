@@ -2,6 +2,7 @@
     import { HouseIcon, MailIcon, MaximizeIcon, WalletIcon } from "@lucide/svelte";
     import { openURL, toggleFullscreen } from "src/ts/globalApi.svelte";
     import { isTauri } from "src/ts/platform"
+    import { publicAssetURL } from "src/ts/standalone"
 
 </script>
 <svelte:head>
@@ -15,7 +16,7 @@
     <button onclick={() => {
       openURL("https://github.com/kwaroran/risuAI")
     }}>
-      <img src="/icon/github-mark-white.svg" width="24" alt="github" />
+      <img src={publicAssetURL("/icon/github-mark-white.svg")} width="24" alt="github" />
     </button>
   {/if}
   <button class="text-textcolor" onclick={() => {

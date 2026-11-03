@@ -2,6 +2,39 @@ import { LatencyOptimisedTranslator, TranslatorBacking } from "@browsermt/bergam
 import { gunzipSync } from 'fflate';
 import { asBuffer } from "../util";
 
+/** bergamot 번역기 wasm 을 받아올 CDN 주소 (단독 HTML 빌드에서만 사용) */
+const BERGAMOT_VERSION = "0.4.9"
+const BERGAMOT_WASM_URL = `https://cdn.jsdelivr.net/npm/@browsermt/bergamot-translator@${BERGAMOT_VERSION}/worker/bergamot-translator-worker.wasm`
+
+/**
+ * 단독 HTML 빌드용 bergamot 워커 준비.
+ *
+ * 원래 라이브러리는 `translator-worker.js` 파일 옆의 `bergamot-translator-worker.js/.wasm` 을
+ * 상대 경로로 불러오는데, file:// 로 연 단독 HTML 에서는 이런 파일이 없다.
+ * 그래서 워커 코드를 문자열로 번들에 포함한 뒤 경로 부분만 바꿔 Blob URL 로 만든다.
+ * (vite 플러그인이 라이브러리의 `new Worker(...)` 를 `globalThis.__risuStandaloneBergamotWorkerURL` 로 교체함)
+ */
+async function prepareStandaloneBergamotWorker() {
+    const g = globalThis as typeof globalThis & { __risuStandaloneBergamotWorkerURL?: string }
+    if (g.__risuStandaloneBergamotWorkerURL) {
+        return
+    }
+    const [{ default: workerSource }, { default: glueSource }] = await Promise.all([
+        import("@browsermt/bergamot-translator/worker/translator-worker.js?raw"),
+        import("@browsermt/bergamot-translator/worker/bergamot-translator-worker.js?raw"),
+    ])
+    const glueURL = URL.createObjectURL(new Blob([glueSource], { type: "text/javascript" }))
+    const wasmTarget = "new URL('./bergamot-translator-worker.wasm', self.location)"
+    const glueTarget = "self.importScripts('bergamot-translator-worker.js')"
+    if (!workerSource.includes(wasmTarget) || !workerSource.includes(glueTarget)) {
+        throw new Error("bergamot 워커 코드 형식이 예상과 다릅니다. 라이브러리 버전을 확인하세요.")
+    }
+    const patched = workerSource
+        .replace(wasmTarget, JSON.stringify(BERGAMOT_WASM_URL))
+        .replace(glueTarget, `self.importScripts(${JSON.stringify(glueURL)})`)
+    g.__risuStandaloneBergamotWorkerURL = URL.createObjectURL(new Blob([patched], { type: "text/javascript" }))
+}
+
 // Cache Translations Models
 class CacheDB {
     private readonly dbName: string;
@@ -83,6 +116,14 @@ class FirefoxBacking extends TranslatorBacking {
         options.registryUrl = options.registryUrl || registryUrl;
         super(options);
         this.cache = new CacheDB("firefox-translations-models");
+    }
+
+    async loadWorker() {
+        // 빌드 상수를 직접 비교해야 일반 빌드에서 아래 코드(워커 소스 ?raw 임포트)가 제거된다.
+        if (import.meta.env.MODE === "standalone") {
+            await prepareStandaloneBergamotWorker();
+        }
+        return super.loadWorker();
     }
 
     async loadModelRegistery() {
