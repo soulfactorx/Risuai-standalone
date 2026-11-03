@@ -20,6 +20,7 @@ import { fetchPublicAsset } from "../standalone";
 import PyWorker from "./pyworker?worker";
 import { loadLoreBookV3Prompt } from './lorebook.svelte';
 import { getPersonaPrompt, getUserName, getUserIcon } from '../util';
+import { isRisuServerUrl } from "../network/risuBlocklist";
 let luaFactory:LuaFactory
 let ScriptingSafeIds = new Set<string>()
 let ScriptingEditDisplayIds = new Set<string>()
@@ -357,20 +358,12 @@ export async function runScripted(code:string, arg:{
                         })
                     }
 
-                    const bannedURL = [
-                        "https://realm.risuai.net",
-                        "https://risuai.net",
-                        "https://risuai.xyz"
-                    ]
-
-                    for(const burl of bannedURL){
-
-                        if(url.startsWith(burl)){
-                            return JSON.stringify({
-                                status: 400,
-                                data: "request to " + url + ' is not allowed'
-                            })
-                        }
+                    // Risu 운영 서버로의 요청은 차단한다. (src/ts/network/risuBlocklist.ts)
+                    if(isRisuServerUrl(url)){
+                        return JSON.stringify({
+                            status: 400,
+                            data: "request to " + url + ' is not allowed'
+                        })
                     }
 
                     //browser fetch

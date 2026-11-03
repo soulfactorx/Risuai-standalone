@@ -694,7 +694,7 @@
                         margin-right: auto;
                     `)
                     
-                    if(url && (url.startsWith('http://asset.localhost') || url.startsWith('https://asset.localhost') || url.startsWith('https://sv.risuai') || url.startsWith('data:') || url.startsWith('http') || url.startsWith('/'))){
+                    if(url && (url.startsWith('http://asset.localhost') || url.startsWith('https://asset.localhost') || url.startsWith('data:') || url.startsWith('http') || url.startsWith('/'))){
                         try {
                             let fetchUrl = url
                             if(url.startsWith('/')) {
@@ -734,7 +734,7 @@
                 try {
                     const iconImage = (await getFileSrc(DBState.db.characters[selIdState.selId].image ?? '')) ?? ''
                     
-                    if(iconImage && (iconImage.startsWith('http://asset.localhost') || iconImage.startsWith('https://asset.localhost') || iconImage.startsWith('https://sv.risuai') || iconImage.startsWith('data:') || iconImage.startsWith('http') || iconImage.startsWith('/'))){
+                    if(iconImage && (iconImage.startsWith('http://asset.localhost') || iconImage.startsWith('https://asset.localhost') || iconImage.startsWith('data:') || iconImage.startsWith('http') || iconImage.startsWith('/'))){
                         if(iconImage.startsWith('data:')){
                             iconDataUrl = iconImage
                             hasValidImage = true
@@ -786,7 +786,7 @@
                     if (userIcon) {
                         try {
                             const userIconSrc = await getFileSrc(userIcon)
-                            if (userIconSrc && (userIconSrc.startsWith('http://asset.localhost') || userIconSrc.startsWith('https://asset.localhost') || userIconSrc.startsWith('https://sv.risuai') || userIconSrc.startsWith('data:') || userIconSrc.startsWith('http') || userIconSrc.startsWith('/'))) {
+                            if (userIconSrc && (userIconSrc.startsWith('http://asset.localhost') || userIconSrc.startsWith('https://asset.localhost') || userIconSrc.startsWith('data:') || userIconSrc.startsWith('http') || userIconSrc.startsWith('/'))) {
                                 if (userIconSrc.startsWith('data:')) {
                                     finalIconDataUrl = userIconSrc
                                     finalHasValidImage = true

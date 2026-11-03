@@ -1,36 +1,23 @@
-import { writable, type Writable } from "svelte/store"
-import { alertCardExport, alertConfirm, alertError, alertInput, alertMd, alertNormal, alertStore, alertTOS, alertWait } from "./alert"
-import { defaultSdDataFunc, type character, setDatabase, type customscript, type loreSettings, type loreBook, type triggerscript, importPreset, type groupChat, setCurrentCharacter, getCurrentCharacter, getDatabase, setDatabaseLite, appVer } from "./storage/database.svelte"
+import { alertCardExport, alertConfirm, alertError, alertInput, alertNormal, alertStore, alertWait } from "./alert"
+import { defaultSdDataFunc, type character, setDatabase, type customscript, type loreSettings, type loreBook, type triggerscript, importPreset, type groupChat, getDatabase, setDatabaseLite } from "./storage/database.svelte"
 import { checkNullish, decryptBuffer, isKnownUri, selectFileByDom, sleep } from "./util"
 import { language } from "src/lang"
 import { v4 as uuidv4, v4 } from 'uuid';
 import { changeChar, characterFormatUpdate } from "./characters"
-import { AppendableBuffer, BlankWriter, checkCharOrder, downloadFile, forageStorage, loadAsset, LocalWriter, openURL, readImage, saveAsset, VirtualWriter } from "./globalApi.svelte"
-import { isTauri, isNodeServer } from "src/ts/platform"
+import { AppendableBuffer, BlankWriter, checkCharOrder, downloadFile, forageStorage, loadAsset, LocalWriter, readImage, saveAsset, VirtualWriter } from "./globalApi.svelte"
 import { compressImage, getImageType } from "./media"
-import { DBState, SettingsMenuIndex, ShowRealmFrameStore, selectedCharID, settingsOpen } from "./stores.svelte"
+import { DBState, SettingsMenuIndex, selectedCharID, settingsOpen } from "./stores.svelte"
 import { hasher } from "./parser/parser.svelte"
 import { type CharacterCardV3, type LorebookEntry } from '@risuai/ccardlib'
 import { reencodeImage } from "./process/files/inlays"
 import { PngChunk } from "./pngChunk"
 import type { OnnxModelFiles } from "./process/transformers"
-import { CharXImporter, CharXSkippableChecker, CharXWriter } from "./process/processzip"
+import { CharXImporter, CharXWriter } from "./process/processzip"
 import { exportModuleLegacy, readModule, type RisuModule } from "./process/modules"
 import { readFile } from "@tauri-apps/plugin-fs"
-import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
-import { AccountStorage } from "./storage/accountStorage"
-import { filterBlockedRealmCards, isRealmCreatorBlocked } from "./realmBlocking"
 import { normalizeOnboarding } from "./onboarding"
 import { fetchPublicAsset } from "./standalone"
 
-
-const EXTERNAL_HUB_URL = 'https://sv.risuai.xyz';
-const NIGHTLY_HUB_URL = 'https://nightly.sv.risuai.xyz'
-export const hubURL = isNodeServer
-    ? '/hub-proxy'
-    : (import.meta.env.VITE_RISU_NIGHTLY_BUILD === 'TRUE' || localStorage.getItem('hub') === 'nightly')
-    ? NIGHTLY_HUB_URL 
-    : EXTERNAL_HUB_URL;
 
 export async function importCharacter() {
     try {
@@ -55,7 +42,6 @@ export async function importCharacter() {
 export async function importCharacterProcess<T extends boolean = false>(f:{
     name: string;
     data: Uint8Array|File|ReadableStream<Uint8Array>
-    lightningRealmImport?:boolean
     returnCharacter?:T //note That this option only works with v3 charx
 }):Promise<T extends true ? character | number | null : number | null>{
     if(f.name.endsWith('json')){
@@ -88,55 +74,8 @@ export async function importCharacterProcess<T extends boolean = false>(f:{
             msg: 'Loading... (Reading)'
         })
 
-        let charXMode:'normal'|'skippable'|'signal' = 'normal'
-        let signal = ''
-        if(forageStorage.realStorage instanceof AccountStorage){
-
-            if(f.data instanceof ReadableStream){
-                const tee = f.data.tee()
-                const reader =tee[0].getReader()
-                f.data = tee[1]
-                const chunks:Uint8Array[] = []
-                let done = false
-                let readedBytes = 0
-                while(!done){
-                    const r = await reader.read()
-                    readedBytes += r.value ? r.value.length : 0
-                    if(r.done){
-                        done = true
-                    }
-                    else{
-                        chunks.push(r.value)
-                    }
-                    alertWait(`불러오는 중... (읽는 중) ${readedBytes} 바이트`)
-                }
-                let offset = 0
-                const uint8 = new Uint8Array(readedBytes)
-                for(const chunk of chunks){
-                    uint8.set(chunk, offset)
-                    offset += chunk.length
-                }
-                const v = await CharXSkippableChecker(uint8)
-                signal = v.hash
-                charXMode = v.success ? 'skippable' : 'signal'
-            }
-            else{
-                const rsp = new Response(f.data as any)
-                f.data = new Uint8Array(await rsp.arrayBuffer())
-                const v = await CharXSkippableChecker(f.data)
-                signal = v.hash
-                charXMode = v.success ? 'skippable' : 'signal'
-            }
-        }
-        
         const importer = new CharXImporter()
         importer.alertInfo = true
-        if(charXMode === 'skippable'){
-            importer.skipSaving = true
-        }
-        if(charXMode === 'signal'){
-            importer.hashSignal = signal
-        }
         await importer.parse(f.data)
         const cardData = importer.cardData
         if(!cardData){
@@ -218,9 +157,6 @@ export async function importCharacterProcess<T extends boolean = false>(f:{
         returnTrimed: true
     })
     const assets:{[key:string]:string} = {}
-    let queueFetch:Promise<Response>[] = []
-    let queueFetchKey:string[] = []
-    let queueFetchData:Buffer[] = []
     for await (const chunk of readGenerator){
         if(!chunk){
             continue
@@ -258,51 +194,9 @@ export async function importCharacterProcess<T extends boolean = false>(f:{
 
             readedPngChunks++
 
-            if(db.account?.useSync && f.lightningRealmImport){
-                const id = await hasher(assetData)
-                const xid = 'assets/' + id + '.png'
-                queueFetchKey.push(assetIndex)
-                queueFetchData.push(assetData)
-                queueFetch.push(fetch('https://sv.risuai.xyz/rs/' + xid))
-                assets[assetIndex] =  'xid:' + xid
-                if(queueFetch.length > 10){
-                    const res = await Promise.all(queueFetch)
-                    for(let i=0;i<res.length;i++){
-                        if(res[i].status !== 200){
-                            const assetId = await saveAsset(queueFetchData[i])
-                            assets[queueFetchKey[i]] = assetId
-                        }
-                        else{
-                            assets[queueFetchKey[i]] = assets[queueFetchKey[i]].replace('xid:', '')
-                        }
-                    }
-                    queueFetch = []
-                    queueFetchKey = []
-                    queueFetchData = []
-                }
-                continue
-            }
-
-
             const assetId = await saveAsset(assetData)
             assets[assetIndex] = assetId
         }
-    }
-
-    if(queueFetch.length > 0){
-        const res = await Promise.all(queueFetch)
-        for(let i=0;i<res.length;i++){
-            if(res[i].status !== 200){
-                const assetId = await saveAsset(queueFetchData[i])
-                assets[queueFetchKey[i]] = assetId
-            }
-            else{
-                assets[queueFetchKey[i]] = assets[queueFetchKey[i]].replace('xid:', '')
-            }
-        }
-        queueFetch = []
-        queueFetchKey = []
-        queueFetchData = []
     }
 
     if(!readedChara && !readedCCv3){
@@ -391,52 +285,7 @@ export async function importCharacterProcess<T extends boolean = false>(f:{
     
 }
 
-async function fetchRealmInfo(realmPath: string): Promise<hubType> {
-    const res = await fetch(`${hubURL}/hub/info/${realmPath}`)
-    if(res.status !== 200){
-        throw new Error(await res.text())
-    }
-
-    return await res.json()
-}
-
-function canAccessRealmCreator(creator?: string): boolean {
-    if(isRealmCreatorBlocked(DBState.db.blockedRealmCreators ?? [], creator)){
-        alertNormal(language.realmCreatorBlocked)
-        return false
-    }
-
-    return true
-}
-
-export const getRealmInfo = async (realmPath:string) => {
-    const url = new URL(location.href);
-    url.searchParams.delete('realm');
-    window.history.pushState(null, '', url.toString());
-
-    try {
-        const realmInfo = await fetchRealmInfo(realmPath)
-        if(!canAccessRealmCreator(realmInfo.creator)){
-            return
-        }
-        showRealmInfoStore.set(realmInfo)
-    } catch (error) {
-        alertError(error)
-    }
-}
-
-export const showRealmInfoStore:Writable<null|hubType> = writable(null)
-
 export async function characterURLImport() {
-    const realmPath = (new URLSearchParams(location.search)).get('realm')
-    try {
-        if(realmPath){
-           getRealmInfo(realmPath)
-        }
-    } catch (error) {
-        
-    }
-
     const charPath = (new URLSearchParams(location.search)).get('charahub')
     try {
         if(charPath){
@@ -577,21 +426,6 @@ export async function characterURLImport() {
         }
     }
     
-    if(isTauri){
-        await onOpenUrl((urls) => {
-            for(const url of urls){
-                const splited = url.split('/')
-                const id = splited[splited.length - 1]
-                const type = splited[splited.length - 2]
-                switch(type){
-                    case 'realm':{
-                        downloadRisuHub(id)
-                    }
-                }
-            }
-        })
-    }
-
     async function importFile(name:string, data:Uint8Array) {
         if(name.endsWith('.charx') || name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.png')){
             await importCharacterProcess({
@@ -732,9 +566,6 @@ export async function exportChar(charaID:number):Promise<string> {
     else if(option.type === 'ccv2'){
         exportCharacterCard(char,'png', {spec: 'v2'})
     }
-    else if(option.type === 'realm'){
-        ShowRealmFrameStore.set("character")
-    }
     else{
         return option.type
     }
@@ -765,7 +596,7 @@ async function readCardExportImage(image?: string) {
 }
 
 
-async function importCharacterCardSpec<T extends boolean = false>(card:CharacterCardV2Risu|CharacterCardV3, img?:Uint8Array, mode:'hub'|'normal' = 'normal', assetDict:{[key:string]:string} = {}, overrideLorebook: loreBook[] = null, returnValue:T = false as T):Promise<T extends true ? character|false : boolean>{
+async function importCharacterCardSpec<T extends boolean = false>(card:CharacterCardV2Risu|CharacterCardV3, img?:Uint8Array, mode:'normal' = 'normal', assetDict:{[key:string]:string} = {}, overrideLorebook: loreBook[] = null, returnValue:T = false as T):Promise<T extends true ? character|false : boolean>{
     if(!card ||(card.spec !== 'chara_card_v2' && card.spec !== 'chara_card_v3' )){
         return false
     }
@@ -810,7 +641,7 @@ async function importCharacterCardSpec<T extends boolean = false>(card:Character
                     emotions.push([risuext.emotions[i][0],imgp])
                     continue
                 }
-                const imgp = await saveAsset(mode === 'hub' ? (await getHubResources(risuext.emotions[i][1])) : Buffer.from(risuext.emotions[i][1], 'base64'))
+                const imgp = await saveAsset(Buffer.from(risuext.emotions[i][1], 'base64'))
                 emotions.push([risuext.emotions[i][0],imgp])
             }
         }
@@ -837,7 +668,7 @@ async function importCharacterCardSpec<T extends boolean = false>(card:Character
                     extAssets.push([risuext.additionalAssets[i][0],imgp,fileName])
                     continue
                 }
-                const imgp = await saveAsset(mode === 'hub' ? (await getHubResources(risuext.additionalAssets[i][1])) :Buffer.from(risuext.additionalAssets[i][1], 'base64'), '', fileName)
+                const imgp = await saveAsset(Buffer.from(risuext.additionalAssets[i][1], 'base64'), '', fileName)
                 extAssets.push([risuext.additionalAssets[i][0],imgp,fileName])
             }
         }
@@ -860,7 +691,7 @@ async function importCharacterCardSpec<T extends boolean = false>(card:Character
                     risuext.vits[key] = imgp
                     continue
                 }
-                const imgp = await saveAsset(mode === 'hub' ? (await getHubResources(risuext.vits[key])) : Buffer.from(risuext.vits[key], 'base64'))
+                const imgp = await saveAsset(Buffer.from(risuext.vits[key], 'base64'))
                 risuext.vits[key] = imgp
             }
 
@@ -1727,224 +1558,6 @@ export function createBaseV3(char:character){
     return card
 }
 
-
-export async function shareRisuHub2(char:character, arg:{
-    nsfw: boolean,
-    tag:string
-    license: string
-    anon: boolean,
-    update: boolean
-}) {
-    try {
-        char = safeStructuredClone(char)
-        char.license = arg.license
-        let tagList = arg.tag.split(',')
-        
-        if(arg.nsfw){
-            tagList.push("nsfw")
-        }
-    
-        alertWait("업로드 중...")
-        
-    
-        let tags = tagList.filter((v, i) => {
-            return (!!v) && (tagList.indexOf(v) === i)
-        })
-        char.tags = tags
-    
-    
-        const writer = new VirtualWriter()
-        await exportCharacterCard(char, 'png', {writer: writer})
-        const dat = Buffer.from(writer.buf.buffer).toString('base64') + '&' + 'rt.png'
-
-        openURL(`https://realm.risuai.net/hub/realm/upload#filedata=${encodeURIComponent(dat)}`)
-
-        let testMode = true
-        if(testMode){
-            return
-        }
-    
-        const fetchPromise = fetch(hubURL + '/hub/realm/upload', {
-            method: "POST",
-            body: writer.buf.buffer as any,
-            headers: {
-                "Content-Type": 'image/png',
-                "x-risu-api-version": "4",
-                "x-risu-token": getDatabase()?.account?.token,
-                'x-risu-username': arg.anon ? '' : (getDatabase()?.account?.id),
-                'x-risu-debug': 'true',
-                'x-risu-update-id': arg.update ? (char.realmId ?? 'null') : 'null'
-            }
-        })
-    
-    
-        const res = await fetchPromise
-    
-        if(res.status !== 200){
-            alertError(await res.text())
-        }
-        else{
-            const resJSON = await res.json()
-            alertMd(resJSON.message)
-            const currentChar = getCurrentCharacter()
-            if(currentChar.type === 'group'){
-                return
-            }
-            currentChar.realmId = resJSON.id
-            setCurrentCharacter(currentChar)
-        }   
-    } catch (error) {
-        alertError(error)
-    }
-
-}
-
-export type hubType = {
-    name:string
-    desc: string
-    download: string,
-    id: string,
-    img: string
-    tags: string[],
-    viewScreen: "none" | "emotion" | "imggen"
-    hasLore:boolean
-    hasEmotion:boolean
-    hasAsset:boolean
-    creator?:string
-    creatorName?:string
-    hot:number
-    license:string
-    authorname?:string
-    original?:string
-    type:string
-    hidden?:boolean
-}
-
-export let hubAdditionalHTML = ''
-
-export async function getRisuHub(arg:{
-    search:string,
-    page:number,
-    nsfw:boolean
-    sort:string
-}):Promise<hubType[]> {
-    try {
-        arg.search += ' __shared'
-        const stringArg = `search==${arg.search}&&page==${arg.page}&&nsfw==${arg.nsfw}&&sort==${arg.sort}&&web==${(!isNodeServer && !isTauri) ? 'web' : 'other'}`
-
-        const da = await fetch(hubURL + '/realm/' + encodeURIComponent(stringArg) + "?cache=30", {
-            headers: {
-                "x-risuai-info": appVer + ';' + (isNodeServer ? 'node' : (isTauri ? 'tauri' : 'web'))
-            }
-        })
-        if(da.status !== 200){
-            return []
-        }
-        const jso = await da.json()
-        const cards:hubType[] = Array.isArray(jso) ? jso : jso.cards
-        if(!Array.isArray(jso)){
-            hubAdditionalHTML = jso.additionalHTML || hubAdditionalHTML
-        }
-        return filterBlockedRealmCards(cards, DBState.db.blockedRealmCreators ?? [])
-    } catch (error) {
-        return[]
-    }
-}
-
-export async function downloadRisuHub(id:string, arg:{
-    forceRedirect?: boolean
-    creator?: string
-} = {}) {
-    try {
-        let creator = arg.creator
-        if(!creator){
-            try {
-                const realmInfo = await fetchRealmInfo(id)
-                creator = realmInfo.creator
-            } catch (error) {
-                alertError(error)
-                return
-            }
-        }
-        if(!canAccessRealmCreator(creator)){
-            return
-        }
-
-        if(!arg.forceRedirect){
-            if(!(await alertTOS())){
-                return
-            }
-            alertStore.set({
-                type: "wait",
-                msg: "Downloading..."
-            })
-        }
-        const res = await fetch("https://realm.risuai.net/api/v1/download/dynamic/" + id + '?cors=true', {
-            headers: {
-                "x-risu-api-version": "4"
-            }
-        })
-        if(res.status !== 200){
-            alertError(await res.text())
-            return
-        }
-
-        if(res.headers.get('content-type') === 'image/png' || res.headers.get('content-type') === 'application/zip' || res.headers.get('content-type') === 'application/charx'){
-            let db = getDatabase()
-            if(res.headers.get('content-type') === 'application/zip' || res.headers.get('content-type') === 'application/charx'){
-                await importCharacterProcess({
-                    name: 'realm.charx',
-                    data: new Uint8Array(await res.arrayBuffer()),
-                    lightningRealmImport: db.lightningRealmImport,
-                })
-            }
-            else{
-                await importCharacterProcess({
-                    name: 'realm.png',
-                    data: res.body,
-                    lightningRealmImport: db.lightningRealmImport,
-                })
-            }
-            checkCharOrder()
-            db = getDatabase()
-            if(db.characters[db.characters.length-1] && (db.goCharacterOnImport || arg.forceRedirect)){
-                const index = db.characters.length-1
-                changeChar(index)
-            }   
-            return
-        }
-    
-        const result = await res.json()
-        const data:CharacterCardV3 = result.card
-        const img:string = result.img
-
-        data.data.extensions.risuRealmImportId = id
-    
-        await importCharacterCardSpec(data, await getHubResources(img), 'hub')
-        checkCharOrder()
-        let db = getDatabase()
-        if(db.characters[db.characters.length-1] && (db.goCharacterOnImport || arg.forceRedirect)){
-            const index = db.characters.length-1
-            changeChar(index)
-            alertStore.set({
-                type: 'none',
-                msg: ''
-            })
-        }
-    } catch (error) {
-        console.error(error)
-        console.log(error.stack)
-        alertError("가져오는 중 오류가 발생했습니다")
-    }
-}
-
-export async function getHubResources(id:string) {
-    const res = await fetch(`${hubURL}/resource/${id}`)
-    if(res.status !== 200){
-        throw (await res.text())
-    }
-    return Buffer.from(await (res).arrayBuffer())
-}
 
 export function isCharacterHasAssets(char:character|groupChat){
     if(char.type === 'group'){

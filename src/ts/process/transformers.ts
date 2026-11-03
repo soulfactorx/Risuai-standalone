@@ -5,6 +5,7 @@ import { selectSingleFile, asBuffer  } from 'src/ts/util';
 import { v4 } from 'uuid';
 let tfCache: Cache = null
 let tfLoaded = false
+// 사용자가 등록한 ONNX 모델 파일 경로 -> 저장된 에셋 ID
 let tfMap: { [key: string]: string } = {}
 async function initTransformers() {
     if (tfLoaded) {
@@ -12,11 +13,15 @@ async function initTransformers() {
     }
     const { env } = await import('@huggingface/transformers');
     tfCache = await caches.open('tfCache')
-    env.localModelPath = "https://sv.risuai.xyz/transformers/"
+    // 모델은 Hugging Face 허브(huggingface.co, 기본값)에서 직접 내려받는다. Risu 서버는 사용하지 않는다.
+    // localModelPath 는 네트워크 주소가 아니라, 사용자가 직접 등록한 ONNX 모델(tfMap)을
+    // 아래 customCache 에서 찾기 위한 가상 경로로만 쓴다. 로컬 경로로의 요청은 하지 않는다.
+    env.localModelPath = "/models/"
+    env.allowLocalModels = false
+    env.allowRemoteModels = true
     env.useBrowserCache = false
     env.useFSCache = false
     env.useCustomCache = true
-    env.allowLocalModels = true
     env.customCache = {
         put: async (url: URL | string, response: Response) => {
             await tfCache.put(url, response)

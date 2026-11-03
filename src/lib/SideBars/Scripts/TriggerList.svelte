@@ -5,7 +5,6 @@
     import TextAreaInput from "src/lib/UI/GUI/TextAreaInput.svelte";
     import Button from "src/lib/UI/GUI/Button.svelte";
     import { openURL } from "src/ts/globalApi.svelte";
-    import { hubURL } from "src/ts/characterCards";
     import TriggerV2List from "./TriggerV2List.svelte";
     import { DBState } from "src/ts/stores.svelte";
 
@@ -88,7 +87,8 @@
 {#if value?.[0]?.effect?.[0]?.type === 'triggerlua'}
     <TextAreaInput margin="both" autocomplete="off" bind:value={value[0].effect[0].code} popupLanguage="lua"></TextAreaInput>
     <Button onclick={() => {
-        openURL(hubURL + '/redirect/docs/lua')
+        // Risu 서버의 문서 리디렉션 대신 원본 저장소(GitHub) 위키를 연다.
+        openURL('https://github.com/kwaroran/Risuai/wiki')
     }}>{language.helpBlock}</Button>
 {:else if value?.[0]?.effect?.[0]?.type === 'v2Header'}
     <TriggerV2List bind:value={value} lowLevelAble={lowLevelAble}/>

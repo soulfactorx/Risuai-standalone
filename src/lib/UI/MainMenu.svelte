@@ -1,8 +1,6 @@
 <script lang="ts">
     import { DBState } from 'src/ts/stores.svelte';
-    import Hub from "./Realm/RealmMain.svelte";
-    import { OpenRealmStore } from "src/ts/stores.svelte";
-    import { ArrowLeft, ArrowRight, FolderCodeIcon, GlobeIcon, MailIcon, Send } from "@lucide/svelte";
+    import { FolderCodeIcon, GlobeIcon, MailIcon, Send } from "@lucide/svelte";
     import { getVersionString, openURL } from "src/ts/globalApi.svelte";
     import { language } from "src/lang";
     import FileImportPanel from "./FileImportPanel.svelte";
@@ -47,14 +45,11 @@
     ];
 </script>
 <div class="h-full w-full flex flex-col overflow-y-auto items-center">
-    {#if !$OpenRealmStore}
-      <Title />
-      <h3 class="text-textcolor2 mt-1">버전 {getVersionString()}</h3>
-      <!-- 웹앱(PWA) 설치 안내 (GitHub Pages 등 http(s) 에서만 표시) -->
-      <InstallAppButton />
-    {/if}
+    <Title />
+    <h3 class="text-textcolor2 mt-1">버전 {getVersionString()}</h3>
+    <!-- 웹앱(PWA) 설치 안내 (GitHub Pages 등 http(s) 에서만 표시) -->
+    <InstallAppButton />
     <div class="w-full flex p-4 flex-col text-textcolor max-w-4xl">
-      {#if !$OpenRealmStore}
       <!-- RisuRealm 서버에 접속할 수 없는 환경이라, 내려받은 파일을 직접 가져오는 기능으로 대체함 -->
       <div class="mt-4 mb-4 w-full border-t border-t-selected"></div>
       <h1 class="text-2xl font-bold mb-4">파일 가져오기</h1>
@@ -90,13 +85,5 @@
           {/each}
       </div>
 
-      {:else}
-        <div class="flex items-center mt-4">
-          <button class="mr-2 text-textcolor2 hover:text-green-500" onclick={() => ($OpenRealmStore = false)}>
-            <ArrowLeft/>
-          </button>
-        </div>
-        <Hub />
-      {/if}
   </div>
 </div>

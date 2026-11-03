@@ -20,17 +20,14 @@ import { checkRisuUpdate } from "./update";
 import { MobileGUI, botMakerMode, selectedCharID, loadedStore, DBState, LoadingStatusState, selIdState, ReloadGUIPointer, bodyIntercepterStore } from "./stores.svelte";
 import { loadPlugins } from "./plugins/plugins.svelte";
 import { alertConfirm, alertError, alertMd, alertNormal, alertNormalWait, alertSelect, alertTOS, waitAlert } from "./alert";
-import { checkDriverInit, syncDrive } from "./drive/drive";
 import { hasher } from "./parser/parser.svelte";
-import { characterURLImport, hubURL } from "./characterCards";
+import { characterURLImport } from "./characterCards";
 import { defaultJailbreak, defaultMainPrompt, oldJailbreak, oldMainPrompt } from "./storage/defaultPrompts";
-import { loadRisuAccountData } from "./drive/accounter";
 import { decodeRisuSave, RisuSaveEncoder, type toSaveType } from "./storage/risuSave";
 import { saveKV } from "./storage/saveKV";
 import { AutoStorage } from "./storage/autoStorage";
 import { updateAnimationSpeed } from "./gui/animation";
 import { updateColorScheme, updateTextThemeAndCSS } from "./gui/colorscheme";
-import { autoServerBackup, saveDbKei } from "./kei/backup";
 import { save } from "@tauri-apps/plugin-dialog";
 import { listen } from '@tauri-apps/api/event'
 import { language } from "src/lang";
@@ -40,7 +37,6 @@ import { updateLorebooks } from "./characters";
 import { initMobileGesture } from "./hotkey";
 import { fetch as TauriHTTPFetch } from '@tauri-apps/plugin-http';
 import { moduleUpdate } from "./process/modules";
-import type { AccountStorage } from "./storage/accountStorage";
 import { getColdStorageItem, makeColdData } from "./process/coldstorage.svelte";
 import { isTauri, isNodeServer } from "./platform";
 import { isLocalNetworkUrl } from "./network/localNetwork";
@@ -48,6 +44,7 @@ import { decodeProxyJobWsChunk, formatProxyStreamErrorMessage, parseProxyJobWsEv
 import { getNodeServerProxyAuth } from "./storage/nodeStorage";
 import { shouldUsePlainFetch } from "./standalone";
 import { trackUsageFromData, trackUsageFromResponse } from "./usage/tokenUsage";
+import { assertNotRisuServerUrl, isRisuServerUrl, RISU_SERVER_BLOCKED_MESSAGE } from "./network/risuBlocklist";
 
 export const forageStorage = new AutoStorage()
 
@@ -132,9 +129,6 @@ export async function getFileSrc(loc: string) {
             }
         }
         return convertFileSrc(loc)
-    }
-    if (forageStorage.isAccount && loc.startsWith('assets')) {
-        return hubURL + `/rs/` + loc
     }
     try {
         if (usingSw) {
@@ -294,7 +288,6 @@ export let requiresFullEncoderReload = $state({
 })
 export async function saveDb() {
     let changed = false
-    syncDrive()
     let gotChannel = false
     const sessionID = v4()
     let channel: BroadcastChannel
@@ -327,7 +320,7 @@ export async function saveDb() {
 
     let encoder = new RisuSaveEncoder()
     await encoder.init(getDatabase(), {
-        compression: forageStorage.isAccount,
+        compression: false,
         kv: saveKV
     })
 
@@ -425,7 +418,7 @@ export async function saveDb() {
             if (requiresFullEncoderReload.state) {
                 encoder = new RisuSaveEncoder()
                 await encoder.init(getDatabase(), {
-                    compression: forageStorage.isAccount,
+                    compression: false,
                     skipRemoteSavingOnCharacters: false,
                     kv: saveKV
                 })
@@ -468,18 +461,10 @@ export async function saveDb() {
             else {
 
                 await forageStorage.setItem('database/database.bin', dbData)
-                if (!forageStorage.isAccount) {
-                    await forageStorage.setItem(`database/dbbackup-${(Date.now() / 100).toFixed()}.bin`, dbData)
-                }
-                if (forageStorage.isAccount) {
-                    await sleep(3000)
-                }
+                await forageStorage.setItem(`database/dbbackup-${(Date.now() / 100).toFixed()}.bin`, dbData)
             }
-            if (!forageStorage.isAccount) {
-                await getDbBackups()
-            }
+            await getDbBackups()
             savetrys = 0
-            await saveDbKei()
             await sleep(500)
         } catch (error) {
             //the KV blocks were not written; encode them again on the next attempt
@@ -503,10 +488,6 @@ export async function saveDb() {
  * @returns {Promise<number[]>} - A promise that resolves to an array of backup timestamps.
  */
 export async function getDbBackups() {
-    let db = getDatabase()
-    if (db?.account?.useSync && !isTauri && !isNodeServer) {
-        return []
-    }
     if (isTauri) {
         const keys = await readDir('database', { baseDir: BaseDirectory.AppData })
         let backups: number[] = []
@@ -565,12 +546,14 @@ const knownHostes = ["localhost", "127.0.0.1", "0.0.0.0"];
 const webLocalNetworkBlockedMessage = "웹에서는 사설망 직접 호출 불가. Tauri 또는 LAN Node self-host 사용";
 const defaultProxyJobHeartbeatSec = 15;
 
+// 프록시는 노드 셀프호스트 서버(사용자 본인 서버)의 /proxy2 만 사용한다.
+// 웹/단독 빌드에서는 Risu 프록시 서버를 절대 거치지 않는다.
 function getProxy2Url() {
-    return !isTauri && !isNodeServer ? `${hubURL}/proxy2` : `/proxy2`;
+    return `/proxy2`;
 }
 
 function getProxyStreamJobBaseUrl() {
-    return isNodeServer ? '' : `${hubURL}`;
+    return '';
 }
 
 function buildTimeoutSignal(originalSignal?: AbortSignal, timeoutMs?: number) {
@@ -613,7 +596,6 @@ function buildTimeoutSignal(originalSignal?: AbortSignal, timeoutMs?: number) {
  * @property {boolean} [rawResponse] - Whether to return the raw response.
  * @property {'POST' | 'GET'} [method] - The HTTP method to use.
  * @property {AbortSignal} [abortSignal] - The abort signal to cancel the request.
- * @property {boolean} [useRisuToken] - Whether to use the Risu token.
  * @property {string} [chatId] - The chat ID associated with the request.
  */
 export interface GlobalFetchArgs {
@@ -624,7 +606,6 @@ export interface GlobalFetchArgs {
     rawResponse?: boolean;
     method?: 'POST' | 'GET';
     abortSignal?: AbortSignal;
-    useRisuToken?: boolean;
     chatId?: string;
     interceptor?: string;
     requestTimeoutMs?: number;
@@ -704,9 +685,14 @@ async function globalFetchInner(url: string, arg: GlobalFetchArgs = {}): Promise
         const db = getDatabase();
         if (arg.abortSignal?.aborted) { return { ok: false, data: 'aborted', headers: {}, status: 400 }; }
 
+        // Risu 운영 서버로의 요청은 차단한다. (src/ts/network/risuBlocklist.ts)
+        if (isRisuServerUrl(url)) {
+            return { ok: false, data: RISU_SERVER_BLOCKED_MESSAGE, headers: {}, status: 403 };
+        }
+
         const urlHost = new URL(url).hostname
         const useLocalNetworkRoute = arg.networkRoute === 'local_network' && isLocalNetworkUrl(url)
-        // 단독 빌드는 Risu 프록시에 접근할 수 없으므로 항상 직접 요청한다. (src/ts/standalone.ts)
+        // 웹/단독 빌드는 Risu 프록시를 쓰지 않고 항상 직접 요청한다. (src/ts/standalone.ts)
         const forcePlainFetch = ((knownHostes.includes(urlHost) && !isTauri) || shouldUsePlainFetch(db) || arg.plainFetchForce) && !arg.plainFetchDeforce && !useLocalNetworkRoute
 
         if (useLocalNetworkRoute && !isTauri && !isNodeServer) {
@@ -749,6 +735,11 @@ async function globalFetchInner(url: string, arg: GlobalFetchArgs = {}): Promise
             }
             if (isTauri) {
                 return await fetchWithTauri(url, requestArg);
+            }
+            // 웹 빌드에서는 plainFetchDeforce 가 지정되어도 프록시 대신 직접 요청한다.
+            // (프록시는 노드 셀프호스트 서버의 /proxy2 에서만 사용)
+            if (!isNodeServer) {
+                return await fetchWithPlainFetch(url, requestArg);
             }
             return await fetchWithProxy(url, requestArg);
         } finally {
@@ -877,7 +868,6 @@ async function fetchWithProxy(url: string, arg: GlobalFetchArgs): Promise<Global
             "risu-header": encodeURIComponent(JSON.stringify(arg.headers)),
             "risu-url": encodeURIComponent(url),
             "Content-Type": arg.body instanceof URLSearchParams ? "application/x-www-form-urlencoded" : "application/json",
-            ...(arg.useRisuToken && { "x-risu-tk": "use" }),
             ...(arg.requestTimeoutMs && { "risu-timeout-ms": Math.max(1, Math.floor(arg.requestTimeoutMs)).toString() }),
             ...(nodeProxyAuth && { "risu-auth": nodeProxyAuth }),
             ...(DBState?.db?.requestLocation && { "risu-location": DBState.db.requestLocation }),
@@ -1724,7 +1714,6 @@ async function fetchViaProxyJobWs(url: string, arg: {
  * @param {Object} [arg.headers] - The headers of the request.
  * @param {string} [arg.method="POST"] - The HTTP method of the request.
  * @param {AbortSignal} [arg.signal] - The signal to abort the request.
- * @param {boolean} [arg.useRisuTk] - Whether to use Risu token.
  * @param {string} [arg.chatId] - The chat ID associated with the request.
  * @returns {Promise<Object>} - A promise that resolves to an object containing the response body, headers, and status.
  * @returns {ReadableStream<Uint8Array>} body - The response body as a readable stream.
@@ -1737,7 +1726,6 @@ export async function fetchNative(url: string, arg: {
     headers?: { [key: string]: string },
     method?: "POST" | "GET" | "PUT" | "DELETE",
     signal?: AbortSignal,
-    useRisuTk?: boolean,
     chatId?: string
     interceptor?: string
     logFetch?: boolean
@@ -1769,6 +1757,9 @@ async function fetchNativeInner(url: string, arg: {
     requestTimeoutMs?: number
     networkRoute?: 'auto' | 'local_network'
 }): Promise<Response> {
+
+    // Risu 운영 서버로의 요청은 차단한다. (src/ts/network/risuBlocklist.ts)
+    assertNotRisuServerUrl(url)
 
     const useInterceptor = !!arg.interceptor
     console.log(arg.body, 'body')
@@ -1808,20 +1799,13 @@ async function fetchNativeInner(url: string, arg: {
         throw new Error('Invalid body type')
     }
 
-    const db = getDatabase()
     const useLocalNetworkRoute = arg.networkRoute === 'local_network' && isLocalNetworkUrl(url)
     if (useLocalNetworkRoute && !isTauri && !isNodeServer) {
         throw new Error(webLocalNetworkBlockedMessage)
     }
-    let throughProxy = (!isTauri) && (!isNodeServer) && (!shouldUsePlainFetch(db))
-    if (useLocalNetworkRoute) {
-        if (isNodeServer) {
-            throughProxy = true
-        }
-        else if (isTauri) {
-            throughProxy = false
-        }
-    }
+    // 웹/단독 빌드는 Risu 프록시를 쓰지 않고 직접 요청한다.
+    // 프록시는 노드 셀프호스트 서버(사용자 본인 서버)의 로컬 네트워크 경로에서만 사용한다.
+    const throughProxy = useLocalNetworkRoute && isNodeServer
     const timeoutSignal = buildTimeoutSignal(arg.signal, arg.requestTimeoutMs)
     const requestSignal = timeoutSignal.signal
     const shouldLogFetch = arg.logFetch ?? true
@@ -1976,15 +1960,7 @@ async function fetchNativeInner(url: string, arg: {
 
         const r = await fetch(getProxy2Url(), {
             body: realBody as any,
-            headers: arg.useRisuTk ? {
-                "risu-header": encodeURIComponent(JSON.stringify(headers)),
-                "risu-url": encodeURIComponent(url),
-                "Content-Type": "application/json",
-                "x-risu-tk": "use",
-                ...(arg.requestTimeoutMs && { "risu-timeout-ms": Math.max(1, Math.floor(arg.requestTimeoutMs)).toString() }),
-                ...(nodeProxyAuth ? { "risu-auth": nodeProxyAuth } : {}),
-                ...(DBState?.db?.requestLocation && { "risu-location": DBState.db.requestLocation }),
-            } : {
+            headers: {
                 "risu-header": encodeURIComponent(JSON.stringify(headers)),
                 "risu-url": encodeURIComponent(url),
                 "Content-Type": "application/json",

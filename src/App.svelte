@@ -1,20 +1,17 @@
 <script lang="ts">
-    import { DynamicGUI, settingsOpen, sideBarStore, ShowRealmFrameStore, openPresetList, openPersonaList, MobileGUI, CustomGUISettingMenuStore, loadedStore, alertStore, LoadingStatusState, bookmarkListOpen, popupStore, easyPanelStore, popUpEditorStore, loadoutModalStore, onboardingModalStore, irisStore, customSideBarConfigDialogStore } from './ts/stores.svelte';
+    import { DynamicGUI, settingsOpen, sideBarStore, openPresetList, openPersonaList, MobileGUI, CustomGUISettingMenuStore, loadedStore, alertStore, LoadingStatusState, bookmarkListOpen, popupStore, easyPanelStore, popUpEditorStore, loadoutModalStore, onboardingModalStore, irisStore, customSideBarConfigDialogStore } from './ts/stores.svelte';
     import Sidebar from './lib/SideBars/Sidebar.svelte';
     import { DBState } from './ts/stores.svelte';
     import ChatScreen from './lib/ChatScreens/ChatScreen.svelte';
     import AlertComp from './lib/Others/AlertComp.svelte';
-    import RealmPopUp from './lib/UI/Realm/RealmPopUp.svelte';
     import GridChars from './lib/Others/GridCatalog.svelte';
     import WelcomeRisu from './lib/Others/WelcomeRisu.svelte';
     import BookmarkList from './lib/Others/BookmarkList.svelte';
     import Settings from './lib/Setting/Settings.svelte';
-    import { showRealmInfoStore } from './ts/characterCards';
     import { getDatabase, setDatabase } from './ts/storage/database.svelte';
     import { formatImportResultsMd, importFiles } from './ts/fileImport';
     import { alertMd } from './ts/alert';
     import { language } from './lang';
-    import RealmFrame from './lib/UI/Realm/RealmFrame.svelte';
     import SavePopupIconComp from './lib/Others/SavePopupIcon.svelte';
     import Botpreset from './lib/Setting/botpreset.svelte';
     import ListedPersona from './lib/Setting/listedPersona.svelte';
@@ -237,12 +234,6 @@
     {/if}
     {#if $alertStore.type !== 'none'}
         <AlertComp />
-    {/if}
-    {#if $showRealmInfoStore}
-        <RealmPopUp bind:openedData={$showRealmInfoStore} />
-    {/if}
-    {#if $ShowRealmFrameStore}
-        <RealmFrame />
     {/if}
     {#if $openPresetList}
         <Botpreset close={() => {$openPresetList = false}} />

@@ -38,6 +38,7 @@ import {
     type TTSHookFn,
 } from "src/ts/process/ttsHooks";
 import isEqual from "lodash/isEqual";
+import { RISU_BLOCKED_HOSTS } from "src/ts/network/risuBlocklist";
 
 /*
     V3 API for RisuAI Plugins
@@ -648,11 +649,8 @@ const getPluginPermission = async (pluginName: string, scriptHash: string, permi
     return false;
 }
 
-const urlBlacklist = [
-    'risuai.xyz',
-    'risuai.net',
-    'sionyw.com',
-]
+// Risu 운영 서버로의 요청 차단 목록 (src/ts/network/risuBlocklist.ts 에서 한 곳으로 관리)
+const urlBlacklist = RISU_BLOCKED_HOSTS
 
 const authorizationHeaders = [
     'x-api-key',
@@ -1289,7 +1287,6 @@ const makeRisuaiAPIV3 = (iframe:HTMLIFrameElement,plugin:RisuPlugin) => {
                     'web',
                 saveMethod:
                     isTauri ? 'tauri' :
-                    forageStorage.isAccount ? 'account' :
                     'local',
             }
         },
