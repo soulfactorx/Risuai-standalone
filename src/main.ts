@@ -9,7 +9,7 @@ import { mount } from "svelte";
 
 window.addEventListener('vite:preloadError', (event) => {
     console.error("Chunk load error detected:", event);
-    alert("The server has been updated or the network connection has been lost. Please refresh the page.");
+    alert("서버가 업데이트되었거나 네트워크 연결이 끊어졌습니다. 페이지를 새로고침하세요.");
 });
 
 preLoadCheck()

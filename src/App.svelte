@@ -144,13 +144,13 @@
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div class="flex flex-col w-full items-center text-[#bbbbbb]">
                     {#if aprilFoolsPage === 0}
-                        <h1 class="text-3xl text-white font-bold mb-6">What can I help you?</h1>
-                        <div class="resize-none relative w-full bg-[#303030] rounded-3xl h-[110px] mb-6 text-[#bbbbbb]" placeholder="Ask me" onkeydown={(e) => {
+                        <h1 class="text-3xl text-white font-bold mb-6">무엇을 도와드릴까요?</h1>
+                        <div class="resize-none relative w-full bg-[#303030] rounded-3xl h-[110px] mb-6 text-[#bbbbbb]" placeholder="무엇이든 물어보세요" onkeydown={(e) => {
                             if(e.key === 'Enter'){
                                 aprilFoolsPage = 1
                             }
                         }}>
-                            <textarea class="absolute top-0 left-0 w-full placeholder-[#bbbbbb] rounded-3xl h-full p-4 bg-transparent resize-none" placeholder="Ask me"></textarea>
+                            <textarea class="absolute top-0 left-0 w-full placeholder-[#bbbbbb] rounded-3xl h-full p-4 bg-transparent resize-none" placeholder="무엇이든 물어보세요"></textarea>
                             <div class="absolute bottom-2 left-4 flex gap-1.5">
                                 <button class="p-2 rounded-full border border-[#bbbbbb30]">
                                     <PlusIcon size={18} color="#bbbbbb" />
@@ -172,23 +172,23 @@
                         }}>
                             <button class="rounded-full border border-[#bbbbbb15] px-4 py-2">
                                 <span class="text-[#bbbbbb]">🔍</span>
-                                Search
+                                검색
                             </button>
                             <button class="rounded-full border border-[#bbbbbb15] px-4 py-2">
                                 <span class="text-[#bbbbbb]">🎮</span>
-                                Games
+                                게임
                             </button>
                             <button class="rounded-full border border-[#bbbbbb15] px-4 py-2">
                                 <span class="text-[#bbbbbb]">🎨</span>
-                                Roleplay
+                                롤플레이
                             </button>
                             <button class="rounded-full border border-[#bbbbbb15] px-4 py-2">
-                                More
+                                더 보기
                             </button>
                         </div>
                     {:else}
                     <h1 class="text-3xl text-white font-bold mb-6">
-                        We do not have search results.
+                        검색 결과가 없습니다.
                     </h1>
                     <p class="text-[#bbbbbb] mb-6">
                         <!-- svelte-ignore a11y_missing_attribute -->
@@ -197,7 +197,7 @@
                             aprilFoolsPage = 0
                             aprilFools = false
                         }}>
-                            Go to Risuai  
+                            Risuai로 이동  
                         </a>
                     </p>
 
@@ -213,7 +213,7 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                 </svg>
-                <span>Loading...</span>
+                <span>불러오는 중...</span>
             </div>
 
             <span class="text-sm mt-2 text-textcolor2">{LoadingStatusState.text}</span>

@@ -22,7 +22,7 @@ function getBasename(data:string){
 }
 
 export async function SaveLocalBackup(){
-    alertWait("Saving local backup...")
+    alertWait("로컬 백업 저장 중...")
     const db = getDatabase()
     const coldStoragePayloads = await collectColdStorageBackupPayloads(db)
     const unavailableColdStorageKeys = [...coldStoragePayloads.missingKeys, ...coldStoragePayloads.invalidKeys]
@@ -33,7 +33,7 @@ export async function SaveLocalBackup(){
     const writer = new LocalWriter()
     const r = await writer.init()
     if(!r){
-        alertError('Failed')
+        alertError('실패했습니다')
         return
     }
 
@@ -171,7 +171,7 @@ export async function SaveLocalBackup(){
         dbData = new Uint8Array(encrypted)
     }
 
-    alertWait(`Saving local Backup... (Saving database)`) 
+    alertWait(`로컬 백업 저장 중... (데이터베이스 저장 중)`) 
 
     await writer.writeBackup('database.risudat', dbData)
     await writer.close()
@@ -188,7 +188,7 @@ export async function SaveLocalBackup(){
         }
         alertMd(message)
     } else {
-        alertNormal('Success')
+        alertNormal('완료되었습니다')
     }
 }
 
@@ -217,7 +217,7 @@ export async function SavePartialLocalBackup(){
         return
     }
     
-    alertWait("Saving partial local backup...")
+    alertWait("부분 로컬 백업 저장 중...")
     const db = getDatabase()
     const coldStoragePayloads = await collectColdStorageBackupPayloads(db)
     const unavailableColdStorageKeys = [...coldStoragePayloads.missingKeys, ...coldStoragePayloads.invalidKeys]
@@ -228,7 +228,7 @@ export async function SavePartialLocalBackup(){
     const writer = new LocalWriter()
     const r = await writer.init()
     if(!r){
-        alertError('Failed')
+        alertError('실패했습니다')
         return
     }
 
@@ -383,7 +383,7 @@ export async function SavePartialLocalBackup(){
     const dbWithoutAccount = { ...db, account: undefined }
     const dbData = await encodeRisuSave(dbWithoutAccount, { compression: true, kv: saveKV })
 
-    alertWait(`Saving partial local backup... (Saving database)`) 
+    alertWait(`부분 로컬 백업 저장 중... (데이터베이스 저장 중)`) 
 
     await writer.writeBackup('database.risudat', dbData)
     await writer.close()
@@ -400,7 +400,7 @@ export async function SavePartialLocalBackup(){
         }
         alertMd(message)
     } else {
-        alertNormal('Success')
+        alertNormal('완료되었습니다')
     }
 }
 
@@ -441,7 +441,7 @@ export function LoadLocalBackup(){
 
                 bytesRead += value.length;
                 const progress = ((bytesRead / file.size) * 100).toFixed(2);
-                alertWait(`Loading local Backup... (${progress}%)`);
+                alertWait(`로컬 백업 불러오는 중... (${progress}%)`);
 
                 const newBuffer = new Uint8Array(remainingBuffer.length + value.length);
                 newBuffer.set(remainingBuffer);
@@ -475,11 +475,11 @@ export function LoadLocalBackup(){
                                 encryptionMeta.type = 'account'
                                 encryptionMeta.time = meta.time
                             } else {
-                                alertError('Invalid encryption metadata, will attempt to load database backup without decryption.')
+                                alertError('암호화 메타데이터가 올바르지 않아 복호화 없이 데이터베이스 백업을 불러옵니다.')
                             }
                         } catch (e) {
                             console.error('Failed to parse encryption metadata:', e)
-                            alertError('Failed to parse encryption metadata, will attempt to load database backup without decryption.')
+                            alertError('암호화 메타데이터를 해석하지 못해 복호화 없이 데이터베이스 백업을 불러옵니다.')
                         }
                     }
 
@@ -530,7 +530,7 @@ export function LoadLocalBackup(){
             }
 
             if(!pendingDatabase){
-                alertError('Failed, Is file corrupted?')
+                alertError('실패했습니다. 파일이 손상되었을 수 있습니다.')
                 return
             }
 
@@ -543,7 +543,7 @@ export function LoadLocalBackup(){
                 }
                 catch (e) {
                     console.error('Failed to decrypt database backup:', e)
-                    alertError('Failed to decrypt database backup, will attempt to load it without decryption.')
+                    alertError('데이터베이스 백업을 복호화하지 못해 복호화 없이 불러옵니다.')
                 }
             }
             const { database: dbData, kv: kvData } = await decodeRisuSave(db);
@@ -616,12 +616,12 @@ export function LoadLocalBackup(){
                 });
             }
 
-            alertNormal('Success');
+            alertNormal('완료되었습니다');
         };
 
         input.click();
     } catch (error) {
         console.error(error);
-        alertError('Failed, Is file corrupted?')
+        alertError('실패했습니다. 파일이 손상되었을 수 있습니다.')
     }
 }

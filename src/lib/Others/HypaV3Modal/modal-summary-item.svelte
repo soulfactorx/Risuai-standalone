@@ -111,7 +111,7 @@
     }
 
     isTranslating = true;
-    translation = "Loading...";
+    translation = "불러오는 중...";
 
     // Focus on translation element after it's rendered
     await tick();
@@ -165,7 +165,7 @@
     if (isOrphan()) return;
 
     isRerolling = true;
-    rerolled = "Loading...";
+    rerolled = "불러오는 중...";
 
     try {
       const toSummarize: OpenAIChat[] = await Promise.all(
@@ -185,7 +185,7 @@
 
       rerolled = summarizeResult;
     } catch (error) {
-      rerolled = "Reroll failed";
+      rerolled = "다시 생성 실패";
     } finally {
       isRerolling = false;
     }
@@ -245,7 +245,7 @@
     if (!rerolled) return;
 
     isTranslatingRerolled = true;
-    rerolledTranslation = "Loading...";
+    rerolledTranslation = "불러오는 중...";
 
     // Focus on rerolled translation element after it's rendered
     await tick();
@@ -294,7 +294,7 @@
     if (!message) return;
 
     expandedMessageState.isTranslating = true;
-    expandedMessageState.translation = "Loading...";
+    expandedMessageState.translation = "불러오는 중...";
 
     // Focus on translation element after it's rendered
     await tick();
@@ -407,28 +407,28 @@
             <span
               class="px-1.5 py-0.5 rounded-full text-xs whitespace-nowrap text-purple-200 bg-purple-900/70"
             >
-              Important
+              중요
             </span>
           {/if}
           {#if hypaV3Data.metrics.lastRecentSummaries.includes(summaryIndex)}
             <span
               class="px-1.5 py-0.5 rounded-full text-xs whitespace-nowrap text-blue-200 bg-blue-900/70"
             >
-              Recent
+              최근
             </span>
           {/if}
           {#if hypaV3Data.metrics.lastSimilarSummaries.includes(summaryIndex)}
             <span
               class="px-1.5 py-0.5 rounded-full text-xs whitespace-nowrap text-green-200 bg-green-900/70"
             >
-              Similar
+              유사
             </span>
           {/if}
           {#if hypaV3Data.metrics.lastRandomSummaries.includes(summaryIndex)}
             <span
               class="px-1.5 py-0.5 rounded-full text-xs whitespace-nowrap text-yellow-200 bg-yellow-900/70"
             >
-              Random
+              무작위
             </span>
           {/if}
         </div>

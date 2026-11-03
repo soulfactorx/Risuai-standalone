@@ -284,7 +284,7 @@ export async function callTool(methodName:string, args:any) {
 }
 
 export async function importMCPModule(){
-    const x = await alertInput('Please enter the URL of the MCP module to import:', [
+    const x = await alertInput('가져올 MCP 모듈의 URL을 입력하세요:', [
         ['internal:aiaccess', 'LLM Call Client (internal:aiaccess)'],
         ['internal:risuai', 'Risu Access Client (internal:risuai)'],
         ['internal:fs', 'File System Client (internal:fs)'],
@@ -306,7 +306,7 @@ export async function importMCPModule(){
         !x.startsWith('stdio:') &&
         !x.startsWith('plugin:')
     ){
-        alertError('Invalid URL');
+        alertError('올바르지 않은 URL입니다');
         return;
     }
     try {
@@ -314,7 +314,7 @@ export async function importMCPModule(){
         console.log(metas)
         const meta = metas[x];
         if(!meta) {
-            alertError('MCP module not found or invalid URL');
+            alertError('MCP 모듈을 찾을 수 없거나 URL이 올바르지 않습니다');
             return;
         }
         const db = getDatabase();
@@ -336,7 +336,7 @@ export async function importMCPModule(){
                 selective: false
             }]
         })
-        alertNormal(`MCP module imported successfully!\nName: ${meta.serverInfo.name}`);
+        alertNormal(`MCP 모듈을 가져왔습니다!\n이름: ${meta.serverInfo.name}`);
 
     } catch (error) {
         alertError(error)

@@ -33,10 +33,10 @@
 
 <TextAreaInput onInput={onInput} bind:value={input} />
 
-<span class="text-textcolor text-lg">Data (JSON)</span>
+<span class="text-textcolor text-lg">데이터 (JSON)</span>
 
 <TextAreaInput onInput={onInput} bind:value={json} />
 
-<span class="text-textcolor text-lg">Result</span>
+<span class="text-textcolor text-lg">결과</span>
 
 <TextAreaInput value={output} />

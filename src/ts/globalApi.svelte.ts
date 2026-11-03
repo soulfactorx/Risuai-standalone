@@ -2088,7 +2088,7 @@ export async function loadInternalBackup() {
     setDatabase(decoded.database)
     saveKV.load(decoded.kv)
 
-    alertNormal('Loaded backup')
+    alertNormal('백업을 불러왔습니다')
 
 
 

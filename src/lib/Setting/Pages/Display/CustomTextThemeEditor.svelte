@@ -4,12 +4,12 @@
     import ColorInput from 'src/lib/UI/GUI/ColorInput.svelte';
 
     const colors = [
-        ['FontColorStandard', 'Normal Text', false],
-        ['FontColorItalic', 'Italic Text', false],
-        ['FontColorBold', 'Bold Text', false],
-        ['FontColorItalicBold', 'Italic Bold Text', false],
-        ['FontColorQuote1', 'Single Quote Text', true],
-        ['FontColorQuote2', 'Double Quote Text', true],
+        ['FontColorStandard', '일반 텍스트', false],
+        ['FontColorItalic', '기울임 텍스트', false],
+        ['FontColorBold', '굵은 텍스트', false],
+        ['FontColorItalicBold', '굵은 기울임 텍스트', false],
+        ['FontColorQuote1', '작은따옴표 텍스트', true],
+        ['FontColorQuote2', '큰따옴표 텍스트', true],
     ] as const;
 </script>
 

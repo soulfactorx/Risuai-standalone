@@ -11,15 +11,15 @@
     import { DownloadIcon, HardDriveUploadIcon } from '@lucide/svelte';
 
     const colors = [
-        ['bgcolor', 'Background'],
-        ['darkbg', 'Dark Background'],
-        ['borderc', 'Color 1'],
-        ['selected', 'Color 2'],
-        ['draculared', 'Color 3'],
-        ['darkBorderc', 'Color 4'],
-        ['darkbutton', 'Color 5'],
-        ['textcolor', 'Text Color'],
-        ['textcolor2', 'Text Color 2'],
+        ['bgcolor', '배경'],
+        ['darkbg', '어두운 배경'],
+        ['borderc', '색상 1'],
+        ['selected', '색상 2'],
+        ['draculared', '색상 3'],
+        ['darkBorderc', '색상 4'],
+        ['darkbutton', '색상 5'],
+        ['textcolor', '글자 색상'],
+        ['textcolor2', '글자 색상 2'],
     ] as const;
 </script>
 
@@ -32,8 +32,8 @@
                 changeColorSchemeType((e.target as HTMLInputElement).value as 'light' | 'dark');
             }}
         >
-            <OptionInput value="light">Light</OptionInput>
-            <OptionInput value="dark">Dark</OptionInput>
+            <OptionInput value="light">밝게</OptionInput>
+            <OptionInput value="dark">어둡게</OptionInput>
         </SelectInput>
 
         {#each colors as color}

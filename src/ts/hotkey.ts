@@ -128,7 +128,7 @@ export function initHotkey(){
                     if(get(doingChat) && get(selectedCharID) !== -1){
                         return false
                     }
-                    alertWait("Loading...")
+                    alertWait("불러오는 중...")
                     ev.preventDefault()
                     ev.stopPropagation()
                     await sendChat(-1, {
@@ -239,7 +239,7 @@ export function initHotkey(){
         }
         if(ev.key === 'Escape'){
             if(doingAlert()){
-                alertToast('Alert Closed')
+                alertToast('알림을 닫았습니다')
             }
             if(get(settingsOpen)){
                 settingsOpen.set(false)
@@ -431,7 +431,7 @@ function changeToPreset(num:number){
         let db = getDatabase()
         let pres = db.botPresets
         if(pres.length > num){
-            alertToast(`Changed to Preset: ${pres[num].name}`)
+            alertToast(`프리셋 변경: ${pres[num].name}`)
             changeToPreset2(num)
         }
     }

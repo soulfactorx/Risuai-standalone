@@ -60,7 +60,7 @@ export let RoomIdStore = writable('')
 export async function createMultiuserRoom(){
     //create a room with webrtc
     ConnectionIsHost.set(true)
-    alertWait("Loading...")
+    alertWait("불러오는 중...")
 
     const peerJS = await importPeerJS();
     let roomId = v4();
@@ -68,7 +68,7 @@ export async function createMultiuserRoom(){
         roomId + "-rmh"
     )
 
-    alertWait("Waiting for peerserver to connect...")
+    alertWait("피어 서버 연결을 기다리는 중...")
     let open = false
     peer.on('open', function(id) {
         open = true
@@ -263,22 +263,22 @@ export async function joinMultiuserRoom(){
 
     //join a room with webrtc
     ConnectionIsHost.set(false)
-    alertWait("Loading...")
+    alertWait("불러오는 중...")
     const peerJS = await importPeerJS();
     peer = new peerJS.Peer(
         v4() + "-risuai-multiuser-join"
     )
 
     peer.on('open', async (id) => {
-        const roomId = await alertInput("Enter room id")
-        alertWait("Waiting for peerserver to connect...")
+        const roomId = await alertInput("방 ID를 입력하세요")
+        alertWait("피어 서버 연결을 기다리는 중...")
     
         let open = false
         conn = peer.connect(roomId);
         RoomIdStore.set(roomId)
 
         conn.on('open', function() {
-            alertWait("Waiting for host to accept connection")
+            alertWait("호스트가 연결을 수락하기를 기다리는 중")
             open = true
             conn.send({
                 type: 'request-char'
@@ -343,7 +343,7 @@ export async function joinMultiuserRoom(){
         });
 
         conn.on('close', function() {
-            alertError("Connection closed")
+            alertError("연결이 종료되었습니다")
             connectionOpen = false
             ConnectionOpenStore.set(false)
             selectedCharID.set(-1)
@@ -354,13 +354,13 @@ export async function joinMultiuserRoom(){
             await sleep(100)
             waitTime += 100
             if(waitTime > 10000){
-                alertError("Connection timed out")
+                alertError("연결 시간이 초과되었습니다")
                 return
             }
         }        
         connectionOpen = true
         ConnectionOpenStore.set(true)
-        alertNormal("Connected")
+        alertNormal("연결되었습니다")
     });
     
 }

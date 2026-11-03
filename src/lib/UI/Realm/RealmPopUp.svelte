@@ -28,14 +28,14 @@
         <div class="w-full flex flex-col">
             <h1 class="text-2xl font-bold max-w-full overflow-hidden whitespace-nowrap text-ellipsis">{openedData.name}</h1>
             {#if openedData.authorname}
-                <span class="text-borderc">Made by {openedData.authorname}</span>
+                <span class="text-borderc">제작: {openedData.authorname}</span>
             {/if}
             {#if openedData.original}
                 <button class="text-blue-400 text-start" onclick={() => {
                     const original = openedData.original
                     openedData = null
                     getRealmInfo(original)
-                }}>Forked</button>
+                }}>포크됨</button>
             {/if}
             <div class="flex justify-start gap-4 mt-4">
                 {#if DBState.db.hideAllImages}
@@ -62,17 +62,17 @@
                 <div class="border-l-selected border-l ml-1 mr-1"></div>
                 {#if openedData.hasEmotion}
                     <button class="text-textcolor2 hover:text-green-500 transition-colors" onclick={((e) => {
-                        alertNormal("This character includes emotion images")
+                        alertNormal("이 캐릭터에는 감정 이미지가 포함되어 있습니다")
                     })}><SmileIcon /></button>
                 {/if}
                 {#if openedData.hasAsset}
                     <button class="text-textcolor2 hover:text-green-500 transition-colors" onclick={((e) => {
-                        alertNormal("This character includes additional Assets")
+                        alertNormal("이 캐릭터에는 추가 에셋이 포함되어 있습니다")
                     })}><ImageIcon /></button>
                 {/if}
                 {#if openedData.hasLore}
                     <button class="text-textcolor2 hover:text-green-500 transition-colors" onclick={((e) => {
-                        alertNormal("This character includes lorebook")
+                        alertNormal("이 캐릭터에는 로어북이 포함되어 있습니다")
                     })}><BookIcon /></button>
                 {/if}
             </div>
@@ -105,9 +105,9 @@
             {/if}
             <button class="text-textcolor2 hover:text-red-500" onclick={(async (e) => {
                 e.stopPropagation()
-                const conf = await alertConfirm('Report this character?')
+                const conf = await alertConfirm('이 캐릭터를 신고할까요?')
                 if(conf){
-                    const report = await alertInput('Write a report text that would be sent to the admin (for copywrite issues, use email)')
+                    const report = await alertInput('관리자에게 보낼 신고 내용을 작성하세요 (저작권 문제는 이메일을 이용하세요)')
                     const da = await fetch(hubURL + '/hub/report', {
                         method: "POST",
                         body: JSON.stringify({
@@ -123,7 +123,7 @@
             {#if (DBState.db.account?.token?.split('-') ?? [])[1] === openedData.creator}
                 <button class="text-textcolor2 hover:text-red-500" onclick={(async (e) => {
                     e.stopPropagation()
-                    const conf = await alertConfirm('Do you want to remove this character from Realm?')
+                    const conf = await alertConfirm('이 캐릭터를 Realm에서 삭제할까요?')
                     if(conf){
                         const da = await fetch(hubURL + '/hub/remove', {
                             method: "POST",
@@ -149,7 +149,7 @@
                 downloadRisuHub(openedData.id, { creator: openedData.creator })
                 openedData = null
             }}>
-                Chat
+                채팅
             </button>
             
         </div>

@@ -17,7 +17,7 @@ export async function autoServerBackup(){
     if(res.status === 200){
         const json = await res.json()
         if(json.activated){
-            alertNormal("Auto backup is now activated in your account. Now it would backup automaticly, and you can now restore your data from the backup server.")
+            alertNormal("계정에서 자동 백업이 활성화되었습니다. 이제 자동으로 백업되며, 백업 서버에서 데이터를 복원할 수 있습니다.")
             db.account.kei = true
             return
         }
@@ -62,20 +62,20 @@ export async function autoServerBackup(){
                     if(res.status === 200){
                         setDatabase(await res.json())
                         requiresFullEncoderReload.state = true
-                        alertNormal("Successfully restored!")
+                        alertNormal("복원했습니다!")
                     }
                     else{
-                        alertNormal("Error: " + res.text())
+                        alertNormal("오류: " + res.text())
                     }
                 }
             }
         }
     }
     else if(res.status === 401){
-        alertNormal("You need to activate Risu-Kei in your account, or host your Risu-Kei server from github to use this feature.")
+        alertNormal("이 기능을 사용하려면 계정에서 Risu-Kei를 활성화하거나 GitHub에서 Risu-Kei 서버를 직접 호스팅해야 합니다.")
     }
     else{
-        alertNormal("Error: " + res.text())
+        alertNormal("오류: " + res.text())
     }
 }
 

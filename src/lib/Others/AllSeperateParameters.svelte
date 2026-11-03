@@ -89,7 +89,7 @@
 <SliderInput min={0} max={200} marginBottom step={0.01} fixed={2} bind:value={value.presence_penalty} disableable/>
 <ClaudeThinkingSeparateParams bind:value={value} {paramKey} />
 {#if hasReasoningEffort}
-<span class="text-textcolor">Reasoning Effort</span>
+<span class="text-textcolor">추론 강도</span>
 <SegmentedControl bind:value={value.reasoning_effort} options={reasoningEffortOptions} />
 {/if}
 {#if hasVerbosity}

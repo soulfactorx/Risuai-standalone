@@ -55,7 +55,7 @@
             return !hideTrash || !c.trashTime;
         }).map(({ c, i }) => {
             return {
-                name: c.name || "Unnamed",
+                name: c.name || "이름 없음",
                 image: c.image,
                 chats: c.chats.length,
                 i: i,

@@ -84,7 +84,7 @@ export class AutoStorage{
                 }
             }
 
-            const confirm = await alertInput(`to overwrite your data, type "RISUAI"`)
+            const confirm = await alertInput(`데이터를 덮어쓰려면 "RISUAI"를 입력하세요`)
             if(confirm !== "RISUAI"){
                 localStorage.setItem('dosync', 'avoid')
                 return false
@@ -98,7 +98,7 @@ export class AutoStorage{
             const coldStoragePayloads = await collectColdStorageBackupPayloads(db)
             const unavailableColdStorageCount = coldStoragePayloads.missingKeys.length + coldStoragePayloads.invalidKeys.length
             if(unavailableColdStorageCount > 0){
-                alertError(`Failed to migrate ${unavailableColdStorageCount} cold storage item(s) to account sync because they are missing or invalid.`)
+                alertError(`콜드 스토리지 항목 ${unavailableColdStorageCount}개가 없거나 올바르지 않아 계정 동기화로 옮기지 못했습니다.`)
                 return false
             }
 
@@ -133,7 +133,7 @@ export class AutoStorage{
                 }
             }
             if(failedColdKeys.length > 0){
-                alertError(`Failed to migrate ${failedColdKeys.length} cold storage item(s) to account sync.`)
+                alertError(`콜드 스토리지 항목 ${failedColdKeys.length}개를 계정 동기화로 옮기지 못했습니다.`)
                 return false
             }
 

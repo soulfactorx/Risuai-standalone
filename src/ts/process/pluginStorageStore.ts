@@ -238,7 +238,7 @@ export class PluginStorageStore {
         const report = this.progressOverride ?? this.options.onProgress
         const progress = () => {
             done++
-            report?.(`Migrating plugin storage... ${total - done} items left`)
+            report?.(`플러그인 저장소 이전 중... ${total - done}개 남음`)
         }
 
         try {

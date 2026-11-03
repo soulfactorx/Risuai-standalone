@@ -22,25 +22,25 @@
     const relatedLinks: RelatedLink[] = [
       {
         title: "Discord",
-        description: "Join our Discord server to chat with other users and the developer.",
+        description: "Discord 서버에 참여해 다른 사용자, 개발자와 이야기를 나눠 보세요.",
         href: "https://discord.gg/Exy3NrqkGm",
         logoIcon: "paper-airplane"
       },
       {
-        title: "Website",
-        description: "See the official website for the project.",
+        title: "웹사이트",
+        description: "프로젝트 공식 웹사이트를 확인하세요.",
         href: "https://risuai.net",
         logoIcon: "globe"
       },
       {
         title: "GitHub",
-        description: "View the source code and contribute to the project.",
+        description: "소스 코드를 확인하고 프로젝트에 기여하세요.",
         href: "https://github.com/kwaroran/RisuAI",
         logoIcon: "source"
       },
       {
-        title: "Email",
-        description: "Contact the developer directly.",
+        title: "이메일",
+        description: "개발자에게 직접 연락하세요.",
         href: "mailto:support@risuai.net",
         logoIcon: "mail"
       }
@@ -49,14 +49,14 @@
 <div class="h-full w-full flex flex-col overflow-y-auto items-center">
     {#if !$OpenRealmStore}
       <Title />
-      <h3 class="text-textcolor2 mt-1">Version {getVersionString()}</h3>
+      <h3 class="text-textcolor2 mt-1">버전 {getVersionString()}</h3>
     {/if}
     <div class="w-full flex p-4 flex-col text-textcolor max-w-4xl">
       {#if !$OpenRealmStore}
       <div class="mt-4 mb-4 w-full border-t border-t-selected"></div>
-      <h1 class="text-2xl font-bold">Recently Uploaded<button class="text-base font-medium float-right p-1 bg-darkbg rounded-md hover:ring-3" onclick={() => {
+      <h1 class="text-2xl font-bold">최근 업로드<button class="text-base font-medium float-right p-1 bg-darkbg rounded-md hover:ring-3" onclick={() => {
         $OpenRealmStore = true
-      }}>Get More</button></h1>
+      }}>더 보기</button></h1>
           {#if !DBState.db.hideRealm}
             {#await getRisuHub({
                   search: '',
@@ -77,7 +77,7 @@
                   {/each}
               </div>
             {:else}
-              <div class="text-textcolor2">Failed to load {language.hub}...</div>
+              <div class="text-textcolor2">{language.hub}을(를) 불러오지 못했습니다...</div>
             {/if}
           {/await}
         {:else}
@@ -85,7 +85,7 @@
         {/if}
       <div class="mt-4 mb-4 w-full border-t border-t-selected"></div>
       <h1 class="text-2xl font-bold mb-4">
-        Related Links
+        관련 링크
       </h1>
         <div class="grid w-full grid-cols-1 gap-4 p-2 md:grid-cols-2">
           {#each relatedLinks as relatedLink}

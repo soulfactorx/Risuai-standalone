@@ -69,14 +69,14 @@
             }
             else{
                 if(!inputImage){
-                    return alertError('Please select an image first');
+                    return alertError('먼저 이미지를 선택하세요');
                 }
                 const slicedCanvas = document.createElement('canvas');
                 slicedCanvas.width = canvas.width;
                 slicedCanvas.height = canvas.height;
                 const slicedCtx = slicedCanvas.getContext('2d');
                 if(!slicedCtx){
-                    return alertError('Failed to create canvas context');
+                    return alertError('캔버스 컨텍스트를 만들지 못했습니다');
                 }
                 const selectionRect = selection.getBoundingClientRect();
                 const canvasRect = canvas.getBoundingClientRect();
@@ -176,7 +176,7 @@
 
             if(d.type === 'streaming' || d.type === 'multiline'){
                 loading = false;
-                return alertError('This model is not supported in the playground')
+                return alertError('이 모델은 플레이그라운드에서 지원하지 않습니다')
             }
 
             if(d.type !== 'success'){
@@ -346,7 +346,7 @@
 <span class="text-textcolor text-lg mt-4">{language.font}</span>
 <TextInput bind:value={fontFamily} />
 
-<span class="text-textcolor text-lg mt-4">fontSize</span>
+<span class="text-textcolor text-lg mt-4">글자 크기</span>
 <NumberInput bind:value={fontSize} />
 
 {#if mode === 'manual'}

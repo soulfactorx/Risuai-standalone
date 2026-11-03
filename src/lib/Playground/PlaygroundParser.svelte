@@ -12,12 +12,12 @@
     }
 </script>
 
-<h2 class="text-4xl text-textcolor my-6 font-black relative">Full Parser</h2>
+<h2 class="text-4xl text-textcolor my-6 font-black relative">전체 파서</h2>
 
-<span class="text-textcolor text-lg">Input</span>
+<span class="text-textcolor text-lg">입력</span>
 
 <TextAreaInput onInput={onInput} bind:value={input} optimaizedInput={false} />
 
-<span class="text-textcolor text-lg">Output HTML</span>
+<span class="text-textcolor text-lg">출력 HTML</span>
 
 <TextAreaInput value={output} />

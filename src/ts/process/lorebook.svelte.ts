@@ -18,7 +18,7 @@ export function addLorebook(type:number) {
     if(type === 0){
         DBState.db.characters[selectedID].globalLore.push({
             key: '',
-            comment: `New Lore ${DBState.db.characters[selectedID].globalLore.length + 1}`,
+            comment: `새 로어 ${DBState.db.characters[selectedID].globalLore.length + 1}`,
             content: '',
             mode: 'normal',
             insertorder: 100,
@@ -31,7 +31,7 @@ export function addLorebook(type:number) {
         const page = DBState.db.characters[selectedID].chatPage
         DBState.db.characters[selectedID].chats[page].localLore.push({
             key: '',
-            comment: `New Lore ${DBState.db.characters[selectedID].chats[page].localLore.length + 1}`,
+            comment: `새 로어 ${DBState.db.characters[selectedID].chats[page].localLore.length + 1}`,
             content: '',
             mode: 'normal',
             insertorder: 100,

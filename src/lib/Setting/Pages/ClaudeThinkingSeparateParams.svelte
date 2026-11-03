@@ -51,9 +51,9 @@
 
 <span class="text-textcolor">{language.thinkingType ?? 'Thinking Mode'}</span>
 <SelectInput bind:value={value.thinking_type}>
-    <OptionInput value="off">Off</OptionInput>
-    <OptionInput value="budget">Budget (Manual Tokens)</OptionInput>
-    <OptionInput value="adaptive">Adaptive</OptionInput>
+    <OptionInput value="off">끄기</OptionInput>
+    <OptionInput value="budget">예산 (토큰 직접 지정)</OptionInput>
+    <OptionInput value="adaptive">적응형</OptionInput>
 </SelectInput>
 {#if value.thinking_type === 'budget'}
     <span class="text-textcolor">{language.thinkingTokens}</span>
@@ -68,16 +68,16 @@
     </SelectInput>
 {/if}
 {#if value.deepseek_thinking_type !== undefined}
-    <span class="text-textcolor">DeepSeek Thinking Mode</span>
+    <span class="text-textcolor">DeepSeek 사고 모드</span>
     <SelectInput bind:value={value.deepseek_thinking_type}>
-        <OptionInput value="off">Off</OptionInput>
-        <OptionInput value="enabled">Enabled</OptionInput>
+        <OptionInput value="off">끄기</OptionInput>
+        <OptionInput value="enabled">켜기</OptionInput>
     </SelectInput>
 {/if}
 {#if value.deepseek_thinking_type === 'enabled'}
-    <span class="text-textcolor">DeepSeek Reasoning Effort</span>
+    <span class="text-textcolor">DeepSeek 추론 강도</span>
     <SelectInput bind:value={value.deepseek_reasoning_effort}>
-        <OptionInput value="high">High</OptionInput>
-        <OptionInput value="max">Max</OptionInput>
+        <OptionInput value="high">높음</OptionInput>
+        <OptionInput value="max">최대</OptionInput>
     </SelectInput>
 {/if}

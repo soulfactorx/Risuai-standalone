@@ -510,7 +510,7 @@ export async function requestGoogleCloudVertex(arg:RequestDataArgumentExtended):
     if(arg.modelInfo.format === LLMFormat.VertexAIGemini){
         if(db.vertexAccessTokenExpires < Date.now()){
             if (!db.vertexClientEmail || !db.vertexPrivateKey) {
-                alertError("Vertex AI authentication information is missing or incomplete. Please check your settings.");
+                alertError("Vertex AI 인증 정보가 없거나 불완전합니다. 설정을 확인하세요.");
                 return { type: 'fail', result: "Vertex AI authentication information is missing or incomplete. Please check your settings." };
             }
             headers['Authorization'] = "Bearer " + await generateToken(db.vertexClientEmail, db.vertexPrivateKey)

@@ -255,8 +255,8 @@
     <button
         onclick={async () => {
             const v = parseInt(await alertSelect([
-                "Import plugin with hot reload",
-                "Download plugin template",
+                "핫 리로드로 플러그인 가져오기",
+                "플러그인 템플릿 다운로드",
                 language.cancel
             ]))
             switch(v){

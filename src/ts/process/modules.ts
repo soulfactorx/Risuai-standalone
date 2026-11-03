@@ -197,7 +197,7 @@ export async function readModule(buf:Buffer):Promise<RisuModule> {
                 } catch (error) {
                     failed.push(task)
                 } finally {
-                    alertWait(`Loading... (Adding Assets ${completed} / ${totalAssets})`)
+                    alertWait(`불러오는 중... (에셋 추가 ${completed} / ${totalAssets})`)
                 }
             })()
             inFlight.add(promise)

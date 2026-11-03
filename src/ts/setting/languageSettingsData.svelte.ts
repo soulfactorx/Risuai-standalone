@@ -243,18 +243,18 @@ export const languageSettingsItems: SettingItem[] = [
                     const files = await selectFileByDom(['.json']);
                     if (!files || files.length === 0) return;
                     if (!files[0].name.endsWith('.json')) {
-                        alertError('Invalid file type. Please select a .json file.');
+                        alertError('올바르지 않은 파일 형식입니다. .json 파일을 선택하세요.');
                         return;
                     }
                     const text = await files[0].text();
                     const data = JSON.parse(text);
                     if (typeof data !== 'object' || Array.isArray(data)) {
-                        alertError('Invalid JSON format');
+                        alertError('올바르지 않은 JSON 형식입니다');
                         return;
                     }
                     for (const [key, value] of Object.entries(data)) {
                         if (typeof key !== 'string' || typeof value !== 'string') {
-                            alertError('Invalid JSON format');
+                            alertError('올바르지 않은 JSON 형식입니다');
                             return;
                         }
                     }

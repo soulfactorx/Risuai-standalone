@@ -135,7 +135,7 @@
 </Button>
 <div class="bg-darkbg p-3 rounded-md mb-2 flex flex-col items-start mt-2">
     <div class="w-full">
-        <h1 class="text-3xl font-black min-w-0">Risu Account{#if DBState.db.account}
+        <h1 class="text-3xl font-black min-w-0">Risu 계정{#if DBState.db.account}
             <button class="bg-selected p-1 text-sm font-light rounded-md hover:bg-blue-500 transition-colors float-right" onclick={async () => {
                 if(DBState.db.account.useSync || forageStorage.isAccount){
                     unMigrationAccount()
@@ -180,7 +180,7 @@
             openIframeURL = hubURL + '/hub/login'
             openIframe = true
         }}>
-            Login
+            로그인
         </button>
     {/if}
     <!-- <Button onclick={autoServerBackup}>Auto Server Backups</Button> -->
@@ -188,7 +188,7 @@
 </div>
 {#if openIframe}
     <div class="fixed top-0 left-0 bg-black/50 w-full h-full flex justify-center items-center">
-        <iframe src={openIframeURL} title="login" class="w-full h-full">
+        <iframe src={openIframeURL} title="로그인" class="w-full h-full">
         </iframe>
     </div>
 {/if}

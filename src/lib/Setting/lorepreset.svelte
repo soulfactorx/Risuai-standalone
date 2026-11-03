@@ -58,7 +58,7 @@
             <button class="text-textcolor2 hover:text-green-500 cursor-pointer mr-1" onclick={() => {
                 let loreBooks = DBState.db.loreBook
                 let newLoreBook = {
-                    name: `New LoreBook`,
+                    name: `새 로어북`,
                     data: []
                 }
                 loreBooks.push(newLoreBook)

@@ -161,7 +161,7 @@
                 await video.play()
                 const d = video.duration
                 if(isNaN(d)){
-                    alertError('This video does not have a duration')
+                    alertError('이 영상에는 재생 시간 정보가 없습니다')
                     return
                 }
                 video.pause()
@@ -434,7 +434,7 @@
 {#if mode === 'whisperLocal'}
     <span class="text-textcolor text-lg mt-4">{language.sourceLanguage}</span>
     <SelectInput value={sourceLang === null ? 'auto' : sourceLang}>
-        <OptionInput value="auto">Auto</OptionInput>
+        <OptionInput value="auto">자동</OptionInput>
         {#each getLanguageCodes() as lang}
             <OptionInput value={lang.code}>{lang.name}</OptionInput>
         {/each}
@@ -459,7 +459,7 @@
 }}>
     <OptionInput value="llm">LLM</OptionInput>
     <OptionInput value="whisper">Whisper</OptionInput>
-    <OptionInput value="whisperLocal">Whisper Local</OptionInput>
+    <OptionInput value="whisperLocal">Whisper (로컬)</OptionInput>
 </SelectInput>
 
 {#if !(modelInfo.flags.includes(LLMFlags.hasAudioInput) && modelInfo.flags.includes(LLMFlags.hasVideoInput)) && mode === 'llm'}

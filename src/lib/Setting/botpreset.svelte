@@ -154,7 +154,7 @@
                 markPresetDrag(e, i)
 
                 const dragElement = document.createElement('div')
-                dragElement.textContent = preset?.name || 'Unnamed Preset'
+                dragElement.textContent = preset?.name || '이름 없는 프리셋'
                 dragElement.className = 'absolute -top-96 -left-96 px-4 py-2 bg-darkbg text-textcolor2 rounded-sm text-sm whitespace-nowrap shadow-lg pointer-events-none z-50'
                 document.body.appendChild(dragElement)
                 e.dataTransfer?.setDragImage(dragElement, 10, 10)
@@ -295,7 +295,7 @@
             <button class="text-textcolor2 hover:text-green-500 cursor-pointer mr-1" onclick={() => {
                 let botPresets = DBState.db.botPresets
                 let newPreset = safeStructuredClone(prebuiltPresets.OAI2)
-                newPreset.name = `New Preset`
+                newPreset.name = `새 프리셋`
                 botPresets.push(newPreset)
 
                 DBState.db.botPresets = botPresets

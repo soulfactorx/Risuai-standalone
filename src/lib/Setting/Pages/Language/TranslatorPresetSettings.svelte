@@ -28,7 +28,7 @@
     }
 </script>
 
-<span class="text-textcolor mt-4">Preset</span>
+<span class="text-textcolor mt-4">프리셋</span>
 <select
     class={"risu-select border border-darkborderc focus:border-borderc rounded-md shadow-xs text-textcolor bg-transparent focus:ring-borderc focus:ring-2 focus:outline-hidden transition-colors duration-200 text-md px-4 py-2 mb-1"}
     bind:value={() => DBState.db.translatorPresetId, (value) => {
@@ -62,13 +62,13 @@
             const presets = DBState.db.translatorPresets;
 
             if (presets.length === 0) {
-                alertError("There must be at least one preset.");
+                alertError("프리셋이 최소 하나는 있어야 합니다.");
                 return;
             }
 
             const id = DBState.db.translatorPresetId;
             const preset = presets[id];
-            const newName = await alertInput(`Enter new name for ${preset.name}`, [], preset.name);
+            const newName = await alertInput(`${preset.name}의 새 이름을 입력하세요`, [], preset.name);
 
             if (!newName || newName.trim().length === 0) return;
 
@@ -86,7 +86,7 @@
             const presets = DBState.db.translatorPresets;
 
             if (presets.length <= 1) {
-                alertError("There must be at least one preset.");
+                alertError("프리셋이 최소 하나는 있어야 합니다.");
                 return;
             }
 
@@ -114,7 +114,7 @@
                 const presets = DBState.db.translatorPresets;
 
                 if (presets.length === 0) {
-                    alertError("There must be at least one preset.");
+                    alertError("프리셋이 최소 하나는 있어야 합니다.");
                     return;
                 }
 

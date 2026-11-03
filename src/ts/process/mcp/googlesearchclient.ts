@@ -63,12 +63,12 @@ export class GoogleSearchClient extends MCPClientLike {
             return;
         }
 
-        const apiKey = await alertInput('Please enter your Google Custom Search API Key:');
+        const apiKey = await alertInput('Google Custom Search API 키를 입력하세요:');
         if (!apiKey || apiKey.trim() === '') {
             throw new Error('Google Custom Search API Key is required');
         }
 
-        const searchEngineId = await alertInput('Please enter your Google Custom Search Engine ID:');
+        const searchEngineId = await alertInput('Google Custom Search 검색 엔진 ID를 입력하세요:');
         if (!searchEngineId || searchEngineId.trim() === '') {
             throw new Error('Google Custom Search Engine ID is required');
         }

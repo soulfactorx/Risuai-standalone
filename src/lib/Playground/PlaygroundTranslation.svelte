@@ -43,11 +43,11 @@
 <TextAreaInput value={output} />
 
 <CheckInput bind:check={bulk}>
-    Bulk
+    일괄 번역
 </CheckInput>
 {#if bulk}
     <CheckInput bind:check={keepContext}>
-        Keep Context
+        문맥 유지
     </CheckInput>
 {/if}
 
@@ -148,13 +148,13 @@
     }
 }}>
     {#if loading}
-        Loading... {bulkProgressText}
+        불러오는 중... {bulkProgressText}
     {:else}
-        Translate
+        번역
     {/if}
 </Button>
 <Button className="mt-4" onclick={() => {
     LLMCacheStorage.clear()
 }}>
-    Clear Cache
+    캐시 비우기
 </Button>

@@ -229,7 +229,7 @@ export async function sendChat(chatProcessIndex = -1,arg:{
         })
 
         if(findId === -1){
-            alertToast(`Cannot find preset: ${ele}`)
+            alertToast(`프리셋을 찾을 수 없습니다: ${ele}`)
         }
         else{
             changeToPreset(findId, true)

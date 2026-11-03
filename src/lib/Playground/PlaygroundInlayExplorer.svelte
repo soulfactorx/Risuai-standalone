@@ -220,7 +220,7 @@
             <span>{getAssetSize(asset)}</span>
           </div>
 
-          <Button onclick={() => deleteAsset(id, asset.name)} styled="danger" size="sm">Delete</Button>
+          <Button onclick={() => deleteAsset(id, asset.name)} styled="danger" size="sm">삭제</Button>
         </div>
       {/key}
     {/each}
@@ -228,7 +228,7 @@
 
   {#if hasMore}
     <div bind:this={loadMoreSentinel} class="h-12 flex items-center justify-center text-textcolor2 text-sm">
-      Loading...
+      불러오는 중...
     </div>
   {/if}
 {/if}

@@ -122,7 +122,7 @@
 
     const title = $derived.by(() => {
         switch(step){
-            case 0: return 'Choose your language'
+            case 0: return '언어를 선택하세요'
             case 1: return language.setup.welcomeTitleName
             case 2: return language.setup.welcomeTitleGuide
             case 3: return language.setup.welcomeTitleProvider
@@ -179,7 +179,7 @@
                     break
                 }
                 if(!input.startsWith('sk-')){
-                    alertError('Invalid API key')
+                    alertError('올바르지 않은 API 키입니다')
                     break
                 }
                 if(provider === 'openai'){
@@ -416,7 +416,7 @@
                     </div>
 
                     {#if step !== 4 && step !== 10}
-                        <p class="mt-auto pt-6 text-center text-xs text-textcolor2">{step === 0 ? 'You can change it later in settings.' : language.setup.welcomeChangeLater}</p>
+                        <p class="mt-auto pt-6 text-center text-xs text-textcolor2">{step === 0 ? '나중에 설정에서 바꿀 수 있습니다.' : language.setup.welcomeChangeLater}</p>
                     {/if}
                 </div>
                 {#if moreBelow}

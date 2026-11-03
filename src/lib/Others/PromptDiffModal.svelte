@@ -1363,7 +1363,7 @@
       class:mb-5={isLineby(part) && part.right.lineRole === 'header'}
     >
       {#if part.src === 'linebyline' && part.right.text === ''}
-        <span class="text-textcolor2/60 italic">[empty line]</span>
+        <span class="text-textcolor2/60 italic">[빈 줄]</span>
       {:else}
         {@render renderTokens(part.tokens, 'remove', tokenPackLineAdd)}{#if tag}<span class={nameHeaderTagClass}>{tag}</span>{/if}
       {/if}
@@ -1396,7 +1396,7 @@
     <div class={`whitespace-pre-wrap ${lineAddClass}`}>
     {#each parts as part, i (i)}
       {#if part.src === 'linebyline' && part.right.text === ''}
-        <span class="text-textcolor2/60 italic">[empty line]</span>
+        <span class="text-textcolor2/60 italic">[빈 줄]</span>
       {:else}
         {@render renderTokens(part.tokens, 'remove', tokenPackLineAdd)}{#if tagText(part)}<span class={nameHeaderTagClass}>{tagText(part)}</span>{/if}
       {/if}
@@ -1469,7 +1469,7 @@
         </div>
       {/if}
     {:else}
-      <div class="text-xs text-textcolor2 italic">No {type}</div>
+      <div class="text-xs text-textcolor2 italic">{type} 없음</div>
     {/if}
   </div>
 {/snippet}
@@ -1483,11 +1483,11 @@
         ${d.omitted > 0 ? 'hover:border-white/40 hover:text-textcolor hover:shadow-lg cursor-pointer' : 'text-textcolor2/50 cursor-default'}`}
       disabled={d.omitted === 0}
       onclick={() => expandRange(scope, d.from, d.to)}
-      title={d.omitted > 0 ? 'Click to expand hidden lines' : ''}
+      title={d.omitted > 0 ? '클릭하여 숨겨진 줄 펼치기' : ''}
     >
       {#if d.pos === 'start'}
         {#if d.omitted > 0}
-          … {d.omitted} lines above not shown (click to expand) …
+          … {d.omitted} 줄이 위에 숨겨져 있음 (클릭하여 펼치기) …
         {:else}
           BOF
         {/if}
@@ -1538,7 +1538,7 @@
         class:mb-5={role === 'header'}
       >
         {#if isLineby(part) && sideText === ''}
-          <span class="text-textcolor2/60 italic">[empty line]</span>
+          <span class="text-textcolor2/60 italic">[빈 줄]</span>
         {:else}
           {@render renderTokens(part.tokens, isLeft ? 'add' : 'remove', diffStyle === 'line' ? (isLeft ? tokenPackLineRemove : tokenPackLineAdd) : tokenPackIntraline)}
         {/if}
@@ -1572,7 +1572,7 @@
       {statusLabel}
     </span>
     <span class="text-[11px] text-textcolor2">
-      {cardChangeCount} change{cardChangeCount === 1 ? '' : 's'}
+      변경 {cardChangeCount}개
     </span>
     <span class="text-[11px] text-textcolor2">
       ~{c.modifiedCount ?? 0} / +{c.addedCount ?? 0} / -{c.removedCount ?? 0}
@@ -1611,12 +1611,12 @@
           <div class="flex items-center justify-between mb-3 text-xs text-textcolor2">
             {@render renderCounts(cardDiffResult.counts)}
             <div class="text-xs text-textcolor2 flex items-center gap-2 flex-wrap">
-              <span class="text-textcolor2">Cards changed:</span>
+              <span class="text-textcolor2">변경된 카드:</span>
               <span class="text-textcolor">{cardChangedTotal}</span>
               <span class="text-textcolor2/60">/</span>
-              <span class="text-textcolor2">compared {cardDiffResult.parts.length}</span>
+              <span class="text-textcolor2">비교 {cardDiffResult.parts.length}</span>
               <span class="text-textcolor2/60">·</span>
-              <span class="text-textcolor2">total {firstCards.length} → {secondCards.length}</span>
+              <span class="text-textcolor2">전체 {firstCards.length} → {secondCards.length}</span>
               <span class="text-textcolor2/60">·</span>
               <span class="inline-flex items-center gap-1 text-blue-300">
                 ~{cardDiffResult.cardCounts.modifiedCount}
@@ -1655,7 +1655,7 @@
                 <!-- body -->
                 <div class="mt-2 border-t border-darkborderc pt-2 font-mono text-sm leading-5">
                   {#if bodyParts.length === 0}
-                    <div class="text-textcolor2 italic">No body content</div>
+                    <div class="text-textcolor2 italic">본문 없음</div>
                   {:else}
                     {@const segments = buildSegments(bodyParts, { showOnlyChanges, contextRadius, scope: `card-${idx}`, expandedRanges })}
                     {#each segments as seg, sIdx (sIdx)}
@@ -1766,7 +1766,7 @@
             {/each}
           </div>
         {:else}
-          <div class="text-textcolor2 text-sm">No diff computed yet.</div>
+          <div class="text-textcolor2 text-sm">아직 비교 결과가 없습니다.</div>
         {/if}
       {:else}<!-- raw view -->
         {#if currentFlatResult}
@@ -1777,7 +1777,7 @@
             <div class="flex items-center justify-center py-10">
               <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-darkborderc bg-black/30 text-textcolor2">
                 <span class="inline-block w-2 h-2 rounded-full bg-green-500/70"></span>
-                <span class="text-sm">No changes</span>
+                <span class="text-sm">변경 사항 없음</span>
               </div>
             </div>
           {:else if viewStyle === 'unified' || isFlatText}
@@ -1833,7 +1833,7 @@
             </div>
           {/if}
         {:else}
-          <div class="text-textcolor2 text-sm">No diff computed yet.</div>
+          <div class="text-textcolor2 text-sm">아직 비교 결과가 없습니다.</div>
         {/if}
       {/if}
     </div>

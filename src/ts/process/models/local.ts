@@ -15,18 +15,18 @@ async function installPython(){
     const appDir = await path.appDataDir()
     const completedPath = await path.join(appDir, 'python', 'completed.txt')
     if(await exists(completedPath)){
-        alertWait("Python is already installed, skipping")
+        alertWait("Python이 이미 설치되어 있어 건너뜁니다")
     }
     else{
-        alertWait("Installing Python")
+        alertWait("Python 설치 중")
         await invoke("install_python", {
             path: appDir
         })
-        alertWait("Installing Pip")
+        alertWait("Pip 설치 중")
         await invoke("install_pip", {
             path: appDir
         })
-        alertWait("Rewriting requirements")
+        alertWait("requirements 다시 작성 중")
         await invoke('post_py_install', {
             path: appDir
         })
@@ -44,7 +44,7 @@ async function installPython(){
         'fastapi'
     ]
     for(const dep of dependencies){
-        alertWait("Installing Python Dependencies (" + dep + ")")
+        alertWait("Python 의존성 설치 중 (" + dep + ")")
         await invoke('install_py_dependencies', {
             path: appDir,
             dependency: dep
