@@ -57,6 +57,10 @@ pnpm install
 pnpm build:standalone   # 결과물: dist-standalone/risuai.html
 ```
 
+- 바로 사용: https://soulfactorx.github.io/Risuai-standalone/
+- 파일 받기: [Releases](https://github.com/soulfactorx/Risuai-standalone/releases)
+- 이 포크의 추가 기능: 프롬프트 관리(설정 → 프롬프트 관리), 한국어 전용
+
 자세한 내용은 [STANDALONE.md](STANDALONE.md) 를 참고하세요.
 
 ### Development prerequisites

@@ -2,6 +2,16 @@
 
 웹 서버나 설치 없이 **HTML 파일 하나만 브라우저로 열어서** Risuai 를 사용할 수 있는 빌드입니다.
 
+## 바로 사용하기
+
+- **GitHub Pages**: https://soulfactorx.github.io/Risuai-standalone/ 에 접속하면 설치 없이 바로 사용할 수 있습니다.
+- **HTML 파일**: [Releases](https://github.com/soulfactorx/Risuai-standalone/releases) 에서 최신 `risuai.html` 을 내려받아 더블클릭하세요.
+
+main 브랜치에 변경이 머지되면 GitHub Actions 가 자동으로 빌드해서 Pages 배포와 릴리스까지 진행합니다.
+
+> Pages 주소와 HTML 파일(file://)은 브라우저 입장에서 서로 다른 사이트라 **저장 데이터가 공유되지 않습니다.**
+> 옮길 때는 설정의 백업 저장/불러오기를 사용하세요.
+
 ## 빌드 방법
 
 ```bash
@@ -25,12 +35,19 @@ VITE_RISU_LEGAL_CONFIGURED=TRUE pnpm build:standalone
 > 원본 프로젝트의 요청에 따라 이 값은 자동으로 설정하지 않습니다.
 > 공개 배포하는 경우에는 안내 화면에 적힌 대로 약관/개인정보 처리방침을 직접 준비해야 합니다.
 
-### GitHub Actions 로 빌드하기
+### GitHub Actions 로 빌드·배포하기
 
-`.github/workflows/standalone-build.yml` 워크플로가 포함되어 있습니다.
-Actions 탭에서 **Standalone HTML Build** 를 수동 실행하면 `risuai-standalone` 아티팩트로 HTML 파일을 받을 수 있습니다.
-약관 안내를 끄려면 저장소 Settings → Secrets and variables → Actions → **Variables** 에
-`VITE_RISU_LEGAL_CONFIGURED` 변수를 `TRUE` 로 직접 추가하세요.
+`.github/workflows/standalone-build.yml` 워크플로가 다음을 자동으로 합니다.
+
+1. main 브랜치에 푸시(PR 머지)되면 단독 HTML 을 빌드
+2. GitHub Pages 에 배포 (`index.html` 로 사용)
+3. 릴리스(`standalone-<버전>-<실행번호>` 태그)를 만들고 `risuai.html` 첨부
+
+Actions 탭에서 **Standalone HTML Build** 를 수동 실행할 수도 있습니다. (`release` 옵션으로 릴리스 생성 여부 선택)
+
+처음 설정할 때 필요한 것
+- 약관 안내를 끄려면 Settings → Secrets and variables → Actions → **Variables** 에 `VITE_RISU_LEGAL_CONFIGURED` = `TRUE`
+- Pages 배포가 실패하면 Settings → **Pages** → Build and deployment 의 Source 를 **GitHub Actions** 로 지정한 뒤 다시 실행
 
 ## 동작 방식
 
@@ -70,6 +87,24 @@ localStorage.setItem('risu_standalone_asset_base', 'https://example.com/risu-pub
 - `file://` 에서 열기 때문에 서비스 워커 기반 기능(공유 대상 등록, 에셋 캐시)은 동작하지 않습니다.
 - 원본 웹 버전과 마찬가지로 CORS 를 허용하지 않는 API 는 Risuai 프록시(`sv.risuai.xyz`)를 거쳐 호출됩니다.
 
+## 이 포크에서 추가한 기능
+
+### 프롬프트 관리 (설정 → 프롬프트 관리)
+
+- **고정 프롬프트**: 원래 코드에 고정되어 있던 프롬프트(사고 과정 지시문, 이어서 쓰기 지시문, 그룹 채팅 응답자 지정,
+  기억 요약 형식, 감정 인식, 이미지 프롬프트, Iris 시스템 프롬프트, 플레이그라운드 프롬프트 등)를 바꿀 수 있습니다.
+  바꾼 값만 저장되고, '기본값으로 되돌리기'로 언제든 원래대로 돌릴 수 있습니다.
+- **기존 설정 프롬프트**: 메인 프롬프트, 탈옥, 글로벌 노트, 기억 요약, 번역, 답변 추천 프롬프트 등을 한곳에서 확인·수정합니다.
+- **전송 프롬프트 확인**: 현재 채팅에서 AI 에게 보낼 프롬프트(시스템 프롬프트 포함)를 미리 보고,
+  최근에 실제로 전송된 요청(채팅, 기억 요약, 감정 인식, 번역 등)의 메시지를 확인합니다.
+
+새 프롬프트를 추가하려면 `src/ts/prompts/customPrompts.ts` 의 `PROMPT_DEFINITIONS` 에 항목을 추가하고,
+사용하는 곳에서 `getPrompt(키)` / `fillPrompt(키, 치환값)` 으로 읽으면 화면에 자동으로 나타납니다.
+
+### 한국어 전용
+
+한국어 외 언어 파일을 제거했고, 화면 언어는 항상 한국어입니다. (`src/lang/ko.ts`)
+
 ## 관련 파일
 
 - `util/viteStandalone.ts` : 단일 HTML 로 묶는 Vite 플러그인
@@ -77,3 +112,6 @@ localStorage.setItem('risu_standalone_asset_base', 'https://example.com/risu-pub
 - `src/ts/standalone.ts` : 정적 파일 경로 변환 (`publicAssetURL`, `fetchPublicAsset`)
 - `src/ts/process/dynamicutils/pdfWorker.ts` : 인라인 가능한 pdf.js 워커 설정
 - `src/ts/translator/bergamotTranslator.ts` : 단독 빌드용 번역기 워커 준비
+- `src/ts/prompts/customPrompts.ts` : 사용자 지정 프롬프트 레지스트리
+- `src/lib/Setting/Pages/CustomPromptSettings.svelte` : 프롬프트 관리 화면
+- `.github/workflows/standalone-build.yml` : 빌드 · Pages 배포 · 릴리스
