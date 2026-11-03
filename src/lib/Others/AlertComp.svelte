@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { formatTokens, getUsageForGeneration } from "src/ts/usage/tokenUsage";
     import { alertGenerationInfoStore } from "../../ts/alert";
     
     import { DBState } from 'src/ts/stores.svelte';
@@ -456,6 +457,25 @@
                         <span class="text-gray-400 justify-self-end">{$alertGenerationInfoStore.genInfo.maxContext ?? '?'} {language.tokens}</span>
                     </div>
                     <span class="text-textcolor2 text-sm">{language.tokenWarning}</span>
+                    <!-- AI 서비스가 알려 준 실제 사용량 (src/ts/usage/tokenUsage.ts) -->
+                    {@const realUsage = getUsageForGeneration($alertGenerationInfoStore.genInfo.generationId, DBState.db.tokenUsageLog)}
+                    <h3 class="mt-4 font-bold text-textcolor">실제 사용량 (API 응답 기준)</h3>
+                    {#if realUsage}
+                        <div class="grid grid-cols-2 gap-y-2 gap-x-4 mt-2">
+                            <span class="text-blue-500">입력</span>
+                            <span class="text-blue-500 justify-self-end">{formatTokens(realUsage.input)} {language.tokens}</span>
+                            <span class="text-green-500">출력</span>
+                            <span class="text-green-500 justify-self-end">{formatTokens(realUsage.output)} {language.tokens}</span>
+                            <span class="text-gray-400">캐시 읽기 / 쓰기</span>
+                            <span class="text-gray-400 justify-self-end">{formatTokens(realUsage.cacheRead)} / {formatTokens(realUsage.cacheWrite)}</span>
+                            <span class="text-gray-400">추론(생각)</span>
+                            <span class="text-gray-400 justify-self-end">{formatTokens(realUsage.reasoning)}</span>
+                            <span class="text-gray-400">요청 횟수</span>
+                            <span class="text-gray-400 justify-self-end">{realUsage.requests}</span>
+                        </div>
+                    {:else}
+                        <span class="text-textcolor2 text-sm mt-1">이 응답에는 기록된 실제 사용량이 없습니다. (사용량을 알려 주지 않는 서비스이거나, 기록 기능 추가 이전의 메시지)</span>
+                    {/if}
                 {/if}
                 {#if generationInfoMenuIndex === 1}
                 <div class="grid grid-cols-2 gap-y-2 gap-x-4 mt-4">

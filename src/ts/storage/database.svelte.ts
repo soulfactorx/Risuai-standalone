@@ -200,6 +200,14 @@ export function setDatabase(data:Database){
     if(checkNullish(data.requestRetrys)){
         data.requestRetrys = 2
     }
+    // 토큰 사용량 기록 (src/ts/usage/tokenUsage.ts)
+    if(!Array.isArray(data.tokenUsageLog)){
+        data.tokenUsageLog = []
+    }
+    if(!data.tokenUsageDaily || typeof data.tokenUsageDaily !== 'object'){
+        data.tokenUsageDaily = {}
+    }
+    data.showTokenUsageInChat ??= true
     // 사용자 지정 프롬프트 (src/ts/prompts/customPrompts.ts)
     if(checkNullish(data.customPrompts) || typeof data.customPrompts !== 'object'){
         data.customPrompts = {}
@@ -893,6 +901,12 @@ export interface Database{
     useSayNothing:boolean
     /** 사용자 지정 프롬프트: 키 → 사용자 값 (없는 키는 기본값 사용, src/ts/prompts/customPrompts.ts) */
     customPrompts:{[key:string]:string}
+    /** 토큰 사용량 요청별 기록 (최근 것만, src/ts/usage/tokenUsage.ts) */
+    tokenUsageLog?:TokenUsageEntry[]
+    /** 토큰 사용량 날짜별 합계 */
+    tokenUsageDaily?:TokenUsageDaily
+    /** 채팅 메시지 아래에 턴별 토큰 사용량 표시 */
+    showTokenUsageInChat?:boolean
     didFirstSetup: boolean
     showUnrecommended:boolean
     elevenLabKey:string
@@ -2337,6 +2351,7 @@ import type { SerializableHypaV3Data } from '../process/memory/hypav3';
 import { defaultHotkeys, type Hotkey } from '../defaulthotkeys';
 import type { OpenAIChat } from '../process/index.svelte';
 import type { Loadout } from '../loadout';
+import type { TokenUsageDaily, TokenUsageEntry } from "../usage/tokenUsage";
 
 export async function downloadPreset(id:number, type:'json'|'risupreset'|'return' = 'json'){
     saveCurrentPreset()

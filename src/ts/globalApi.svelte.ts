@@ -47,6 +47,7 @@ import { isLocalNetworkUrl } from "./network/localNetwork";
 import { decodeProxyJobWsChunk, formatProxyStreamErrorMessage, parseProxyJobWsEvent } from "./network/proxyJobWs";
 import { getNodeServerProxyAuth } from "./storage/nodeStorage";
 import { shouldUsePlainFetch } from "./standalone";
+import { trackUsageFromData, trackUsageFromResponse } from "./usage/tokenUsage";
 
 export const forageStorage = new AutoStorage()
 
@@ -690,6 +691,15 @@ export function addFetchLog(arg: {
  * @returns {Promise<GlobalFetchResult>} - The result of the fetch request.
  */
 export async function globalFetch(url: string, arg: GlobalFetchArgs = {}): Promise<GlobalFetchResult> {
+    const result = await globalFetchInner(url, arg)
+    // AI 응답에 들어 있는 실제 토큰 사용량을 기록한다. (src/ts/usage/tokenUsage.ts)
+    if (result.ok && !arg.rawResponse) {
+        trackUsageFromData({ url, body: arg.body }, result.data)
+    }
+    return result
+}
+
+async function globalFetchInner(url: string, arg: GlobalFetchArgs = {}): Promise<GlobalFetchResult> {
     try {
         const db = getDatabase();
         if (arg.abortSignal?.aborted) { return { ok: false, data: 'aborted', headers: {}, status: 400 }; }
@@ -1723,6 +1733,31 @@ async function fetchViaProxyJobWs(url: string, arg: {
  * @throws {Error} - Throws an error if the request is aborted or if there is an error in the response.
  */
 export async function fetchNative(url: string, arg: {
+    body?: string | Uint8Array | ArrayBuffer,
+    headers?: { [key: string]: string },
+    method?: "POST" | "GET" | "PUT" | "DELETE",
+    signal?: AbortSignal,
+    useRisuTk?: boolean,
+    chatId?: string
+    interceptor?: string
+    logFetch?: boolean
+    requestTimeoutMs?: number
+    networkRoute?: 'auto' | 'local_network'
+}): Promise<Response> {
+    // 원래 요청 본문은 내부 처리 중 바뀔 수 있으므로 미리 기억해 둔다.
+    let requestBody: string | undefined = undefined
+    try {
+        requestBody = typeof arg.body === 'string' ? arg.body
+            : arg.body ? new TextDecoder().decode(arg.body) : undefined
+    } catch {
+        requestBody = undefined
+    }
+    const response = await fetchNativeInner(url, arg)
+    // 응답(스트리밍 포함)을 다 읽은 뒤 실제 토큰 사용량을 기록한다. (src/ts/usage/tokenUsage.ts)
+    return trackUsageFromResponse({ url, body: requestBody }, response)
+}
+
+async function fetchNativeInner(url: string, arg: {
     body?: string | Uint8Array | ArrayBuffer,
     headers?: { [key: string]: string },
     method?: "POST" | "GET" | "PUT" | "DELETE",

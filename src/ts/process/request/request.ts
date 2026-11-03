@@ -20,6 +20,7 @@ import { requestClaude } from './anthropic';
 import { requestGoogleCloudVertex } from './google';
 import { requestOpenAI, requestOpenAILegacyInstruct, requestOpenAIResponseAPI } from "./openAI/requests";
 import { applyAdditionalParameters, applyParameters, getAdditionalParameters, type ModelModeExtended } from './shared';
+import { setUsagePurpose } from '../../usage/tokenUsage';
 
 export type ToolCall = {
     name: string;
@@ -203,6 +204,8 @@ function normalizeOllamaStreamResponse(response: Response): Response {
 }
 
 export async function requestChatData(arg:requestDataArgument, model:ModelModeExtended, abortSignal:AbortSignal=null):Promise<requestDataResponse> {
+    // 토큰 사용량 통계에서 요청 용도(채팅/기억 요약/번역 등)를 구분하기 위해 지정한다.
+    setUsagePurpose(model)
     const db = getDatabase()
     const fallBackModels:string[] = safeStructuredClone(db?.fallbackModels?.[model] ?? [])
     const tools = arg.tools ?? (await getTools())

@@ -34,6 +34,7 @@ import { getModuleAssets, getModuleToggles } from "./modules";
 import { readImage } from "../globalApi.svelte";
 import { pluginV2 } from "../plugins/plugins.svelte";
 import { fillPrompt, fillPromptWithParser, getPrompt } from "../prompts/customPrompts";
+import { setUsageGeneration } from "../usage/tokenUsage";
 
 export interface OpenAIChat{
     role: 'system'|'user'|'assistant'|'function'
@@ -1554,6 +1555,8 @@ export async function sendChat(chatProcessIndex = -1,arg:{
         return true
     }
 
+    // 이번 응답의 실제 토큰 사용량을 이 메시지(generationId)와 연결한다. (src/ts/usage/tokenUsage.ts)
+    setUsageGeneration({ generationId: generationId, charName: currentChar.name })
     const req = await requestChatData({
         formated: formated,
         biasString: biases,
@@ -1567,7 +1570,10 @@ export async function sendChat(chatProcessIndex = -1,arg:{
         previewBody: arg.previewPrompt,
         escape: nowChatroom.type === 'character' && nowChatroom.escapeOutput,
         rememberToolUsage: DBState.db.rememberToolUsage,
-    }, 'model', abortSignal)
+    }, 'model', abortSignal).finally(() => {
+        // 요청은 이미 보냈으므로(스트리밍 사용량은 응답을 다 읽은 뒤 기록됨) 연결을 해제한다.
+        setUsageGeneration(null)
+    })
 
     console.log(req)
     if(req.model){

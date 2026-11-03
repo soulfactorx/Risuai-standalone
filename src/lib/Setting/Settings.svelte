@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { AccessibilityIcon, ActivityIcon, PackageIcon, BotIcon, BoxIcon, CodeIcon, ContactIcon, LanguagesIcon, MonitorIcon, Sailboat, UserIcon, CircleXIcon, KeyboardIcon, SparkleIcon, ScrollTextIcon } from "@lucide/svelte";
+    import { AccessibilityIcon, ActivityIcon, PackageIcon, BotIcon, BoxIcon, CodeIcon, ContactIcon, LanguagesIcon, MonitorIcon, Sailboat, UserIcon, CircleXIcon, KeyboardIcon, SparkleIcon, ScrollTextIcon, ChartColumnIcon } from "@lucide/svelte";
     import { language } from "src/lang";
     import DisplaySettings from "./Pages/DisplaySettings.svelte";
     import UserSettings from "./Pages/UserSettings.svelte";
@@ -23,6 +23,7 @@
   import { isLite } from "src/ts/lite";
     import HotkeySettings from "./Pages/HotkeySettings.svelte";
     import CustomPromptSettings from "./Pages/CustomPromptSettings.svelte";
+    import TokenUsageSettings from "./Pages/TokenUsageSettings.svelte";
     import PluginDefinedIcon from "../Others/PluginDefinedIcon.svelte";
 
     let openLoreList = $state(false)
@@ -68,6 +69,16 @@
                     }}>
                         <ScrollTextIcon />
                         <span>프롬프트 관리</span>
+                    </button>
+                    <!-- 토큰 사용량 통계 -->
+                    <button class="flex gap-2 items-center hover:text-textcolor"
+                        class:text-textcolor={$SettingsMenuIndex === 21}
+                        class:text-textcolor2={$SettingsMenuIndex !== 21}
+                        onclick={() => {
+                            $SettingsMenuIndex = 21
+                    }}>
+                        <ChartColumnIcon />
+                        <span>토큰 사용량</span>
                     </button>
                     <button class="flex gap-2 items-center hover:text-textcolor"
                         class:text-textcolor={$SettingsMenuIndex === 2}
@@ -242,6 +253,8 @@
                         <HotkeySettings/>
                     {:else if $SettingsMenuIndex === 20}
                         <CustomPromptSettings/>
+                    {:else if $SettingsMenuIndex === 21}
+                        <TokenUsageSettings/>
                     {:else if $SettingsMenuIndex === 77}
                         <ThanksPage/>
                     {/if}
