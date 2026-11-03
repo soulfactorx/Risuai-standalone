@@ -1,17 +1,18 @@
 import { get, writable } from "svelte/store";
 import { saveImage, type character, type Chat, defaultSdDataFunc, type loreBook, getDatabase, getCharacterByIndex, setCharacterByIndex } from "./storage/database.svelte";
-import { alertAddCharacter, alertConfirm, alertError, alertNormal, alertSelect, alertStore, alertWait } from "./alert";
+import { alertAddCharacter, alertConfirm, alertError, alertMd, alertNormal, alertSelect, alertStore, alertWait } from "./alert";
 import { language } from "../lang";
 import { checkNullish, findCharacterbyId, findCharacterIndexbyId, getUserName, selectMultipleFile, selectSingleFile } from "./util";
 import { v4 as uuidv4, v4 } from 'uuid';
 import { getImageType } from "./media";
-import { DBState, MobileGUIStack, OpenRealmStore, selectedCharID } from "./stores.svelte";
+import { DBState, MobileGUIStack, selectedCharID } from "./stores.svelte";
 import { AppendableBuffer, changeChatTo, checkCharOrder, downloadFile, getFileSrc, requiresFullEncoderReload } from "./globalApi.svelte";
 import { updateInlayScreen } from "./process/inlayScreen";
 import { parseMarkdownSafe } from "./parser/parser.svelte";
 import { translateHTML } from "./translator/translator";
 import { doingChat } from "./process/index.svelte";
 import { importCharacter } from "./characterCards";
+import { formatImportResultsMd, selectAndImportFiles } from "./fileImport";
 import { PngChunk } from "./pngChunk";
 import { publicAssetURL } from "./standalone";
 import { getColdStorageItem } from "./process/coldstorage.svelte";
@@ -846,12 +847,6 @@ export async function addCharacter(arg:{
     MobileGUIStack.set(100)
     const reseter = arg.reseter ?? (() => {})
     const r = await alertAddCharacter()
-    if(r === 'importFromRealm'){
-        selectedCharID.set(-1)
-        OpenRealmStore.set(true)
-        MobileGUIStack.set(0)
-        return
-    }
     reseter();
     switch(r){
         case 'createfromScratch':
@@ -863,6 +858,20 @@ export async function addCharacter(arg:{
         case 'importCharacter':
             await importCharacter()
             break
+        case 'importFromRealm':{
+            // RisuRealm 대신 내려받은 파일(charx/risum/json 등)을 가져온다. (src/ts/fileImport.ts)
+            const before = getDatabase().characters.length
+            const results = await selectAndImportFiles()
+            if(results.length > 0){
+                alertMd(formatImportResultsMd(results))
+            }
+            // 새 캐릭터가 추가되었을 때만 그 캐릭터를 연다.
+            if(getDatabase().characters.length === before){
+                MobileGUIStack.set(1)
+                return
+            }
+            break
+        }
         default:
             MobileGUIStack.set(1)
             return

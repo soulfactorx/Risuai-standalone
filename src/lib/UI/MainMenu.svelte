@@ -1,12 +1,11 @@
 <script lang="ts">
     import { DBState } from 'src/ts/stores.svelte';
     import Hub from "./Realm/RealmMain.svelte";
-    import { OpenRealmStore, RealmInitialOpenChar } from "src/ts/stores.svelte";
+    import { OpenRealmStore } from "src/ts/stores.svelte";
     import { ArrowLeft, ArrowRight, FolderCodeIcon, GlobeIcon, MailIcon, Send } from "@lucide/svelte";
     import { getVersionString, openURL } from "src/ts/globalApi.svelte";
     import { language } from "src/lang";
-    import { getRisuHub, hubAdditionalHTML } from "src/ts/characterCards";
-    import RisuHubIcon from "./Realm/RealmHubIcon.svelte";
+    import FileImportPanel from "./FileImportPanel.svelte";
     import Title from "./Title.svelte";
 
     type RelatedLink = {
@@ -53,36 +52,10 @@
     {/if}
     <div class="w-full flex p-4 flex-col text-textcolor max-w-4xl">
       {#if !$OpenRealmStore}
+      <!-- RisuRealm 서버에 접속할 수 없는 환경이라, 내려받은 파일을 직접 가져오는 기능으로 대체함 -->
       <div class="mt-4 mb-4 w-full border-t border-t-selected"></div>
-      <h1 class="text-2xl font-bold">최근 업로드<button class="text-base font-medium float-right p-1 bg-darkbg rounded-md hover:ring-3" onclick={() => {
-        $OpenRealmStore = true
-      }}>더 보기</button></h1>
-          {#if !DBState.db.hideRealm}
-            {#await getRisuHub({
-                  search: '',
-                  page: 0,
-                  nsfw: false,
-                  sort: 'recommended'
-              }) then charas}
-            {#if charas.length > 0}
-              {@html hubAdditionalHTML}
-              <div class="w-full flex gap-4 p-2 flex-wrap justify-center">
-                  {#each charas as chara}
-                      <RisuHubIcon onClick={() => {
-                        $OpenRealmStore = true
-                        if(DBState.db.realmDirectOpen){
-                            $RealmInitialOpenChar = chara
-                        }
-                      }} chara={chara} />
-                  {/each}
-              </div>
-            {:else}
-              <div class="text-textcolor2">{language.hub}을(를) 불러오지 못했습니다...</div>
-            {/if}
-          {/await}
-        {:else}
-          <div class="text-textcolor2">{language.hideRealm}</div>
-        {/if}
+      <h1 class="text-2xl font-bold mb-4">파일 가져오기</h1>
+      <FileImportPanel />
       <div class="mt-4 mb-4 w-full border-t border-t-selected"></div>
       <h1 class="text-2xl font-bold mb-4">
         관련 링크

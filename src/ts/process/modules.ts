@@ -255,43 +255,75 @@ export async function readModule(buf:Buffer):Promise<RisuModule> {
     return module
 }
 
+/** 모듈 가져오기 결과: 성공 / 사용자가 취소 / 모듈 형식이 아님 */
+export type ModuleImportResult = 'ok' | 'cancelled' | 'invalid'
+
+/**
+ * JSON 데이터가 모듈(또는 모듈로 바꿀 수 있는 로어북/정규식) 형식인지 확인한다.
+ * 파일 가져오기에서 JSON 을 캐릭터와 모듈 중 어느 쪽으로 처리할지 정할 때 사용한다.
+ */
+export function isModuleLikeJSON(importData:any):boolean{
+    if(!importData || typeof importData !== 'object'){
+        return false
+    }
+    return importData.type === 'risuModule'
+        || (importData.type === 'risu' && Array.isArray(importData.data))
+        || (importData.type === 'regex' && !!importData.data)
+        || (!!importData.entries && typeof importData.entries === 'object' && !importData.spec)
+}
+
 export async function importModule(){
     const f = await selectSingleFile(['json', 'lorebook', 'risum', 'charx'])
     if(!f){
         return
     }
-    let fileData = f.data
-    if(f.name.endsWith('.charx')){
+    const result = await importModuleData(f.name, f.data)
+    if(result === 'ok'){
+        alertNormal(language.successImport)
+    }
+    else if(result === 'invalid'){
+        alertError(language.errors.noData)
+    }
+}
+
+/**
+ * 파일 내용을 모듈로 가져와 DB 에 추가한다. (.risum / .charx / 모듈·로어북·정규식 JSON)
+ * 알림은 띄우지 않고 결과만 돌려준다. (낮은 수준 접근 확인 창은 예외)
+ */
+export async function importModuleData(name:string, fileData:Uint8Array):Promise<ModuleImportResult>{
+    if(name.endsWith('.charx')){
         try {
             const buf = Buffer.from(fileData)
             const char = await importCharacterProcess({
-                name: f.name,
+                name: name,
                 data: buf,
                 returnCharacter: true
             })
             if(!char || typeof char === 'number'){
-                alertError(language.errors.noData)
-                return
+                return 'invalid'
             }
             const module = convertCharacterToModule(char)
             DBState.db.modules.push(module)
+            return 'ok'
         } catch (error) {
             console.error(error)
-            alertError(language.errors.noData)
+            return 'invalid'
         }
-        alertNormal(language.successImport)
-        return
     }
-    if(f.name.endsWith('.risum')){
+    if(name.endsWith('.risum')){
         try {
             const buf = Buffer.from(fileData)
             const module = await readModule(buf)
+            // 형식이 맞지 않으면 readModule 이 undefined 를 돌려준다. (빈 모듈이 추가되지 않도록 확인)
+            if(!module){
+                return 'invalid'
+            }
             DBState.db.modules.push(module)
+            return 'ok'
         } catch (error) {
             console.error(error)
-            alertError(language.errors.noData)
+            return 'invalid'
         }
-        return
     }
     try {
         const importData = JSON.parse(Buffer.from(fileData).toString())
@@ -300,8 +332,7 @@ export async function importModule(){
                 (!importData.name)
                 || (!importData.id)
             ){
-                alertError(language.errors.noData)
-                return
+                return 'invalid'
             }
             importData.id = v4()
             delete importData.mcp
@@ -309,11 +340,11 @@ export async function importModule(){
             if(importData.lowLevelAccess){
                 const conf = await alertConfirm(language.lowLevelAccessConfirm)
                 if(!conf){
-                    return false
+                    return 'cancelled'
                 }
             }
             DBState.db.modules.push(importData)
-            return
+            return 'ok'
         }
         // importData.type === 'risu' in conflict with HypaV3 preset exports
         // difference: record vs. array
@@ -326,7 +357,7 @@ export async function importModule(){
                 id: v4()
             }
             DBState.db.modules.push(importModule)
-            return
+            return 'ok'
         }
         if(importData.entries){
             const lores:loreBook[] = convertExternalLorebook(importData.entries)
@@ -337,7 +368,7 @@ export async function importModule(){
                 id: v4()
             }
             DBState.db.modules.push(importModule)
-            return
+            return 'ok'
         }
         if(importData.type === 'regex'  && importData.data){
             const regexs:customscript[] = importData.data
@@ -348,13 +379,13 @@ export async function importModule(){
                 id: v4()
             }
             DBState.db.modules.push(importModule)
-            return
+            return 'ok'
         }
     } catch (error) {
         console.error(error)
     }
 
-    alertNormal(language.errors.noData)
+    return 'invalid'
 }
 
 function getModuleById(id:string){
