@@ -74,6 +74,8 @@ jobs:
         run: |
           mkdir -p pages
           cp dist-standalone/risuai.html pages/index.html
+          # 웹앱(PWA) 설치용 파일 (manifest, 서비스 워커, 아이콘)
+          cp dist-standalone/manifest.webmanifest dist-standalone/pwa-sw.js dist-standalone/icon-192.png dist-standalone/icon-512.png pages/
           touch pages/.nojekyll
 
       - name: Pages 아티팩트 업로드

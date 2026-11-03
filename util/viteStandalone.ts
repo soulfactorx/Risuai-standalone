@@ -185,6 +185,75 @@ const LOADER_SCRIPT = `
 `
 
 /**
+ * 웹앱(PWA) 설치 관련 <head> 내용.
+ * file:// 로 열었을 때는 manifest 를 읽을 수 없어 콘솔 오류가 나므로, http(s) 일 때만 추가한다.
+ */
+const PWA_HEAD_SNIPPET = `<meta name="theme-color" content="#1f2029" />
+<script>
+(function () {
+    if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
+    var m = document.createElement('link'); m.rel = 'manifest'; m.href = 'manifest.webmanifest';
+    var a = document.createElement('link'); a.rel = 'apple-touch-icon'; a.href = 'icon-192.png';
+    document.head.appendChild(m); document.head.appendChild(a);
+})();
+</script>
+`
+
+/**
+ * 웹앱 설치용 서비스 워커.
+ * - 같은 주소의 파일(GET)만 다루고, AI API 요청 등 다른 주소로 가는 요청은 건드리지 않는다.
+ * - 네트워크 우선: 새 버전이 배포되면 바로 반영되고, 오프라인일 때만 저장해 둔 화면을 쓴다.
+ */
+const PWA_SERVICE_WORKER = `// Risuai 웹앱(PWA) 서비스 워커 - util/viteStandalone.ts 에서 생성
+const CACHE = 'risuai-pwa-v1';
+self.addEventListener('install', (event) => {
+    self.skipWaiting();
+    event.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', './manifest.webmanifest', './icon-192.png', './icon-512.png'])).catch(() => {}));
+});
+self.addEventListener('activate', (event) => {
+    event.waitUntil(self.clients.claim());
+});
+self.addEventListener('fetch', (event) => {
+    const req = event.request;
+    if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
+    event.respondWith(
+        fetch(req).then((res) => {
+            if (res.ok) {
+                const copy = res.clone();
+                caches.open(CACHE).then((c) => c.put(req, copy));
+            }
+            return res;
+        }).catch(() => caches.match(req).then((r) => r || caches.match('./')))
+    );
+});
+`
+
+/** 웹앱 설치에 필요한 파일 목록 (manifest, 서비스 워커, 아이콘) */
+function pwaFiles(publicDir: string): { fileName: string; source: string | Uint8Array }[] {
+    const manifest = {
+        name: "Risuai",
+        short_name: "Risuai",
+        description: "Risuai 단독 버전",
+        lang: "ko",
+        start_url: "./",
+        scope: "./",
+        display: "standalone",
+        background_color: "#1f2029",
+        theme_color: "#1f2029",
+        icons: [
+            { src: "icon-192.png", type: "image/png", sizes: "192x192", purpose: "any" },
+            { src: "icon-512.png", type: "image/png", sizes: "512x512", purpose: "any" },
+        ],
+    }
+    return [
+        { fileName: "manifest.webmanifest", source: JSON.stringify(manifest, null, 2) },
+        { fileName: "pwa-sw.js", source: PWA_SERVICE_WORKER },
+        { fileName: "icon-192.png", source: new Uint8Array(fs.readFileSync(path.join(publicDir, "logo_192.png"))) },
+        { fileName: "icon-512.png", source: new Uint8Array(fs.readFileSync(path.join(publicDir, "logo_512.png"))) },
+    ]
+}
+
+/**
  * 빌드 결과물을 단일 HTML 파일로 합친다.
  * 코드 분할을 끈 상태(번들 1개)를 전제로 하며, 인라인할 수 없는 파일이 남으면 경고한다.
  */
@@ -198,6 +267,7 @@ function standaloneInlinePlugin(publicDir: string, outFileName: string): Plugin 
                 // 파비콘을 data URL 로 바꾸고, file:// 에서 쓸 수 없는 PWA manifest 는 제거한다.
                 return html
                     .replace(/<link rel="manifest"[^>]*>\s*/g, "")
+                    .replace("</head>", () => PWA_HEAD_SNIPPET + "</head>")
                     .replace(/href="\/(logo_\d+\.png)"/g, (_, file: string) => {
                         const filePath = path.join(publicDir, file)
                         return fs.existsSync(filePath) ? `href="${toDataURL(filePath)}"` : `href="${file}"`
@@ -274,6 +344,12 @@ function standaloneInlinePlugin(publicDir: string, outFileName: string): Plugin 
                 fileName: outFileName,
                 source: html,
             })
+
+            // 웹앱(PWA) 설치용 파일. GitHub Pages 처럼 http(s) 로 배포할 때만 쓰인다.
+            // (단독 HTML 파일 하나만 쓰는 경우에는 없어도 동작에 영향 없음)
+            for (const file of pwaFiles(publicDir)) {
+                this.emitFile({ type: "asset", fileName: file.fileName, source: file.source })
+            }
         },
     }
 }

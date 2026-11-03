@@ -6,6 +6,7 @@ import { loadData } from "./ts/bootstrap";
 import { initHotkey } from "./ts/hotkey";
 import { preLoadCheck } from "./preload";
 import { mount } from "svelte";
+import { registerStandalonePWA } from "./ts/standalone";
 
 window.addEventListener('vite:preloadError', (event) => {
     console.error("Chunk load error detected:", event);
@@ -19,5 +20,7 @@ let app = mount(App, {
 loadData()
 initHotkey()
 document.getElementById('preloading').remove()
+// 웹앱 설치 지원 (GitHub Pages 등 http(s) 에서만)
+registerStandalonePWA()
 
 export default app;

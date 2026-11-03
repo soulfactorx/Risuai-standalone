@@ -6,6 +6,7 @@
     import { getVersionString, openURL } from "src/ts/globalApi.svelte";
     import { language } from "src/lang";
     import FileImportPanel from "./FileImportPanel.svelte";
+    import InstallAppButton from "./InstallAppButton.svelte";
     import Title from "./Title.svelte";
 
     type RelatedLink = {
@@ -49,6 +50,8 @@
     {#if !$OpenRealmStore}
       <Title />
       <h3 class="text-textcolor2 mt-1">버전 {getVersionString()}</h3>
+      <!-- 웹앱(PWA) 설치 안내 (GitHub Pages 등 http(s) 에서만 표시) -->
+      <InstallAppButton />
     {/if}
     <div class="w-full flex p-4 flex-col text-textcolor max-w-4xl">
       {#if !$OpenRealmStore}
