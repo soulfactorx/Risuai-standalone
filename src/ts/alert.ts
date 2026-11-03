@@ -7,11 +7,11 @@ import { alertStore as alertStoreImported } from "./stores.svelte"
 import { isStandalone } from "./standalone";
 
 /** 단독 빌드에서 네트워크 오류가 났을 때 보여 줄 안내 */
-const STANDALONE_FETCH_HINT = "AI 서비스에 직접 연결하지 못했습니다. API 키와 주소를 확인해 주세요. 이 버전(GitHub Pages/HTML 파일)은 Risu 프록시 서버를 사용할 수 없어서, 브라우저 직접 호출(CORS)을 허용하지 않는 서비스는 사용할 수 없습니다. (OpenAI, Claude, Gemini, OpenRouter 등은 사용 가능)"
+const STANDALONE_FETCH_HINT = "AI 서비스에 직접 연결하지 못했습니다. API 키와 주소를 확인해 주세요. 이 버전은 Risu 프록시 서버를 사용하지 않으므로, 브라우저 직접 호출(CORS)을 허용하지 않는 서비스는 사용할 수 없습니다. (OpenAI, Claude, Gemini, OpenRouter 등은 사용 가능)"
 
 export interface alertData{
     type: 'error'|'normal'|'none'|'ask'|'wait'|'selectChar'
-            |'input'|'toast'|'wait2'|'markdown'|'select'|'login'
+            |'input'|'toast'|'wait2'|'markdown'|'select'
             |'tos'|'cardexport'|'requestdata'|'addchar'|'hypaV2'|'selectModule'
             |'chatOptions'|'pukmakkurit'|'branches'|'progress'|'pluginconfirm'|'requestlogs',
     msg: string,
@@ -65,9 +65,9 @@ export function alertError(msg: string | Error) {
 
     //check if it's a known error
     if(msg.includes('Failed to fetch') || msg.includes("NetworkError when attempting to fetch resource.")){
-        submsg =    isStandalone ? STANDALONE_FETCH_HINT :
-                    db.usePlainFetch ? language.errors.networkFetchPlain :
-                    (!isTauri && !isNodeServer) ? language.errors.networkFetchWeb : language.errors.networkFetch
+        // 웹/단독 빌드는 Risu 프록시를 쓰지 않고 항상 직접 요청하므로 같은 안내를 보여준다.
+        submsg =    (isStandalone || (!isTauri && !isNodeServer)) ? STANDALONE_FETCH_HINT :
+                    db.usePlainFetch ? language.errors.networkFetchPlain : language.errors.networkFetch
     }
 
     alertStoreImported.set({
@@ -120,16 +120,6 @@ export async function alertChatOptions() {
     await waitAlert()
 
     return parseInt(get(alertStoreImported).msg)
-}
-
-export async function alertLogin(){
-    alertStoreImported.set({
-        'type': 'login',
-        'msg': 'login'
-    })
-    await waitAlert()
-
-    return get(alertStoreImported).msg
 }
 
 export async function alertSelect(msg:string[], display?:string){

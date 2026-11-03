@@ -587,6 +587,10 @@ export async function requestOpenAI(arg:RequestDataArgumentExtended):Promise<req
     if(arg.useStreaming){
         body.stream = true
         let urlHost = new URL(replacerURL).host
+        // 스트리밍에서도 실제 토큰 사용량을 받도록 요청한다. (공식 지원이 확실한 서비스에만 적용)
+        if((urlHost === 'api.openai.com' || urlHost === 'openrouter.ai') && body.stream_options === undefined){
+            body.stream_options = { include_usage: true }
+        }
         if(urlHost.includes("localhost") || urlHost.includes("172.0.0.1") || urlHost.includes("0.0.0.0")){
             if(!isTauri && !isNodeServer){
                 return {

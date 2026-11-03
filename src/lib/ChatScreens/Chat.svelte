@@ -25,6 +25,7 @@
     import PopupButton from "../UI/PopupButton.svelte";
     import PartialEditController from './PartialEditController.svelte';
     import { getLLMCache, setLLMCache } from "../../ts/translator/translator"
+    import { formatTokens, getUsageForGeneration } from "src/ts/usage/tokenUsage"
 
     let translating = $state(false)
     let editMode = $state(false)
@@ -85,6 +86,9 @@
         streamingOptimizationMode = 'off',
         rawStreamingText = message,
     }: Props = $props();
+
+    // 이 메시지(턴)의 실제 토큰 사용량 (API 응답 기준, src/ts/usage/tokenUsage.ts)
+    let turnUsage = $derived(getUsageForGeneration(messageGenerationInfo?.generationId, DBState.db.tokenUsageLog))
 
     let msgDisplay = $state('')
     let translated = $state(false)
@@ -446,6 +450,12 @@
 
 {#snippet genInfo()}
     <div class="flex flex-col items-end">
+        <!-- 턴별 실제 토큰 사용량 (설정 → 토큰 사용량에서 표시 여부 선택) -->
+        {#if DBState.db.showTokenUsageInChat && turnUsage}
+            <span class="text-xs text-textcolor2 mr-2 my-1" title={`캐시 읽기 ${formatTokens(turnUsage.cacheRead)} · 캐시 쓰기 ${formatTokens(turnUsage.cacheWrite)} · 추론 ${formatTokens(turnUsage.reasoning)}${turnUsage.requests > 1 ? ` · 요청 ${turnUsage.requests}회` : ''}`}>
+                입력 {formatTokens(turnUsage.input)} · 출력 {formatTokens(turnUsage.output)}{turnUsage.cacheRead > 0 ? ` (캐시 ${formatTokens(turnUsage.cacheRead)})` : ''} 토큰
+            </span>
+        {/if}
         {#if messageGenerationInfo && (DBState.db.requestInfoInsideChat || aiLawApplies())}
             <button class="text-sm p-1 text-textcolor2 border-darkborderc float-end mr-2 my-1
                     hover:ring-darkbutton hover:ring-3 rounded-md hover:text-textcolor transition-all flex justify-center items-center" 
@@ -684,7 +694,7 @@
                         margin-right: auto;
                     `)
                     
-                    if(url && (url.startsWith('http://asset.localhost') || url.startsWith('https://asset.localhost') || url.startsWith('https://sv.risuai') || url.startsWith('data:') || url.startsWith('http') || url.startsWith('/'))){
+                    if(url && (url.startsWith('http://asset.localhost') || url.startsWith('https://asset.localhost') || url.startsWith('data:') || url.startsWith('http') || url.startsWith('/'))){
                         try {
                             let fetchUrl = url
                             if(url.startsWith('/')) {
@@ -724,7 +734,7 @@
                 try {
                     const iconImage = (await getFileSrc(DBState.db.characters[selIdState.selId].image ?? '')) ?? ''
                     
-                    if(iconImage && (iconImage.startsWith('http://asset.localhost') || iconImage.startsWith('https://asset.localhost') || iconImage.startsWith('https://sv.risuai') || iconImage.startsWith('data:') || iconImage.startsWith('http') || iconImage.startsWith('/'))){
+                    if(iconImage && (iconImage.startsWith('http://asset.localhost') || iconImage.startsWith('https://asset.localhost') || iconImage.startsWith('data:') || iconImage.startsWith('http') || iconImage.startsWith('/'))){
                         if(iconImage.startsWith('data:')){
                             iconDataUrl = iconImage
                             hasValidImage = true
@@ -776,7 +786,7 @@
                     if (userIcon) {
                         try {
                             const userIconSrc = await getFileSrc(userIcon)
-                            if (userIconSrc && (userIconSrc.startsWith('http://asset.localhost') || userIconSrc.startsWith('https://asset.localhost') || userIconSrc.startsWith('https://sv.risuai') || userIconSrc.startsWith('data:') || userIconSrc.startsWith('http') || userIconSrc.startsWith('/'))) {
+                            if (userIconSrc && (userIconSrc.startsWith('http://asset.localhost') || userIconSrc.startsWith('https://asset.localhost') || userIconSrc.startsWith('data:') || userIconSrc.startsWith('http') || userIconSrc.startsWith('/'))) {
                                 if (userIconSrc.startsWith('data:')) {
                                     finalIconDataUrl = userIconSrc
                                     finalHasValidImage = true

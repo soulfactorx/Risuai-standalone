@@ -1,6 +1,6 @@
 <script lang="ts">
 
-  import { SettingsIcon, GlobeIcon, HouseIcon, Volume2Icon, Braces, ActivityIcon, BookIcon, SmileIcon, UserIcon } from "@lucide/svelte";
+  import { SettingsIcon, UploadIcon, HouseIcon, Volume2Icon, Braces, ActivityIcon, BookIcon, SmileIcon, UserIcon } from "@lucide/svelte";
   import { language } from "src/lang";
   import { CharConfigSubMenu, MobileGUIStack, MobileSideBar, selectedCharID } from "src/ts/stores.svelte";
 
@@ -11,8 +11,8 @@
         <button class="flex justify-center items-center flex-col gap-2 w-20" class:text-textcolor={$MobileGUIStack === 0} onclick={() => {
             MobileGUIStack.set(0)
         }}>
-            <GlobeIcon size={24} />
-            <span class="text-xs">RisuRealm</span>
+            <UploadIcon size={24} />
+            <span class="text-xs">가져오기</span>
         </button>
         <button class="flex justify-center items-center flex-col gap-2 w-20" class:text-textcolor={$MobileGUIStack === 1} onclick={() => {
             MobileGUIStack.set(1)
