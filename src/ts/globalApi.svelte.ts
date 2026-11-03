@@ -46,6 +46,7 @@ import { isTauri, isNodeServer } from "./platform";
 import { isLocalNetworkUrl } from "./network/localNetwork";
 import { decodeProxyJobWsChunk, formatProxyStreamErrorMessage, parseProxyJobWsEvent } from "./network/proxyJobWs";
 import { getNodeServerProxyAuth } from "./storage/nodeStorage";
+import { shouldUsePlainFetch } from "./standalone";
 
 export const forageStorage = new AutoStorage()
 
@@ -695,7 +696,8 @@ export async function globalFetch(url: string, arg: GlobalFetchArgs = {}): Promi
 
         const urlHost = new URL(url).hostname
         const useLocalNetworkRoute = arg.networkRoute === 'local_network' && isLocalNetworkUrl(url)
-        const forcePlainFetch = ((knownHostes.includes(urlHost) && !isTauri) || db.usePlainFetch || arg.plainFetchForce) && !arg.plainFetchDeforce && !useLocalNetworkRoute
+        // 단독 빌드는 Risu 프록시에 접근할 수 없으므로 항상 직접 요청한다. (src/ts/standalone.ts)
+        const forcePlainFetch = ((knownHostes.includes(urlHost) && !isTauri) || shouldUsePlainFetch(db) || arg.plainFetchForce) && !arg.plainFetchDeforce && !useLocalNetworkRoute
 
         if (useLocalNetworkRoute && !isTauri && !isNodeServer) {
             return { ok: false, headers: {}, status: 400, data: webLocalNetworkBlockedMessage };
@@ -1776,7 +1778,7 @@ export async function fetchNative(url: string, arg: {
     if (useLocalNetworkRoute && !isTauri && !isNodeServer) {
         throw new Error(webLocalNetworkBlockedMessage)
     }
-    let throughProxy = (!isTauri) && (!isNodeServer) && (!db.usePlainFetch)
+    let throughProxy = (!isTauri) && (!isNodeServer) && (!shouldUsePlainFetch(db))
     if (useLocalNetworkRoute) {
         if (isNodeServer) {
             throughProxy = true

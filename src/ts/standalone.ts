@@ -89,3 +89,14 @@ export async function fetchPublicAsset(path: string, init?: RequestInit): Promis
     }
     throw lastError ?? new Error(`정적 파일을 가져오지 못했습니다: ${normalized}`)
 }
+
+/**
+ * AI 요청을 Risu 프록시 서버(sv.risuai.xyz/proxy2)를 거치지 않고 브라우저에서 직접 보낼지 여부.
+ *
+ * Risu 서버는 원본 사이트 주소에서 온 요청만 허용하므로, GitHub Pages 나 file:// 로 연
+ * 단독 빌드에서는 프록시를 쓰면 'Failed to fetch' 오류가 난다. 그래서 단독 빌드에서는 항상 직접 요청한다.
+ * (OpenAI, Anthropic, Google Gemini, OpenRouter 등 브라우저 직접 호출(CORS)을 허용하는 서비스는 정상 동작)
+ */
+export function shouldUsePlainFetch(db: { usePlainFetch?: boolean } | null | undefined): boolean {
+    return isStandalone || !!db?.usePlainFetch
+}

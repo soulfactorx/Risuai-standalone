@@ -13,6 +13,7 @@ import { extractJSON } from "../templates/jsonSchema"
 import { callTool, decodeToolCall, encodeToolCall } from "../mcp/mcp"
 import type { RequestDataArgumentExtended, requestDataResponse, StreamResponseChunk } from './request'
 import { applyAdditionalParameters, applyParameters, getAdditionalParameters } from './shared'
+import { shouldUsePlainFetch } from "../../standalone";
 
 interface Claude3TextBlock {
     type: 'text',
@@ -575,7 +576,8 @@ export async function requestClaude(arg:RequestDataArgumentExtended):Promise<req
         delete headers["x-api-key"]
     }
 
-    if(db.usePlainFetch){
+    // 브라우저에서 Anthropic API 를 직접 호출하려면 이 헤더가 필요하다.
+    if(shouldUsePlainFetch(db)){
         headers['anthropic-dangerous-direct-browser-access'] = 'true'
     }
 
