@@ -9,10 +9,10 @@
     import WelcomeRisu from './lib/Others/WelcomeRisu.svelte';
     import BookmarkList from './lib/Others/BookmarkList.svelte';
     import Settings from './lib/Setting/Settings.svelte';
-    import { showRealmInfoStore, importCharacterProcess } from './ts/characterCards';
-    import { importPreset, getDatabase, setDatabase } from './ts/storage/database.svelte';
-    import { readModule } from './ts/process/modules';
-    import { alertNormal } from './ts/alert';
+    import { showRealmInfoStore } from './ts/characterCards';
+    import { getDatabase, setDatabase } from './ts/storage/database.svelte';
+    import { formatImportResultsMd, importFiles } from './ts/fileImport';
+    import { alertMd } from './ts/alert';
     import { language } from './lang';
     import RealmFrame from './lib/UI/Realm/RealmFrame.svelte';
     import SavePopupIconComp from './lib/Others/SavePopupIcon.svelte';
@@ -77,29 +77,16 @@
         e.preventDefault()
         return
     }
-    const file = e.dataTransfer.files[0]
-    if (!file) {
+    const files = e.dataTransfer.files
+    if (!files || files.length === 0) {
         e.preventDefault()
         return
     }
     e.preventDefault()
-    const name = file.name.toLowerCase()
-
-    if (name.endsWith('.risup')) {
-        const data = new Uint8Array(await file.arrayBuffer())
-        await importPreset({ name: file.name, data })
-        alertNormal(language.successImport)
-    } else if (name.endsWith('.risum')) {
-        const data = new Uint8Array(await file.arrayBuffer())
-        const module = await readModule(Buffer.from(data))
-        DBState.db.modules.push(module)
-        alertNormal(language.successImport)
-    } else {
-        await importCharacterProcess({
-            name: file.name,
-            data: file
-        })
-        checkCharOrder()
+    // 캐릭터·모듈·프리셋을 파일 종류에 맞게 가져온다. (여러 파일 가능, src/ts/fileImport.ts)
+    const results = await importFiles(files)
+    if (results.length > 1 || results.some((v) => v.kind === 'module' || v.kind === 'preset' || !v.ok)) {
+        alertMd(formatImportResultsMd(results))
     }
 }} onclick={() => {
     if(keepingSessionAlive){

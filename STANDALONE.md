@@ -101,6 +101,23 @@ localStorage.setItem('risu_standalone_asset_base', 'https://example.com/risu-pub
 새 프롬프트를 추가하려면 `src/ts/prompts/customPrompts.ts` 의 `PROMPT_DEFINITIONS` 에 항목을 추가하고,
 사용하는 곳에서 `getPrompt(키)` / `fillPrompt(키, 치환값)` 으로 읽으면 화면에 자동으로 나타납니다.
 
+### 파일 가져오기 (RisuRealm 대체)
+
+GitHub Pages 와 HTML 파일 버전은 RisuRealm 서버에 접속할 수 없으므로(원본 사이트 주소에서만 허용),
+홈 화면의 RisuRealm 자리를 **파일 가져오기**로 바꿨습니다.
+
+- RisuRealm 등에서 직접 내려받은 파일을 **파일 선택** 버튼으로 고르거나 화면에 끌어다 놓으면 가져옵니다. 여러 파일을 한 번에 올릴 수 있습니다.
+- 캐릭터 추가(+) 메뉴의 **파일에서 가져오기**로도 사용할 수 있습니다.
+
+| 파일 | 가져오는 방식 |
+|------|---------------|
+| `.charx`, `.png`, `.jpg` | 캐릭터 (`이름.module.charx` 는 모듈) |
+| `.risum` | 모듈 |
+| `.json` | 모듈 형식(risuModule, 로어북, 정규식)이면 모듈, 아니면 캐릭터 카드 |
+| `.risup` | 프롬프트 프리셋 |
+
+구현: `src/ts/fileImport.ts`, `src/lib/UI/FileImportPanel.svelte`
+
 ### 한국어 전용
 
 한국어 외 언어 파일을 제거했고, 화면 언어는 항상 한국어입니다. (`src/lang/ko.ts`)
